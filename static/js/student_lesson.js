@@ -640,6 +640,7 @@ userAnswer = userAnswer.replace(/([0-9]*\.?[0-9]*|)\s*√\s*(\(?[a-zA-Z0-9+*/\s-
   const feedbackBlock = taskCard.querySelector('.task-feedback') || taskCard;
   let solutionNode = feedbackBlock.querySelector('.ai-solution');
   const grade = taskCard.dataset.grade || "неизвестно";
+  const studentGrade = taskCard.dataset.grade || 5;
   if (!solutionNode) {
     solutionNode = document.createElement('div');
     solutionNode.className = 'ai-solution';
@@ -705,6 +706,7 @@ const questionText = extractQuestionForAI(taskCard);
 
   const correctAnswer = taskCard.dataset.correctAnswer || '';
   const userId        = taskCard.dataset.userId || '';
+  
 
   try {
     const resp = await fetch('/api/ai_full_solution', {
@@ -714,7 +716,7 @@ const questionText = extractQuestionForAI(taskCard);
         task_id: taskId,
         question: questionText,
         correct_answer: correctAnswer,
-        grade: grade,
+        student_grade: studentGrade,
         user_id: userId
       })
     });

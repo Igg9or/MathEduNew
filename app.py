@@ -2219,10 +2219,12 @@ def ai_full_solution():
     data = request.get_json()
     question = data.get("question")
     correct_answer = data.get("correct_answer")
+    student_grade = data.get("student_grade", data.get("grade", 5))
     # user_id можно использовать для логов, если надо
 
     prompt = f"""
-    Ты — опытный учитель математики в российской школе.
+    Ты — преподаватель математики в российской школе. 
+Дай пошаговое объяснение решения задачи для ученика {student_grade} класса.
 Ты объясняешь материал в духе школьных учебников и методических пособий Минпросвещения РФ, но без заумных определений. Чтобы ученик все понял.
 Задача:
     "{question}"
