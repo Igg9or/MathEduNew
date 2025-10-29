@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Рейтинг класса</title>
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<style>
+body { font-family: 'Roboto', sans-serif; background:#f7f9fb; margin:0; padding:20px; }
+.rating-container { max-width:700px; margin:auto; background:white; border-radius:12px; padding:25px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+h1 { text-align:center; margin-bottom:20px; color:#333; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:10px; text-align:left; }
+th { background:#f0f0f0; font-weight:500; }
+tr:nth-child(even) { background:#fafafa; }
+tr.me { background:#e3f2fd; font-weight:600; }
+td:first-child { width:50px; text-align:center; }
+.percent { font-weight:600; color:#3498db; text-align:right; }
+.btn-back { display:inline-block; margin-top:10px; color:#2196F3; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="rating-container">
+    <h1>Рейтинг класса</h1>
+    <a href="{{ url_for('student_profile') }}" class="btn-back">← Назад в кабинет</a>
+    <table>
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Ученик</th>
+                <th>Решено верно</th>
+                <th>Процент</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for row in rating %}
+    <tr {% if row.user_id == user_id %}class="highlight"{% endif %}>
+      <td>{{ loop.index }}</td>
+      <td>{{ row.full_name }}</td>
+      <td>{{ row.total }}</td>
+      <td>{{ row.correct }}</td>
+      <td>{{ row.percent }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+    </table>
+</div>
+</body>
+</html>

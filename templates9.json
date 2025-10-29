@@ -1015,7 +1015,215 @@
     "ANS": { "type": "choice", "values": [43, 51, 24, 58, 37, 32, 53, 38, 44, 69, 43, 35] }
   },
   "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №1а Вычислите выражение a − b − 1/c",
+  "question_template": "Вычислите выражение:<br>\\( {a} - ({b} + \\frac{1}{ {c} }) \\)<br><i>Ответ запишите в виде обыкновенной дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 4, 6, 7, 9, 8, 10] },
+    "b": { "type": "choice", "values": [2, 4, 2, 5, 6, 7, 7, 8] },
+    "c": { "type": "choice", "values": [3, 2, 4, 5, 3, 4, 2, 4] },
+    "ANS": { "type": "choice", "values": ["2/3", "1/2", "7/4", "4/5", "2/3", "7/4", "1/2", "7/4"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №1б Найдите значение выражения d : e",
+  "question_template": "Вычислите выражение:<br>\\( {d} : {e} \\)<br><i>Ответ запишите в виде обыкновенной дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "d": { "type": "choice", "values": [3, 5, 4, 6, 7, 9, 8, 10] },
+    "e": { "type": "choice", "values": [2, 4, 2, 5, 6, 7, 7, 8] },
+    "ANS": { "type": "choice", "values": ["3/2", "5/4", "2", "6/5", "7/6", "9/7", "8/7", "10/8"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №1в Найдите значение выражения f + 1/g − 1/h",
+  "question_template": "Вычислите выражение:<br>\\( {f} + \\frac{1}{{g}} - \\frac{1}{{h}} \\)<br><i>Ответ запишите в виде обыкновенной дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "f": { "type": "choice", "values": [1, 2, 3, 1, 2, 3, 2, 4] },
+    "g": { "type": "choice", "values": [2, 4, 5, 3, 3, 2, 5, 4] },
+    "h": { "type": "choice", "values": [4, 2, 2, 6, 4, 3, 5, 2] },
+    "ANS": { "type": "choice", "values": ["5/4", "7/4", "13/5", "7/6", "29/12", "25/6", "2", "15/4"] }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №2 Найдите значение выражения a√n · b√n",
+  "question_template": "Найдите значение выражения:<br>\\( {a}\\sqrt{{n}} \\cdot {b}\\sqrt{{n}} \\)",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 4, 3, 5, 6, 7, 8, 9] },
+    "b": { "type": "choice", "values": [3, 2, 3, 2, 3, 1, 4, 2] },
+    "n": { "type": "choice", "values": [7, 5, 6, 8, 2, 9, 3, 10] },
+    "ANS": { "type": "choice", "values": [42, 40, 54, 80, 36, 63, 96, 180] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №3 Найдите больший корень уравнения (x−a)² = (x+b)²",
+  "question_template": "Найдите больший корень уравнения:<br>\\( (x - {a})^2 = (x + {b})^2 \\)",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 2, 3, 1, 2, 4, 5, 7] },
+    "b": { "type": "choice", "values": [4, 5, 6, 2, 3, 1, 2, 3] },
+    "ANS": { "type": "choice", "values": [-1.5, -1.5, -1.5, -0.5, -0.5, 1.5, 1.5, 2] }
+  },
+  "conditions": "Если корней несколько — укажите больший."
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №4 Вероятность: все девочки сидят рядом",
+  "question_template": "Найдите вероятность того, что при случайной рассадке за круглым столом группы, состоящей из {m} мальчиков и {g} девочек, <b>все девочки будут сидеть рядом</b>.<br><br>Используйте формулу:<br>\\( P = \\frac{{{m}! \\cdot {g}!}}{{({m} + {g} - 1)!}} \\)<br><br>Ответ запишите в виде десятичной дроби.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [7, 4, 3, 1, 3, 2] },
+    "g": { "type": "choice", "values": [2, 2, 3, 2, 2, 3] },
+    "ANS": { "type": "choice", "values": [0.25, 0.4, 0.05, 1, 0.5, 0.5] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №5 Перевод температуры из шкалы Фаренгейта в шкалу Цельсия",
+  "question_template": "Чтобы перевести значение температуры по шкале Цельсия в шкалу Фаренгейта, пользуются формулой:<br><br>\\( F = 1,8C + 32 \\)<br><br>где \\( C \\) — градусы Цельсия, \\( F \\) — градусы Фаренгейта.<br><br>Какая температура по шкале Цельсия соответствует {F}° по шкале Фаренгейта?",
+  "answer_template": "{C}",
+  "answer_type": "numeric",
+  "parameters": {
+    "F": { "type": "choice", "values": [50, 68, 86, 104, 32, 14, 5, 122] },
+    "C": { "type": "choice", "values": [10, 20, 30, 40, 0, -10, -15, 50] }
+  },
+  "conditions": ""
+},  
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №6 Система неравенств",
+  "question_template": "Решите систему неравенств:<br><br>{a}x − {b} ≥ 0;  x − {c} ≤ {d}.<br><br>Ответ запишите в виде промежутка.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 4, 3, 5] },
+    "b": { "type": "choice", "values": [5, 8, 6, 10] },
+    "c": { "type": "choice", "values": [3, 1, 0, 2] },
+    "d": { "type": "choice", "values": [2, 3, 6, 1] },
+    "ANS": { "type": "choice", "values": ["[2.5;5]", "[2;4]", "[2;6]", "[2;3]"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ Вариант 2 №7 Последовательность",
+  "question_template": "Дана последовательность:<br><br>\\( b_1 = {p}; \\quad b_{n+1} = \\frac{1}{b_n} + {q}. \\)<br><br>Найдите \\( b_3. \\)",
+  "answer_template": "{b3}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [2, 4, 5, 10] },
+    "q": { "type": "choice", "values": [0.5, 0.25, 0.2, 0.1] },
+    "b3": { "type": "choice", "values": [1.5, 2.25, 2.7, 5.1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ.29 октября. №1.12 Площадь четырёхугольника",
+  "question_template": "Площадь четырёхугольника вычисляется по формуле:<br>\\( S = \\dfrac{d_1 d_2 \\sin \\alpha}{2} \\)<br>Найдите длину диагонали \\( d_2 \\), если:<br>\\( S = {S},\\ d_1 = {d1},\\ \\sin \\alpha = {sin_a} \\).<br><i>Ответ запишите числом</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "S": { "type": "choice", "values": [19, 15, 24, 18, 12, 20, 27, 16] },
+    "d1": { "type": "choice", "values": [6, 5, 8, 9, 4, 5, 9, 6.4] },
+    "sin_a": { "type": "choice", "values": ["1/3", "1/2", "3/5", "2/5", "1/2", "4/5", "3/4", "1/2"] },
+    "ANS": { "type": "choice", "values": [19, 12, 10, 10, 12, 10, 8, 10] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ. 29 октября. №1.13 Неравенство ax + b ≤ cx + d",
+  "question_template": "Решите неравенство:<br>\\( {a}x + {b} \\le {c}x + {d} \\)<br><i>Ответ введите в виде промежутка, например (-∞; -3]</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [-2, -3, -4, -5, -6, -2, -3, -5] },
+    "b": { "type": "choice", "values": [5, 7, 2, 8, 4, 3, 5, 10] },
+    "c": { "type": "choice", "values": [-3, -5, -6, -7, -8, -4, -4, -6] },
+    "d": { "type": "choice", "values": [-3, 1, -10, 2, -8, -5, 1, 4] },
+    "ANS": { "type": "choice", "values": ["(-∞; -8]", "(-∞; -3]", "(-∞; -6]", "(-∞; -3]", "(-∞; -6]", "(-∞; -4]", "(-∞; -4]", "(-∞; -6]"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ. 29 октября. №1.10 Вероятность выбора чашки с синими цветами",
+  "question_template": "У бабушки {n} чашек: {a} — с красными цветами, остальные — с синими.<br>Бабушка наливает чай в случайно выбранную чашку.<br>Найдите вероятность того, что это будет чашка с синими цветами.<br><i>Ответ запишите в виде десятичной дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "n": { "type": "choice", "values": [10, 20, 8, 40, 50, 100, 16, 25] },
+    "a": { "type": "choice", "values": [7, 15, 6, 30, 30, 75, 12, 20] },
+    "ANS": { "type": "choice", "values": [0.3, 0.25, 0.25, 0.25, 0.4, 0.25, 0.25, 0.2] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ. 29 октября. №1.6 Деление дробей",
+  "question_template": "Найдите значение выражения:<br>\\( \\dfrac{{{a}}}{{{b}}} : \\dfrac{{{c}}}{{{d}}} \\)<br><i>Ответ запишите в виде десятичного числа</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 8, 6, 7, 12, 10, 5, 6] },
+    "b": { "type": "choice", "values": [5, 4, 5, 2, 8, 4, 2, 3] },
+    "c": { "type": "choice", "values": [2, 5, 3, 5, 3, 5, 8, 4] },
+    "d": { "type": "choice", "values": [3, 2, 2, 7.5, 2, 8, 10, 5] },
+    "ANS": { "type": "choice", "values": [2.7, 0.8, 0.8, 5.25, 1.0, 4.0, 3.125, 2.5] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ. 29 октября. №1.8 Степени с одинаковыми основаниями",
+  "question_template": "Найдите значение выражения:<br>\\( \\dfrac{{a^{m}}}{{a^{n} \\cdot a^{p}}} \\), при \\( a = {q} \\).<br><i>Ответ запишите числом</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [3.33, 4.6, 5.5, 4.0, 6.2, 7.8, 3.5, 8.1] },
+    "n": { "type": "choice", "values": [2.11, 2.3, 3.2, 1.5, 3.1, 4.5, 1.2, 5.0] },
+    "p": { "type": "choice", "values": [2.22, 3.3, 3.3, 3.5, 4.1, 4.3, 3.3, 4.1] },
+    "q": { "type": "choice", "values": ["2/7", "1/4", "2/5", "4/5", "5/8", "1/2", "4/5", "2/3"] },
+    "ANS": { "type": "choice", "values": [3.5, 4.0, 2.5, 1.25, 1.6, 2.0, 1.25, 1.5] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "ОГЭ. 29 октября. №1.9 Квадратные уравнения с одинаковыми выражениями",
+  "question_template": "Найдите корень уравнения:<br>\\( (x + {a})^2 = (x + {b})^2 \\)<br><i>Ответ запишите числом</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 4, 2, 5, 1, 2.5, 4, 3] },
+    "b": { "type": "choice", "values": [8, 10, 6, 9, 11, 5.5, 7, 9] },
+    "ANS": { "type": "choice", "values": [-5.5, -7, -4, -7, -6, -4, -5.5, -6] }
+  },
+  "conditions": ""
 }
+
 
 
 ]

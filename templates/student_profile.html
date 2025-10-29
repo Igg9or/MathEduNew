@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Личный кабинет ученика</h1>
+            <div class="user-info">
+                <span>{{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+
+            <div style="text-align:right; margin-bottom:10px;">
+    <a href="{{ url_for('student_class_rating') }}" class="btn btn-blue">🏅 Рейтинг класса</a>
+</div>
+        </header>
+
+        <main class="dashboard-main">
+            <section class="stats-summary">
+    <h2>Общая статистика</h2>
+    <div class="stats-cards">
+        <div class="stat-card correct">
+            <h3>Правильные</h3>
+            <p id="correctCount">0</p>
+        </div>
+        <div class="stat-card incorrect">
+            <h3>Ошибочные</h3>
+            <p id="incorrectCount">0</p>
+        </div>
+        <div class="stat-card success">
+            <h3>Успеваемость</h3>
+            <p id="successPercent">0%</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="successBar"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+            <section class="lessons-list">
+                <h2>Ваши уроки</h2>
+                <ul class="lesson-tree">
+                    {% for lesson in lessons %}
+                    <li class="lesson-item {% if lesson.incorrect_tasks == 0 and lesson.total_tasks %}completed{% endif %}">
+                        <div class="lesson-info">
+                            <div class="lesson-meta">
+                                <h3>{{ lesson.title }}</h3>
+                                <p class="lesson-date">📅 {{ lesson.date }}</p>
+                            </div>
+                            <div class="lesson-progress">
+                                <div class="progress-bar">
+                                    {% set percent = (lesson.correct_tasks or 0) / (lesson.total_tasks or 1) * 100 %}
+                                    <div class="progress-fill" style="width: {{ percent|round(0) }}%"></div>
+                                </div>
+                                <span class="progress-text">
+                                    {{ lesson.correct_tasks or 0 }}/{{ lesson.total_tasks or 0 }} верно
+                                </span>
+                            </div>
+                            <div class="lesson-actions">
+                                {% if (lesson.incorrect_tasks or 0) > 0 %}
+                                    <a href="{{ url_for('student_retry_lesson', lesson_id=lesson.id) }}" class="btn btn-retry">Перерешать ошибки ({{ lesson.incorrect_tasks }})</a>
+                                {% else %}
+                                    <span class="lesson-complete">✅ Урок пройден</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const res = await fetch("/student/statistics");
+        const data = await res.json();
+
+        const total = (data.correct_answers || 0) + (data.incorrect_answers || 0);
+        const successPercent = total ? Math.round((data.correct_answers / total) * 100) : 0;
+
+        document.getElementById("correctCount").textContent = data.correct_answers || 0;
+        document.getElementById("incorrectCount").textContent = data.incorrect_answers || 0;
+        document.getElementById("successPercent").textContent = successPercent + "%";
+        document.getElementById("successBar").style.width = successPercent + "%";
+    } catch (err) {
+        console.error("Ошибка при загрузке статистики:", err);
+    }
+});
+</script>
+
+<style>
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #f5f6fa;
+    margin: 0;
+    padding: 0;
+}
+.dashboard-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-logout {
+    color: #fff;
+    background-color: #f44336;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+.lesson-tree {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.lesson-item {
+    background: #fff;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.lesson-item.completed {
+    opacity: 0.7;
+}
+.lesson-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.lesson-meta h3 {
+    margin: 0;
+    font-size: 18px;
+}
+.lesson-meta p {
+    margin: 5px 0 0;
+    color: #666;
+}
+.lesson-progress {
+    flex-grow: 1;
+    margin: 0 20px;
+}
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.progress-fill {
+    height: 10px;
+    background: #4CAF50;
+}
+.lesson-actions .btn-retry {
+    background: #2196F3;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+.lesson-actions .lesson-complete {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.stats-summary {
+    margin-bottom: 30px;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.stat-card p {
+    margin: 10px 0 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.stat-card.correct p {
+    color: #2ecc71;
+}
+.stat-card.incorrect p {
+    color: #e74c3c;
+}
+.stat-card.success p {
+    color: #3498db;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #eaeaea;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-fill {
+    height: 8px;
+    background: #3498db;
+    border-radius: 6px;
+    width: 0%;
+    transition: width 0.6s ease;
+}
+
+</style>
+
+</body>
+</html>

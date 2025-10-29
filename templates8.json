@@ -3300,7 +3300,998 @@
     "ANS": { "type": "choice", "values": ["(4a^2 - 5b^2)/(20(a - b))", "(2a^2 - 3b^2)/(6(a - b))", "(3a^2 - 4b^2)/(12(a - b))", "(a^2 - 2b^2)/(2(a - b))", "(5a^2 - 6b^2)/(30(a - b))", "(2a^2 - b^2)/(6(a - b))", "(2a^2 - b^2)/(8(a - b))", "(5a^2 - 7b^2)/(35(a - b))"] }
   },
   "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 1а Сокращение дробей с переменными",
+  "question_template": "Сократите дробь:<br>\\( \\tfrac{{{a}x^{{m}}y^{{n}}}}{{{b}x^{{p}}y^{{q}}}} \\)<br><i>Ответ запишите в виде упрощённой дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [12, 15, 8, 9, 14, 10, 18, 16] },
+    "b": { "type": "choice", "values": [18, 25, 20, 27, 21, 40, 24, 64] },
+    "m": { "type": "choice", "values": [4, 5, 6, 3, 5, 4, 7, 3] },
+    "p": { "type": "choice", "values": [3, 2, 3, 1, 4, 2, 5, 1] },
+    "n": { "type": "choice", "values": [2, 3, 4, 2, 3, 5, 4, 2] },
+    "q": { "type": "choice", "values": [1, 1, 2, 2, 1, 3, 1, 0] },
+    "ANS": { "type": "choice", "values": ["2xy/3", "3x^3y^2/5", "2x^3y^2/5", "x^2/3", "2xy^2/3", "x^2y^2/4", "3x^2y^3/4", "x^2y^2/4"] }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 1б Сокращение дробей с многочленами",
+  "question_template": "Сократите дробь:<br>\\( \\tfrac{{{a}mn - {b}m}}{{{c}mn}} \\)<br><i>Ответ запишите в виде упрощённой дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [18, 16, 12, 15, 21, 10, 14, 20] },
+    "b": { "type": "choice", "values": [27, 24, 30, 25, 42, 15, 28, 35] },
+    "c": { "type": "choice", "values": [9, 8, 6, 5, 7, 5, 7, 5] },
+    "ANS": { "type": "choice", "values": ["(2n - 3)/n", "(2n - 3)/n", "(2n - 5)/n", "(3n - 5)/n", "(3n - 6)/n", "(2n - 3)/n", "(2n - 4)/n", "(4n - 7)/n"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 2а",
+  "question_template": "Представьте в виде дроби:<br>\\( \\tfrac{m}{{{D}p}} - \\tfrac{m-p}{{{D}p}} \\)<br><i>Ответ в виде дроби</i>",
+  "answer_template": "1/{D}",
+  "answer_type": "string",
+  "parameters": {
+    "D": { "type": "choice", "values": [2,3,4,5,6,7,8,9] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 2б",
+  "question_template": "Представьте в виде дроби:<br>\\( \\tfrac{a+b}{{{D}}} - \\tfrac{a-{K}b}{{{D}}} \\)<br><i>Ответ в виде дроби</i>",
+  "answer_template": "{1+K}b/{D}",
+  "answer_type": "string",
+  "parameters": {
+    "D": { "type": "choice", "values": [4,6,8,10,12,14,16,18] },
+    "K": { "type": "choice", "values": [1,2,3,4,5,6,7,8] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 3 Вычитание алгебраических дробей",
+  "question_template": "Выполните вычитание:<br>\\( \\tfrac{{y - {a}}}{{{b}y}} - \\tfrac{{{c} - {d}y}}{{y^2}} \\)<br><i>Ответ запишите в виде одной дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 6, 9, 7, 10, 4, 5, 6] },
+    "b": { "type": "choice", "values": [2, 3, 2, 4, 5, 2, 3, 6] },
+    "c": { "type": "choice", "values": [3, 4, 5, 2, 6, 2, 3, 4] },
+    "d": { "type": "choice", "values": [4, 2, 3, 5, 3, 3, 4, 5] },
+    "ANS": { "type": "choice", "values": ["(y^2 - 6)/(2y^2)", "(y^2 - 12)/(3y^2)", "(y^2 - 10)/(2y^2)", "(y^2 - 8)/(4y^2)", "(y^2 - 12)/(5y^2)", "(y^2 - 4)/(2y^2)", "(y^2 - 6)/(3y^2)", "(y^2 - 8)/(6y^2)"] }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №1. Задание 4б Вычитание алгебраических дробей",
+  "question_template": "Выполните вычитание:<br>\\( \\tfrac{{{p}}}{{a^2 + {q}a}} - \\tfrac{{{r}}}{{a}} \\)<br><i>Ответ запишите в виде одной дроби.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [20, 9, 4, 30, 18, 14, 2, 32] },
+    "q": { "type": "choice", "values": [4, 3, 2, 5, 6, 7, 1, 8] },
+    "r": { "type": "choice", "values": [5, 3, 2, 6, 3, 2, 2, 4] },
+    "ANS": { "type": "choice", "values": ["-5/(a + 4)", "-3/(a + 3)", "-2/(a + 2)", "-6/(a + 5)", "-3/(a + 6)", "-2/(a + 7)", "-2/(a + 1)", "-4/(a + 8)"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "110.а Умножение дробей с переменными",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{A}}}{{{B}{X}}} \\cdot \\tfrac{{{C}{Y}}}{{{D}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [4, 6, 5, 7, 8, 10, 9, 12] },
+    "B": { "type": "choice", "values": [5, 9, 2, 3, 12, 15, 6, 8] },
+    "C": { "type": "choice", "values": [10, 3, 6, 9, 9, 6, 8, 10] },
+    "D": { "type": "choice", "values": [8, 4, 15, 14, 4, 20, 3, 9] },
+    "X": { "type": "choice", "values": ["x", "a", "m", "p", "x", "a", "m", "x"] },
+    "Y": { "type": "choice", "values": ["y", "b", "n", "q", "y", "b", "n", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "y/x",
+        "b/2a",
+        "n/m",
+        "3q/2p",
+        "3y/2x",
+        "b/5a",
+        "4n/m",
+        "5y/3x"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "110.б Умножение дробей с переменными",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{A}{X}}}{{{B}{Y}}} \\cdot \\tfrac{{{C}}}{{{D}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [5, 3, 6, 7, 9, 8, 10, 12] },
+    "B": { "type": "choice", "values": [8, 4, 10, 12, 15, 20, 16, 18] },
+    "C": { "type": "choice", "values": [7, 8, 5, 6, 5, 15, 8, 9] },
+    "D": { "type": "choice", "values": [10, 9, 9, 14, 6, 12, 25, 8] },
+    "X": { "type": "choice", "values": ["x", "a", "p", "m", "x", "a", "p", "x"] },
+    "Y": { "type": "choice", "values": ["y", "b", "q", "n", "y", "b", "q", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "7x/16y",
+        "2a/3b",
+        "p/3q",
+        "m/4n",
+        "x/2y",
+        "a/2b",
+        "p/5q",
+        "3x/4y"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "110.в Умножение дробей с квадратом переменной",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{X}^2}}{{{B}}} \\cdot \\tfrac{{{C}}}{{{X}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "X": { "type": "choice", "values": ["b", "a", "p", "x", "m", "y", "k", "t"] },
+    "B": { "type": "choice", "values": [10, 8, 9, 12, 15, 16, 18, 20] },
+    "C": { "type": "choice", "values": [5, 4, 3, 6, 5, 8, 9, 10] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "b/2",
+        "a/2",
+        "p/3",
+        "x/2",
+        "m/3",
+        "y/2",
+        "k/2",
+        "t/2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "110.г Умножение дробей с показателями степени",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{A}}}{{{X}^{{M}}}} \\cdot \\tfrac{{{X}^{{N}}}}{{{C}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [18, 14, 12, 20, 10, 24, 16, 9] },
+    "C": { "type": "choice", "values": [24, 21, 18, 25, 15, 36, 24, 12] },
+    "X": { "type": "choice", "values": ["c", "d", "x", "y", "p", "k", "m", "t"] },
+    "M": { "type": "choice", "values": [4, 5, 3, 4, 5, 3, 4, 5] },
+    "N": { "type": "choice", "values": [3, 3, 2, 2, 3, 2, 3, 3] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "3/4c",
+        "2/3d^2",
+        "2/3x",
+        "4/5y^2",
+        "2/3p^2",
+        "2/3k",
+        "2/3m",
+        "3/4t^2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "111.а Умножение дробей с разными степенями переменных",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{A}{X}}}{{{B}{Y}}} \\cdot \\tfrac{{{C}}}{{{D}{X}^2}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [3, 5, 7, 6, 9, 4, 8, 5] },
+    "B": { "type": "choice", "values": [4, 6, 8, 5, 10, 9, 3, 12] },
+    "C": { "type": "choice", "values": [10, 9, 4, 15, 5, 18, 6, 8] },
+    "D": { "type": "choice", "values": [3, 5, 7, 9, 6, 8, 4, 10] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "Y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "5/2xy",
+        "3/2xy",
+        "1/2xy",
+        "2/xy",
+        "3/4xy",
+        "1/y",
+        "4/y",
+        "1/3y"
+      ]
+    }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "111.в Умножение дробей со степенями переменных",
+  "question_template": "Выполните умножение:<br>\\( \\tfrac{{{A}{X}^{{M}}}}{{{B}{Y}^{{N}}}} \\cdot {{C}{Y}^{{K}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [7, 5, 9, 8, 6, 10, 12, 14] },
+    "B": { "type": "choice", "values": [24, 20, 27, 16, 18, 25, 30, 28] },
+    "C": { "type": "choice", "values": [8, 6, 6, 4, 9, 5, 10, 6] },
+    "M": { "type": "choice", "values": [3, 2, 3, 2, 3, 2, 3, 2] },
+    "N": { "type": "choice", "values": [1, 1, 2, 1, 1, 1, 1, 1] },
+    "K": { "type": "choice", "values": [2, 3, 4, 3, 2, 2, 3, 2] },
+    "X": { "type": "choice", "values": ["a", "x", "m", "p", "x", "a", "k", "p"] },
+    "Y": { "type": "choice", "values": ["b", "y", "n", "q", "y", "b", "t", "q"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "7a^3b/3",
+        "3x^2y^2/2",
+        "2m^3n^2",
+        "2p^2q^2",
+        "3x^3y",
+        "2a^2b",
+        "4k^3t^2",
+        "3p^2q"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "111.г Умножение дробей с показателями переменной в знаменателе",
+  "question_template": "Выполните умножение:<br>\\( {{A}{X}{Y}} \\cdot \\tfrac{1}{{{B}{Y}^{{N}}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [14, 18, 20, 16, 12, 15, 21, 10] },
+    "B": { "type": "choice", "values": [21, 24, 25, 32, 18, 30, 28, 20] },
+    "N": { "type": "choice", "values": [3, 4, 2, 3, 4, 2, 3, 5] },
+    "X": { "type": "choice", "values": ["a", "x", "m", "p", "a", "x", "k", "a"] },
+    "Y": { "type": "choice", "values": ["b", "y", "n", "q", "c", "z", "t", "b"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "2a/3b^2",
+        "3x/4y^3",
+        "4m/5n",
+        "p/2q^2",
+        "2a/3c^3",
+        "x/2z",
+        "3k/4t^2",
+        "a/2b^4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "112.а Умножение и упрощение дробей со степенями переменных",
+  "question_template": "Выполните умножение и упростите:<br>\\( \\tfrac{{{A}}}{{{B1}{X}}} \\cdot \\tfrac{{{X}^{{M}}}}{{{B2}{Avar}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [12, 8, 10, 9, 14, 16, 18, 20] },
+    "B1": { "type": "choice", "values": [5, 4, 6, 3, 7, 8, 6, 5] },
+    "B2": { "type": "choice", "values": [12, 16, 15, 9, 14, 4, 9, 10] },
+    "M": { "type": "choice", "values": [3, 2, 3, 4, 3, 2, 3, 4] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "Avar": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "x^2/5a",
+        "x/8a",
+        "x^2/9a",
+        "x^3/3a",
+        "x^2/7a",
+        "x/2a",
+        "x^2/3a",
+        "2x^3/5a"
+      ]
+    }
+  },
+  "conditions": ""
+},
+
+{
+  "textbook_id": 6,
+  "name": "112.б Умножение и упрощение дробей со степенями переменных",
+  "question_template": "Выполните умножение и упростите:<br>\\( \\tfrac{{{A}{Cvar}^{{M}}}}{{{B1}{N}}} \\cdot \\tfrac{1}{{{B2}{Cvar}^{{K}}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [8, 9, 10, 6, 12, 14, 20, 16] },
+    "B1": { "type": "choice", "values": [15, 18, 20, 9, 24, 21, 25, 12] },
+    "B2": { "type": "choice", "values": [4, 6, 5, 3, 8, 7, 10, 6] },
+    "M": { "type": "choice", "values": [2, 3, 2, 4, 2, 5, 3, 4] },
+    "K": { "type": "choice", "values": [2, 2, 3, 2, 1, 3, 4, 2] },
+    "Cvar": { "type": "choice", "values": ["c", "c", "c", "c", "c", "c", "c", "c"] },
+    "N": { "type": "choice", "values": ["m", "n", "p", "a", "b", "k", "m", "t"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "2/15m",
+        "c/12n",
+        "1/10pc",
+        "2c^2/9a",
+        "c/16b",
+        "2c^2/21k",
+        "2/25mc",
+        "2c^2/9t"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "112.в Умножение и упрощение дробей с показателями степени переменной",
+  "question_template": "Выполните умножение и упростите:<br>\\( \\tfrac{{{C}{A}^{{M}}}}{{{D}}} \\cdot \\tfrac{{{E}{B}}}{{{A}^{{N}}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "C": { "type": "choice", "values": [14, 9, 15, 8, 21, 10, 16, 12, 18, 25, 22, 24] },
+    "D": { "type": "choice", "values": [7, 3, 5, 4, 7, 5, 8, 6, 9, 5, 11, 12] },
+    "E": { "type": "choice", "values": [10, 4, 6, 9, 8, 7, 9, 5, 7, 4, 6, 11] },
+    "M": { "type": "choice", "values": [3, 6, 2, 5, 7, 1, 4, 3, 4, 2, 5, 3] },
+    "N": { "type": "choice", "values": [5, 2, 5, 5, 3, 4, 6, 1, 4, 3, 2, 7] },
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "20b/a^2",
+        "12ba^4",
+        "18b/a^3",
+        "18b",
+        "24ba^4",
+        "14b/a^3",
+        "18b/a^2",
+        "10ba^2",
+        "14b",
+        "20b/a",
+        "12ba^3",
+        "22b/a^4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "112.г Умножение и упрощение дробей с разными степенями переменных",
+  "question_template": "Выполните умножение и упростите:<br>\\( \\tfrac{{{A}{Nvar}^{{P}}}}{{{B1}{Mvar}^{{Q}}}} \\cdot \\tfrac{{{B2}{Mvar}}}{{{B3}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [4, 5, 6, 7, 8, 10, 9, 12] },
+    "B1": { "type": "choice", "values": [3, 4, 9, 5, 6, 8, 6, 9] },
+    "B2": { "type": "choice", "values": [9, 8, 12, 10, 9, 12, 15, 18] },
+    "B3": { "type": "choice", "values": [2, 2, 3, 4, 3, 4, 5, 6] },
+    "P": { "type": "choice", "values": [2, 3, 2, 3, 2, 4, 2, 3] },
+    "Q": { "type": "choice", "values": [2, 2, 3, 2, 2, 3, 2, 3] },
+    "Mvar": { "type": "choice", "values": ["m", "m", "m", "m", "m", "m", "m", "m"] },
+    "Nvar": { "type": "choice", "values": ["n", "n", "n", "n", "n", "n", "n", "n"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "6n^2/m",
+        "5n^3/m",
+        "8n^2/3m^2",
+        "7n^3/2m",
+        "4n^2/m",
+        "15n^4/4m^2",
+        "9n^2/2m",
+        "4n^3/m^2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "113.a Умножение и упрощение выражений с показателями степеней переменных",
+  "question_template": "Выполните умножение и упростите:<br>\\( {{C}{X}^{{M}}} \\cdot \\tfrac{{{D}}}{{{E}{X}^{{N}}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "C": { "type": "choice", "values": [12, 18, 10, 20, 9, 16, 14, 8, 25, 18, 21, 15] },
+    "D": { "type": "choice", "values": [5, 4, 9, 7, 8, 6, 10, 9, 4, 5, 7, 8] },
+    "E": { "type": "choice", "values": [8, 6, 15, 10, 12, 8, 7, 6, 10, 9, 14, 10] },
+    "M": { "type": "choice", "values": [2, 3, 1, 4, 2, 5, 3, 2, 1, 4, 3, 2] },
+    "N": { "type": "choice", "values": [4, 5, 3, 5, 1, 3, 6, 2, 2, 4, 5, 3] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "15/2x^2",
+        "12/x^2",
+        "6/x^2",
+        "14/x",
+        "6x",
+        "12x^2",
+        "20/x^3",
+        "12",
+        "10/x",
+        "10",
+        "21/2x^2",
+        "12/x"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "113.в Умножение и упрощение дробей с переменной в знаменателе",
+  "question_template": "Выполните умножение и упростите:<br>\\( \\tfrac{{{A}}}{{{B1}{Y}^{{P}}}} \\cdot {{B2}{Y}^{{Q}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [25, 18, 20, 16, 10, 12, 15, 9] },
+    "B1": { "type": "choice", "values": [16, 12, 15, 8, 25, 9, 20, 6] },
+    "B2": { "type": "choice", "values": [2, 3, 6, 4, 5, 3, 8, 2] },
+    "P": { "type": "choice", "values": [2, 2, 3, 2, 3, 2, 3, 1] },
+    "Q": { "type": "choice", "values": [2, 1, 2, 1, 2, 2, 1, 3] },
+    "Y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "25/8",
+        "9/2y",
+        "8/y",
+        "8/y",
+        "2/y",
+        "4",
+        "6/y^2",
+        "3y^2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "113.б Умножение и упрощение выражений с показателями степеней переменных",
+  "question_template": "Выполните умножение и упростите:<br>\\( {{C}{X}^{{M}}} \\cdot \\tfrac{{{D}}}{{{E}{X}^{{N}}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "C": { "type": "choice", "values": [12, 18, 10, 20, 9, 16, 14, 8, 25, 18, 21, 15] },
+    "D": { "type": "choice", "values": [5, 4, 9, 7, 8, 6, 10, 9, 4, 5, 7, 8] },
+    "E": { "type": "choice", "values": [8, 6, 15, 10, 12, 8, 7, 6, 10, 9, 14, 10] },
+    "M": { "type": "choice", "values": [2, 3, 1, 4, 2, 5, 3, 2, 1, 4, 3, 2] },
+    "N": { "type": "choice", "values": [4, 5, 3, 5, 1, 3, 6, 2, 2, 4, 5, 3] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "15/2x^2",
+        "12/x^2",
+        "6/x^2",
+        "14/x",
+        "6x",
+        "12x^2",
+        "20/x^3",
+        "12",
+        "10/x",
+        "10",
+        "21/2x^2",
+        "12/x"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "117.а Возведение дроби в степень",
+  "question_template": "Вычислите:<br>\\( \\left( \\tfrac{{{A}}}{{{B}{C}}} \\right)^{{N}} \\)<br><i>Ответ в виде степени с переменными</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": ["x", "m", "t", "a", "r", "n", "p", "y", "x", "f", "h", "a"] },
+    "B": { "type": "choice", "values": [2, 3, 2, 4, 5, 2, 3, 4, 5, 2, 3, 2] },
+    "C": { "type": "choice", "values": ["y", "p", "k", "b", "s", "m", "q", "z", "k", "g", "t", "d"] },
+    "N": { "type": "choice", "values": [3, 2, 4, 2, 3, 2, 3, 2, 2, 4, 3, 3] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "x^3/8y^3",
+        "m^2/9p^2",
+        "t^4/16k^4",
+        "a^2/16b^2",
+        "r^3/125s^3",
+        "n^2/4m^2",
+        "p^3/27q^3",
+        "y^2/16z^2",
+        "x^2/25k^2",
+        "f^4/16g^4",
+        "h^3/27t^3",
+        "a^3/8d^3"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "117.б Возведение в степень дроби с коэффициентом",
+  "question_template": "Вычислите:<br>\\( \\left( \\tfrac{{{P}{A}}}{{{Q}}} \\right)^{{N}} \\)<br><i>Ответ в виде степени с переменными</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "P": { "type": "choice", "values": [3, 2, 4, 5, 2, 3, 4, 2, 3, 5, 4, 2] },
+    "A": { "type": "choice", "values": ["a", "x", "m", "t", "p", "k", "b", "a", "r", "y", "n", "h"] },
+    "Q": { "type": "choice", "values": ["c", "y", "n", "r", "q", "l", "d", "f", "s", "z", "p", "k"] },
+    "N": { "type": "choice", "values": [4, 3, 2, 3, 2, 3, 2, 3, 2, 2, 3, 4] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "81a^4/c^4",
+        "8x^3/y^3",
+        "16m^2/n^2",
+        "125t^3/r^3",
+        "4p^2/q^2",
+        "27k^3/l^3",
+        "16b^2/d^2",
+        "8a^3/f^3",
+        "9r^2/s^2",
+        "25y^2/z^2",
+        "64n^3/p^3",
+        "16h^4/k^4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+
+
+{
+  "textbook_id": 6,
+  "name": "118.а Возведение в степень дроби с произведением в знаменателе",
+  "question_template": "Вычислите:<br>\\( \\left( \\tfrac{{{K}{A}}}{{{P}^{{R}}{{Q}^{{S}}}}} \\right)^{{N}} \\)<br><i>Ответ в виде степени с переменными</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "K": { "type": "choice", "values": [2, 3, 4, 5, 2, 3, 4, 2] },
+    "A": { "type": "choice", "values": ["a", "x", "m", "y", "b", "k", "t", "z"] },
+    "P": { "type": "choice", "values": ["p", "r", "n", "p", "m", "r", "p", "a"] },
+    "R": { "type": "choice", "values": [2, 1, 2, 1, 3, 2, 3, 1] },
+    "Q": { "type": "choice", "values": ["q", "s", "t", "q", "n", "s", "q", "b"] },
+    "S": { "type": "choice", "values": [3, 2, 1, 1, 2, 3, 2, 1] },
+    "N": { "type": "choice", "values": [4, 3, 2, 3, 2, 2, 3, 5] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "16a^4/p^8q^12",
+        "27x^3/r^3s^6",
+        "16m^2/n^4t^2",
+        "125y^3/p^3q^3",
+        "4b^2/m^6n^4",
+        "9k^2/r^4s^6",
+        "64t^3/p^9q^6",
+        "32z^5/a^5b^5"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "118.б Возведение в степень сложной дроби с несколькими степенями переменных",
+  "question_template": "Вычислите:<br>\\( \\left( \\tfrac{{{K}{A}^{{R}}{{B}^{{S}}}}}{{{T}^{{M}}}} \\right)^{{N}} \\)<br><i>Ответ в виде степени с переменными</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "K": { "type": "choice", "values": [3, 2, 4, 5, 2, 3, 2, 5] },
+    "A": { "type": "choice", "values": ["a", "x", "m", "t", "p", "a", "h", "x"] },
+    "R": { "type": "choice", "values": [2, 1, 2, 3, 2, 3, 1, 2] },
+    "B": { "type": "choice", "values": ["b", "y", "n", "r", "q", "b", "k", "y"] },
+    "S": { "type": "choice", "values": [3, 2, 1, 2, 2, 1, 3, 2] },
+    "T": { "type": "choice", "values": ["s", "p", "q", "s", "r", "c", "l", "z"] },
+    "M": { "type": "choice", "values": [4, 3, 2, 3, 4, 2, 3, 2] },
+    "N": { "type": "choice", "values": [2, 3, 2, 2, 3, 2, 2, 3] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "9a^4b^6/s^8",
+        "8x^3y^6/p^9",
+        "16m^4n^2/q^4",
+        "25t^6r^4/s^6",
+        "8p^6q^6/r^12",
+        "9a^6b^2/c^4",
+        "4h^2k^6/l^6",
+        "125x^6y^6/z^6"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "134.а Деление дробей с переменными",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{p}}}{{{q}{X}^{r}}} : \\tfrac{{{s}{X}}}{{{t}{Y}^{u}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [14, 12, 10, 8, 16, 18, 20, 15] },
+    "q": { "type": "choice", "values": [9, 8, 5, 6, 9, 12, 10, 9] },
+    "r": { "type": "choice", "values": [3, 2, 2, 3, 2, 3, 2, 3] },
+    "s": { "type": "choice", "values": [7, 6, 5, 4, 8, 9, 5, 5] },
+    "t": { "type": "choice", "values": [2, 3, 2, 3, 3, 2, 2, 3] },
+    "u": { "type": "choice", "values": [2, 1, 2, 1, 1, 2, 1, 2] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "Y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4y^2/9x^4",
+        "3y/4x^3",
+        "4y^2/x^3",
+        "y/x^4",
+        "2y/3x^3",
+        "y^2/3x^4",
+        "4y/x^3",
+        "y^2/x^4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "134.б Деление дробей с переменными",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{p}}}{{{q}{X}^{r}}} : \\tfrac{{{s}{X}}}{{{t}{Y}^{u}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [14, 12, 10, 8, 16, 18, 20, 15] },
+    "q": { "type": "choice", "values": [9, 8, 5, 6, 9, 12, 10, 9] },
+    "r": { "type": "choice", "values": [3, 2, 2, 3, 2, 3, 2, 3] },
+    "s": { "type": "choice", "values": [7, 6, 5, 4, 8, 9, 5, 5] },
+    "t": { "type": "choice", "values": [2, 3, 2, 3, 3, 2, 2, 3] },
+    "u": { "type": "choice", "values": [2, 1, 2, 1, 1, 2, 1, 2] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "Y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4y^2/9x^4",
+        "3y/4x^3",
+        "4y^2/5x^3",
+        "y/x^4",
+        "2y/3x^3",
+        "y^2/3x^4",
+        "4y/5x^3",
+        "y^2/x^4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "134.в Деление дробей со степенями",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{A}^{m}}}{{{P}{B}}} : \\tfrac{{{A}{B}}}{{{Q}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "m": { "type": "choice", "values": [2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4] },
+    "P": { "type": "choice", "values": [12, 8, 10, 9, 6, 5, 15, 10, 9, 8, 12, 6] },
+    "Q": { "type": "choice", "values": [36, 24, 30, 18, 18, 15, 30, 25, 27, 16, 36, 18] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "3a/b^2",
+        "3a^2/b^2",
+        "3a^3/b^2",
+        "2a/b^2",
+        "3a^2/b^2",
+        "3a^3/b^2",
+        "2a/b^2",
+        "5a^2/2b^2",
+        "3a^3/b^2",
+        "2a/b^2",
+        "3a^2/b^2",
+        "3a^3/b^2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "134.г Деление дробей с разными степенями",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{K}{X}}}{{{P}{A}^{m}}} : \\tfrac{{1}}{{{Q}{A}^{n}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "K": { "type": "choice", "values": [3, 4, 2, 5, 3, 6, 2, 3, 5, 4, 2, 3] },
+    "P": { "type": "choice", "values": [10, 8, 5, 15, 12, 9, 8, 10, 20, 6, 10, 9] },
+    "m": { "type": "choice", "values": [3, 2, 3, 4, 3, 2, 1, 2, 3, 3, 2, 4] },
+    "Q": { "type": "choice", "values": [5, 6, 10, 9, 4, 3, 4, 10, 4, 9, 5, 6] },
+    "n": { "type": "choice", "values": [2, 3, 2, 2, 1, 4, 3, 3, 2, 4, 3, 2] },
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "3x/2a",
+        "3x/a",
+        "4x/a",
+        "3x/a^2",
+        "x/a^2",
+        "2x/a^2",
+        "x/a^2",
+        "3x/a",
+        "x/a",
+        "6x/a",
+        "x/a",
+        "2x/a^2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "135.в Деление дробей с отрицательным множителем",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{p}{a}{b}}}{{{q}{x}{y}}} : \\left(-\\tfrac{{{r}{a}^{2}{b}}}{{{s}{x}^{2}{y}}}\\right) \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [3, 5, 2, 7, 4, 6, 8, 9] },
+    "q": { "type": "choice", "values": [4, 6, 5, 9, 8, 10, 9, 10] },
+    "r": { "type": "choice", "values": [21, 15, 8, 18, 12, 20, 24, 18] },
+    "s": { "type": "choice", "values": [10, 8, 4, 6, 9, 5, 6, 5] },
+    "a": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a"] },
+    "x": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "-5x/14a",
+        "-4x/9a",
+        "-x/5a",
+        "-7x/27a",
+        "-3x/8a",
+        "-3x/20a",
+        "-2x/9a",
+        "-x/4a"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "135.г Деление сложных выражений с отрицательными степенями",
+  "question_template": "Выполните деление и упростите:<br>\\( -\\tfrac{{{k}{a}^{m}{b}^{n}}}{{{p}{c}{d}}} : \\left(-\\tfrac{{{r}{a}{b}^{s}}}{{{p}{c}^{t}{d}^{u}}}\\right) \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [18, 12, 15, 20, 25, 16, 10, 14, 18, 12, 10, 15] },
+    "m": { "type": "choice", "values": [2, 3, 4, 3, 2, 3, 2, 4, 3, 5, 3, 4] },
+    "n": { "type": "choice", "values": [2, 4, 3, 3, 4, 2, 3, 5, 4, 3, 4, 2] },
+    "p": { "type": "choice", "values": [5, 6, 5, 5, 5, 4, 5, 7, 6, 6, 5, 5] },
+    "r": { "type": "choice", "values": [9, 8, 10, 10, 5, 8, 5, 7, 9, 8, 5, 10] },
+    "s": { "type": "choice", "values": [3, 2, 2, 1, 2, 1, 1, 3, 2, 2, 2, 1] },
+    "t": { "type": "choice", "values": [2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 2, 3] },
+    "u": { "type": "choice", "values": [4, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 2] },
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "C": { "type": "choice", "values": ["c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c"] },
+    "D": { "type": "choice", "values": ["d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "2ad^3/bc",
+        "3a^2b^2c^2d^2/2",
+        "3a^3bd^2/2c",
+        "2a^2b^2c^2d",
+        "5ab^2d^2/c",
+        "2a^2c^2d^2/b",
+        "2ab^2d/c",
+        "2a^3b^2d^2/c",
+        "2a^2b^2d^2/c",
+        "3a^4bc^2d^2/2",
+        "2a^2b^2d^2/c",
+        "3a^3c^2d/2b"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "136.в Деление выражений с несколькими переменными",
+  "question_template": "Выполните деление и упростите:<br>\\( \\tfrac{{{p}{m}{x}^{r}}}{{{q}{y}^{s}}} : ({{t}{m}^{u}{x}}) \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [8, 6, 9, 10, 12, 4, 7, 9] },
+    "q": { "type": "choice", "values": [3, 5, 4, 7, 8, 5, 6, 5] },
+    "r": { "type": "choice", "values": [2, 3, 2, 3, 2, 4, 3, 2] },
+    "s": { "type": "choice", "values": [3, 2, 4, 2, 3, 2, 1, 3] },
+    "t": { "type": "choice", "values": [4, 3, 6, 5, 6, 2, 7, 3] },
+    "u": { "type": "choice", "values": [2, 2, 2, 2, 2, 2, 2, 2] },
+    "m": { "type": "choice", "values": ["m", "m", "m", "m", "m", "m", "m", "m"] },
+    "x": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "2x/3my^3",
+        "2x^2/5my^2",
+        "3x/8my^4",
+        "2x^2/7my^2",
+        "x/4my^3",
+        "2x^3/5my^2",
+        "x^2/6my",
+        "3x/5my^3"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "136.г Деление сложных выражений с тремя переменными",
+  "question_template": "Выполните деление и упростите:<br>\\( {{k}{a}^{m}{b}^{n}{x}^{p}} : \\tfrac{{{a}^{r}{b}^{s}}}{{{q}{x}^{t}}} \\)<br><i>Ответ в виде сокращённой дроби</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [10, 8, 6, 9, 12, 5, 7, 8, 6, 9, 10, 8] },
+    "m": { "type": "choice", "values": [2, 3, 2, 3, 2, 4, 3, 2, 3, 4, 3, 2] },
+    "n": { "type": "choice", "values": [1, 2, 1, 1, 2, 3, 2, 2, 1, 2, 2, 1] },
+    "p": { "type": "choice", "values": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+    "q": { "type": "choice", "values": [20, 10, 12, 15, 10, 6, 9, 5, 10, 8, 6, 5] },
+    "r": { "type": "choice", "values": [3, 2, 3, 2, 3, 3, 2, 3, 2, 3, 2, 3] },
+    "s": { "type": "choice", "values": [2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 1, 2] },
+    "t": { "type": "choice", "values": [2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 2, 2] },
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "200x^3/ab",
+        "80abx^2",
+        "72x^2/ab",
+        "135ax^3/b",
+        "120bx^3/a",
+        "30abx^3",
+        "63abx^3",
+        "40bx^3/a",
+        "60ax^3/b",
+        "72abx^2",
+        "60abx^3",
+        "40x^3/ab"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "139.а Деление с разностью квадратов",
+  "question_template": "Выполните деление и упростите:<br>\\( ({{X}} + {{A}}{{Y}}) : ({{X}}^2 - {{A}}^2{{Y}}^2) \\)<br><i>Ответ в виде сокращённой дроби. Знаменатель в скобках</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [3, 2, 4, 5, 6, 7, 8, 9] },
+    "X": { "type": "choice", "values": ["x", "x", "x", "x", "x", "x", "x", "x"] },
+    "Y": { "type": "choice", "values": ["y", "y", "y", "y", "y", "y", "y", "y"] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "1/(x-3y)",
+        "1/(x-2y)",
+        "1/(x-4y)",
+        "1/(x-5y)",
+        "1/(x-6y)",
+        "1/(x-7y)",
+        "1/(x-8y)",
+        "1/(x-9y)"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "139.б Деление квадратных трёхчленов",
+  "question_template": "Выполните деление и упростите:<br>\\( ({{A}}^2 - {{K}}{{A}}{{B}} + {{M}}{{B}}^2) : ({{A}}^2 - {{N}}{{B}}^2) \\)<br><i>Ответ в виде сокращённой дроби. Числитель и знаменатель в скобках </i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "K": { "type": "choice", "values": [6, 4, 2, 8, 10, 12, 14, 16, 18, 20, 22, 24] },
+    "M": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "N": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "(a-3b)/(a+3b)",
+        "(a-2b)/(a+2b)",
+        "(a-b)/(a+b)",
+        "(a-4b)/(a+4b)",
+        "(a-5b)/(a+5b)",
+        "(a-6b)/(a+6b)",
+        "(a-7b)/(a+7b)",
+        "(a-8b)/(a+8b)",
+        "(a-9b)/(a+9b)",
+        "(a-10b)/(a+10b)",
+        "(a-11b)/(a+11b)",
+        "(a-12b)/(a+12b)"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "Геометрия. Площадь параллеограмма",
+  "question_template": "https://resh.edu.ru/subject/lesson/1493/start/",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "K": { "type": "choice", "values": [6, 4, 2, 8, 10, 12, 14, 16, 18, 20, 22, 24] },
+    "M": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "N": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "(a-3b)/(a+3b)",
+        "(a-2b)/(a+2b)",
+        "(a-b)/(a+b)",
+        "(a-4b)/(a+4b)",
+        "(a-5b)/(a+5b)",
+        "(a-6b)/(a+6b)",
+        "(a-7b)/(a+7b)",
+        "(a-8b)/(a+8b)",
+        "(a-9b)/(a+9b)",
+        "(a-10b)/(a+10b)",
+        "(a-11b)/(a+11b)",
+        "(a-12b)/(a+12b)"
+      ]
+    }
+  },
+  "conditions": ""
 }
+
 
 
 ]

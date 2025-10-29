@@ -967,6 +967,28 @@ def save_answer():
     ''', (task_id, user_id, data['answer'], is_correct_val, retry_used))
 
     conn.commit()
+
+        # После conn.commit()
+    cursor.execute('''
+        INSERT INTO student_progress (user_id, lesson_id, total_tasks, solved_tasks, correct_tasks)
+        VALUES (
+            %s,
+            (SELECT lesson_id FROM lesson_tasks WHERE id = %s),
+            (SELECT COUNT(*) FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)),
+            (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND task_id IN (
+                SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)
+            )),
+            (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND is_correct = TRUE AND task_id IN (
+                SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)
+            ))
+        )
+        ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+            solved_tasks = EXCLUDED.solved_tasks,
+            correct_tasks = EXCLUDED.correct_tasks,
+            last_updated = CURRENT_TIMESTAMP
+    ''', (user_id, task_id, task_id, user_id, task_id, user_id, task_id))
+    conn.commit()
+
     return jsonify({'success': True, 'already_exists': False})
 
 
@@ -2362,6 +2384,252 @@ def generate_retry_task(task_id):
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+
+@app.route('/student/profile')
+def student_profile():
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # Берём все уроки класса ученика
+    cursor.execute('''
+        SELECT l.id, l.title, l.date
+        FROM lessons l
+        JOIN users u ON l.class_id = u.class_id
+        WHERE u.id = %s
+        ORDER BY l.date DESC
+    ''', (user_id,))
+    lessons = cursor.fetchall()
+
+    result = []
+    for lesson in lessons:
+        lesson_id = lesson['id']
+
+        # Сколько заданий в уроке всего
+        cursor.execute('SELECT COUNT(*) FROM lesson_tasks WHERE lesson_id = %s', (lesson_id,))
+        total_tasks = cursor.fetchone()[0] or 0
+
+        # Сколько заданий решено учеником
+        cursor.execute('''
+            SELECT COUNT(*) 
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = %s AND sa.user_id = %s
+        ''', (lesson_id, user_id))
+        solved_tasks = cursor.fetchone()[0] or 0
+
+        # Сколько решено правильно
+        cursor.execute('''
+            SELECT COUNT(*)
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = %s AND sa.user_id = %s AND sa.is_correct = TRUE
+        ''', (lesson_id, user_id))
+        correct_tasks = cursor.fetchone()[0] or 0
+
+        incorrect_tasks = total_tasks - correct_tasks
+
+        result.append({
+            'id': lesson['id'],
+            'title': lesson['title'],
+            'date': lesson['date'],
+            'total_tasks': total_tasks,
+            'correct_tasks': correct_tasks,
+            'incorrect_tasks': incorrect_tasks
+        })
+
+    conn.close()
+
+    return render_template('student_profile.html',
+                           full_name=session['full_name'],
+                           lessons=result)
+
+
+
+@app.route('/student/retry/<int:lesson_id>')
+def student_retry_lesson(lesson_id):
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # 1. Выбираем шаблоны для всех задач, где есть ошибки
+    cursor.execute('''
+        SELECT lt.id AS task_id, lt.template_id, tt.question_template, tt.answer_template,
+               tt.parameters, tt.conditions, tt.answer_type
+        FROM lesson_tasks lt
+        JOIN task_templates tt ON lt.template_id = tt.id
+        LEFT JOIN student_answers sa ON sa.task_id = lt.id AND sa.user_id = %s
+        WHERE lt.lesson_id = %s AND (sa.is_correct = FALSE OR sa.answer IS NULL)
+    ''', (user_id, lesson_id))
+    tasks = cursor.fetchall()
+
+    if not tasks:
+        conn.close()
+        return render_template(
+            'student_retry.html',
+            tasks=[],
+            user_id=user_id,
+            lesson_title=f"Урок {lesson_id}"
+        )
+
+    generated_tasks = []
+    for t in tasks:
+        try:
+            params = json.loads(t['parameters']) if isinstance(t['parameters'], str) else (t['parameters'] or {})
+            template_dict = {
+                'id': t['template_id'],
+                'question_template': t['question_template'],
+                'answer_template': t['answer_template'],
+                'parameters': params,
+                'conditions': t['conditions'] or '',
+                'answer_type': t['answer_type'] or 'numeric'
+            }
+
+            # 2. Генерируем новое задание
+            variant = TaskGenerator.generate_task_variant(template_dict)
+
+            generated_tasks.append({
+                'id': t['task_id'],
+                'template_id': t['template_id'],
+                'question': variant['question'],
+                'answer': variant['correct_answer']
+            })
+
+            # 3. (необязательно) Сохраняем сгенерированный вариант в student_task_variants
+            cursor.execute('''
+                INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (lesson_id, user_id, task_id)
+                DO UPDATE SET variant_data = EXCLUDED.variant_data
+            ''', (lesson_id, user_id, t['task_id'], json.dumps(variant)))
+
+        except Exception as e:
+            print(f"Ошибка генерации задания {t['task_id']}: {e}")
+
+    conn.commit()
+    conn.close()
+
+    # Получаем название урока
+    lesson_title = f"Урок {lesson_id}"
+    return render_template(
+        'student_retry.html',
+        tasks=generated_tasks,
+        user_id=user_id,
+        lesson_title=lesson_title
+    )
+
+
+
+
+@app.route('/student/statistics')
+def student_statistics():
+    if 'user_id' not in session or session['role'] != 'student':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute('''
+        SELECT 
+            COUNT(sa.task_id) AS total_answers,
+            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct_answers,
+            SUM(CASE WHEN NOT sa.is_correct THEN 1 ELSE 0 END) AS incorrect_answers
+        FROM student_answers sa
+        WHERE sa.user_id = %s
+    ''', (user_id,))
+    stats = cursor.fetchone()
+    conn.close()
+    return jsonify(dict(stats))
+
+
+@app.route('/student/class_rating')
+def student_class_rating():
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    cursor.execute('SELECT class_id FROM users WHERE id = %s', (user_id,))
+    class_row = cursor.fetchone()
+    if not class_row:
+        conn.close()
+        return "Класс не найден", 404
+
+    class_id = class_row['class_id']
+
+    cursor.execute('''
+        SELECT 
+            u.id AS user_id,
+            u.full_name,
+            COUNT(sa.task_id) AS total,
+            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct,
+            ROUND(
+                COALESCE(
+                    (SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END)::numeric /
+                     NULLIF(COUNT(sa.task_id), 0)::numeric) * 100,
+                    0
+                ), 1
+            ) AS percent
+        FROM users u
+        LEFT JOIN student_answers sa ON sa.user_id = u.id
+        WHERE u.class_id = %s AND u.role = 'student'
+        GROUP BY u.id
+        ORDER BY percent DESC, u.full_name
+    ''', (class_id,))
+
+    rating = cursor.fetchall()
+    conn.close()
+
+    return render_template('student_class_rating.html', rating=rating, user_id=user_id)
+
+
+@app.route('/student/lesson_rating/<int:lesson_id>')
+def student_lesson_rating(lesson_id):
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # Определяем класс ученика
+    cursor.execute('SELECT class_id FROM users WHERE id = %s', (user_id,))
+    class_id = cursor.fetchone()['class_id']
+
+    # Рейтинг по конкретному уроку
+    cursor.execute('''
+        SELECT 
+            u.id AS user_id,
+            u.full_name,
+            COUNT(sa.task_id) AS total,
+            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct,
+            ROUND(
+                COALESCE(
+                    (SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END)::numeric /
+                     NULLIF(COUNT(sa.task_id), 0)::numeric) * 100,
+                    0
+                ), 1
+            ) AS percent
+        FROM users u
+        JOIN student_answers sa ON sa.user_id = u.id
+        JOIN lesson_tasks lt ON sa.task_id = lt.id
+        WHERE u.class_id = %s AND lt.lesson_id = %s
+        GROUP BY u.id
+        ORDER BY percent DESC, u.full_name
+    ''', (class_id, lesson_id))
+
+    rating = cursor.fetchall()
+    conn.close()
+
+    return render_template('student_class_rating.html', rating=rating, user_id=user_id)
 
 
 
