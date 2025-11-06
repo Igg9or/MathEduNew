@@ -3932,11 +3932,94 @@
     "answer_type": "numeric",
     "parameters": {},
     "conditions": ""
-  }
-
-
-
-
+  },
+  {
+    "textbook_id": 8,
+    "name": "5 ноября",
+    "question_template": "https://obrazavr.ru/matematika/5-klass-matematika/naturalnye-chisla/umnozhenie-delenie-stepen/delenie-s-ostatkom/",
+    "answer_template": "208",
+    "answer_type": "numeric",
+    "parameters": {},
+    "conditions": ""
+  },
+  {
+  "textbook_id": 8,
+  "name": "3.150 а. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [548, 637, 823, 715, 482, 766, 594, 901] },
+    "b": { "type": "choice", "values": [9, 9, 9, 9, 9, 9, 9, 9] },
+    "ANS": { "type": "choice", "values": [8, 7, 4, 4, 5, 1, 0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 8,
+  "name": "3.150 б. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [371, 246, 295, 408, 517, 389, 563, 602] },
+    "b": { "type": "choice", "values": [6, 6, 6, 6, 6, 6, 6, 6] },
+    "ANS": { "type": "choice", "values": [5, 0, 1, 0, 1, 5, 5, 2] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 8,
+  "name": "3.150 в. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [293, 127, 408, 562, 740, 918, 655, 839] },
+    "b": { "type": "choice", "values": [10, 10, 10, 10, 10, 10, 10, 10] },
+    "ANS": { "type": "choice", "values": [3, 7, 8, 2, 0, 8, 5, 9] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 8,
+  "name": "3.150 г. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [100000, 45012, 73829, 81246, 65415, 90002, 99999, 72004] },
+    "b": { "type": "choice", "values": [3, 3, 3, 3, 3, 3, 3, 3] },
+    "ANS": { "type": "choice", "values": [1, 0, 2, 0, 0, 2, 0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 8,
+  "name": "3.150 д. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [224, 315, 408, 519, 740, 992, 650, 870] },
+    "b": { "type": "choice", "values": [100, 100, 100, 100, 100, 100, 100, 100] },
+    "ANS": { "type": "choice", "values": [24, 15, 8, 19, 40, 92, 50, 70] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 8,
+  "name": "3.150 е. Остаток от деления a на b",
+  "question_template": "Найдите остаток от деления:<br>\\( {a} : {b} \\)<br><i>Введите остаток (целое число)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [6140, 5000, 4680, 5501, 6210, 7002, 3900, 4158] },
+    "b": { "type": "choice", "values": [78, 78, 78, 78, 78, 78, 78, 78] },
+    "ANS": { "type": "choice", "values": [46, 8, 0, 41, 48, 50, 0, 12] }
+  },
+  "conditions": ""
+}
 
 
 ]

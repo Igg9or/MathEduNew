@@ -634,6 +634,205 @@ userAnswer = userAnswer.replace(/([0-9]*\.?[0-9]*|)\s*√\s*(\(?[a-zA-Z0-9+*/\s-
         });
     }
 
+
+
+    function showRetryButton(taskCard) {
+  if (taskCard.dataset.retryCompleted === "true" || taskCard.dataset.retryUsed === "true") {
+    taskCard.querySelectorAll('.btn-retry, .btn-ai-chat').forEach(btn => {
+      btn.classList.add('hidden');
+      btn.disabled = true;
+    });
+    return;
+  }
+
+  const retryBtn = taskCard.querySelector('.btn-retry');
+  const chatBtn = taskCard.querySelector('.btn-ai-chat');
+
+  if (retryBtn) {
+    retryBtn.classList.remove('hidden');
+    retryBtn.disabled = false;
+    retryBtn.onclick = () => openRetryModal(taskCard);
+  }
+
+  if (chatBtn) {
+    chatBtn.classList.remove('hidden');
+    chatBtn.disabled = false;
+    chatBtn.onclick = () => openAIChat(taskCard);
+  }
+}
+
+
+let currentChatTaskId = null;
+let chatHistory = {}; // taskId → [{role, content}, ...]
+
+async function openAIChat(taskCard) {
+  currentChatTaskId = taskCard.dataset.taskId;
+  const modal = document.getElementById('aiChatModal');
+  const messagesContainer = document.getElementById('chatMessages');
+  const contextDiv = document.getElementById('chatTaskContext');
+  messagesContainer.innerHTML = '';
+
+  // --- Получаем полное условие задачи ---
+  const questionText = extractQuestionForAI(taskCard);
+
+  // --- Короткая и полная версии ---
+  const shortQuestion = questionText.length > 200 ? questionText.slice(0, 200) + "…" : questionText;
+  const normalizedFull = questionText
+    .replace(/\\\\\(/g, '\\(')
+    .replace(/\\\\\)/g, '\\)')
+    .replace(/\\\\\[/g, '\\[')
+    .replace(/\\\\\]/g, '\\]')
+    .replace(/&times;/g, '\\(\\times\\)')
+    .replace(/&divide;/g, '\\(\\div\\)')
+    .replace(/\*/g, '\\(\\times\\)')
+    .replace(/\//g, '\\(\\div\\)');
+
+  const normalizedShort = shortQuestion
+    .replace(/\\\\\(/g, '\\(')
+    .replace(/\\\\\)/g, '\\)')
+    .replace(/\\\\\[/g, '\\[')
+    .replace(/\\\\\]/g, '\\]')
+    .replace(/&times;/g, '\\(\\times\\)')
+    .replace(/&divide;/g, '\\(\\div\\)')
+    .replace(/\*/g, '\\(\\times\\)')
+    .replace(/\//g, '\\(\\div\\)');
+
+  // --- Вставляем короткий текст ---
+  contextDiv.innerHTML = normalizedShort || "—";
+  contextDiv.dataset.full = normalizedFull;
+  contextDiv.dataset.short = normalizedShort;
+  contextDiv.dataset.expanded = "false";
+
+  // --- Рендерим LaTeX для короткой версии ---
+  if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+    try {
+      await MathJax.typesetPromise([contextDiv]);
+    } catch (e) {
+      console.warn('MathJax render error in header:', e);
+    }
+  }
+
+  // --- Добавляем поведение клика (развернуть/свернуть) ---
+  contextDiv.style.cursor = 'pointer';
+  contextDiv.title = 'Нажмите, чтобы показать полностью';
+
+  contextDiv.onclick = async () => {
+    const expanded = contextDiv.dataset.expanded === "true";
+    if (expanded) {
+      contextDiv.innerHTML = contextDiv.dataset.short;
+      contextDiv.dataset.expanded = "false";
+      contextDiv.title = 'Нажмите, чтобы показать полностью';
+    } else {
+      contextDiv.innerHTML = contextDiv.dataset.full;
+      contextDiv.dataset.expanded = "true";
+      contextDiv.title = 'Нажмите, чтобы свернуть';
+    }
+
+    if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+      try {
+        await MathJax.typesetPromise([contextDiv]);
+      } catch (e) {
+        console.warn('MathJax re-render error (toggle):', e);
+      }
+    }
+  };
+
+  // --- Восстанавливаем историю ---
+  const history = chatHistory[currentChatTaskId] || [];
+  history.forEach(msg => appendMessage(msg.role, msg.content));
+
+  modal.classList.remove('hidden');
+  document.getElementById('chatQuestionInput').focus();
+
+  // --- Форматируем старую историю ---
+  if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+    try {
+      await MathJax.typesetPromise([messagesContainer]);
+    } catch (e) {
+      console.warn('MathJax re-render error:', e);
+    }
+  }
+
+  // --- Отправка нового вопроса ---
+  document.getElementById('btnSendAIQuestion').onclick = async () => {
+    const input = document.getElementById('chatQuestionInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    appendMessage('user', question);
+    input.value = '';
+
+    if (!chatHistory[currentChatTaskId]) chatHistory[currentChatTaskId] = [];
+    chatHistory[currentChatTaskId].push({ role: 'user', content: question });
+
+    const studentGrade = taskCard.dataset.grade || 5;
+
+    try {
+      const resp = await fetch('/api/ai_tutor_dialog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task_id: currentChatTaskId,
+          question: questionText,
+          student_grade: studentGrade,
+          history: chatHistory[currentChatTaskId]
+        })
+      });
+
+      const data = await resp.json();
+      appendMessage('assistant', data.reply || 'Ошибка ответа ИИ.');
+      chatHistory[currentChatTaskId].push({ role: 'assistant', content: data.reply });
+
+      if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+        await MathJax.typesetPromise([messagesContainer]);
+      }
+    } catch (e) {
+      console.error('AI chat error:', e);
+      appendMessage('assistant', 'Ошибка при общении с ИИ.');
+    }
+  };
+
+  // --- Закрытие модалки ---
+  modal.querySelector('.btn-close').onclick = () => modal.classList.add('hidden');
+}
+
+
+
+function appendMessage(role, text) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'msg-user' : 'msg-ai');
+
+  // Преобразуем текст с LaTeX, не трогая уже оформленные блоки
+  const normalized = text
+    .replace(/\\\\\(/g, '\\(')
+    .replace(/\\\\\)/g, '\\)')
+    .replace(/\\\\\[/g, '\\[')
+    .replace(/\\\\\]/g, '\\]');
+
+  div.innerHTML = `<div class="msg-text">${normalized}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+
+function showTypingIndicator() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai typing';
+  div.innerHTML = '<div class="msg-text"><span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function removeTypingIndicator(node) {
+  if (node && node.parentNode) node.parentNode.removeChild(node);
+}
+
+
+
+
     // === НОВАЯ ВЕРСИЯ ===
     async function fetchAISolution(taskCard) {
   // Контейнер решения внутри карточки

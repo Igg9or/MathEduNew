@@ -4290,7 +4290,218 @@
     }
   },
   "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "Алгебра 5 ноября",
+  "question_template": "https://obrazavr.ru/class/cixkbj/",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"] },
+    "B": { "type": "choice", "values": ["b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"] },
+    "K": { "type": "choice", "values": [6, 4, 2, 8, 10, 12, 14, 16, 18, 20, 22, 24] },
+    "M": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "N": { "type": "choice", "values": [9, 4, 1, 16, 25, 36, 49, 64, 81, 100, 121, 144] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "(a-3b)/(a+3b)",
+        "(a-2b)/(a+2b)",
+        "(a-b)/(a+b)",
+        "(a-4b)/(a+4b)",
+        "(a-5b)/(a+5b)",
+        "(a-6b)/(a+6b)",
+        "(a-7b)/(a+7b)",
+        "(a-8b)/(a+8b)",
+        "(a-9b)/(a+9b)",
+        "(a-10b)/(a+10b)",
+        "(a-11b)/(a+11b)",
+        "(a-12b)/(a+12b)"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "181.а Найдите y, если x = b",
+  "question_template": "Дана функция: \\( y = \\frac{{a}}{x} \\).<br>Найдите значение y, если x = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 12, 9, 10, 15, 6, 14, 20] },
+    "b": { "type": "choice", "values": [-4, -6, -3, -5, -3, -2, -7, -4] },
+    "ANS": { "type": "choice", "values": [-2, -2, -3, -2, -5, -3, -2, -5] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "181.б Найдите x, если y = c",
+  "question_template": "Дана функция: \\( y = \\frac{{a}}{x} \\).<br>Найдите значение x, если y = {c}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 12, 9, 10, 15, 6, 14, 20] },
+    "c": { "type": "choice", "values": [-4, -3, -9, -2, -5, -3, -2, -5] },
+    "ANS": { "type": "choice", "values": [-2, -4, -1, -5, -3, -2, -7, -4] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "181.в Найдите y, если x = d (дробное значение)",
+  "question_template": "Дана функция: \\( y = \\frac{{a}}{x} \\).<br>Найдите значение y, если x = {d}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 12, 10, 9, 15, 6, 18, 20] },
+    "d": { "type": "choice", "values": [-0.25, -0.5, -0.2, -0.3, -0.5, -0.25, -0.5, -0.4] },
+    "ANS": { "type": "choice", "values": [-32, -24, -50, -30, -30, -24, -36, -50] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "182.а Найдите y, если x = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{a}}{x} \\).<br>Найдите значение y, если x = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [200, 180, 240, 160, 300, 210, 250] },
+    "b": { "type": "choice", "values": [-800, -600, -1200, -400, -1500, -700, -500] },
+    "ANS": { "type": "choice", "values": [-0.25, -0.30, -0.20, -0.40, -0.20, -0.30, -0.50] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "182.б Найдите x, если y = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{a}}{x} \\).<br>Найдите значение x, если y = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [160, 240, 180, 200, 150, 300, 250, 180] },
+    "b": { "type": "choice", "values": [-0.4, -0.6, -0.9, -1.0, -0.5, -0.75, -0.5, -0.3] },
+    "ANS": { "type": "choice", "values": [-400, -400, -200, -200, -300, -400, -500, -600] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "182.в Найдите коэффициент k (отношение)",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{a}}{x} \\).<br>Найдите коэффициент отношения, если a = {a} и b = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [180, 240, 150, 200, 180, 210, 160, 300] },
+    "b": { "type": "choice", "values": [90, 120, 75, 100, 60, 70, 80, 150] },
+    "ANS": { "type": "choice", "values": [2, 2, 2, 2, 3, 3, 2, 2] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "184.а Найдите значение функции, если x = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Найдите значение функции, если x = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 15, 20, 25, 30, 12, 8, 18] },
+    "b": { "type": "choice", "values": [100, 100, 100, 100, 100, 100, 100, 100] },
+    "ANS": { "type": "choice", "values": [0.1, 0.15, 0.2, 0.25, 0.3, 0.12, 0.08, 0.18] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "184.б Найдите значение функции, если x = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Найдите значение функции, если x = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 20, 25, 30, 15, 40, 12, 18] },
+    "b": { "type": "choice", "values": [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000] },
+    "ANS": { "type": "choice", "values": [0.01, 0.02, 0.025, 0.03, 0.015, 0.04, 0.012, 0.018] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "184.в Найдите значение x, если y = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Найдите значение x, если y = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 15, 20, 25, 30, 12, 8, 18] },
+    "b": { "type": "choice", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] },
+    "ANS": { "type": "choice", "values": [100, 150, 200, 250, 300, 120, 80, 180] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "184.г Найдите значение x, если y = b",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Найдите значение x, если y = {b}.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 15, 20, 25, 30, 12, 8, 18] },
+    "b": { "type": "choice", "values": [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02] },
+    "ANS": { "type": "choice", "values": [500, 750, 1000, 1250, 1500, 600, 400, 900] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "185.а Определи, принадлежит ли точка A(b; c) графику функции",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Определи, принадлежит ли графику этой функции точка A({b}; {c}).<br>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [15, 20, 12, 10, 18, 25, 16, 8] },
+    "b": { "type": "choice", "values": [-0.05, -0.04, -0.06, -0.05, -0.09, -0.05, -0.08, -0.04] },
+    "c": { "type": "choice", "values": [-300, -500, -200, -150, -200, -400, -200, -200] },
+    "ANS": { "type": "choice", "values": ["Да", "Да", "Да", "Нет", "Да", "Нет", "Да", "Да"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "185.б Определи, принадлежит ли точка B(b; c) графику функции",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Определи, принадлежит ли графику этой функции точка B({b}; {c}).",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 20, 12, 15, 18, 25, 30, 40] },
+    "b": { "type": "choice", "values": [-0.1, -0.2, -0.1, -0.1, -0.15, -0.25, -0.2, -0.2] },
+    "c": { "type": "choice", "values": [-100, -100, -120, -200, -120, -100, -200, -200] },
+    "ANS": { "type": "choice", "values": ["Да", "Да", "Да", "Нет", "Да", "Да", "Нет", "Да"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "185.в Определи, принадлежит ли точка C(b; c) графику функции",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Определи, принадлежит ли графику этой функции точка C({b}; {c}).<br>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 20, 25, 15, 12, 18, 10, 16] },
+    "b": { "type": "choice", "values": [400, 800, 1000, 300, 600, 600, 500, 800] },
+    "c": { "type": "choice", "values": [0.025, 0.025, 0.025, 0.05, 0.02, 0.03, 0.02, 0.02] },
+    "ANS": { "type": "choice", "values": ["Да", "Да", "Да", "Да", "Да", "Да", "Нет", "Да"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "185.г Определи, принадлежит ли точка D(b; c) графику функции",
+  "question_template": "Обратная пропорциональность задана формулой:<br>\\( y = \\frac{{{a}}}{x} \\).<br>Определи, принадлежит ли графику этой функции точка D({b}; {c}).<br><i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 20, 15, 12, 25, 18, 10, 30] },
+    "b": { "type": "choice", "values": [500, -500, -300, -600, -1000, -900, -400, -1500] },
+    "c": { "type": "choice", "values": [0.02, -0.04, -0.05, -0.02, -0.025, -0.02, -0.025, -0.02] },
+    "ANS": { "type": "choice", "values": ["Нет", "Да", "Да", "Да", "Да", "Да", "Да", "Да"] }
+  }
 }
+
 
 
 

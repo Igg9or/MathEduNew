@@ -1222,8 +1222,291 @@
     "ANS": { "type": "choice", "values": [-5.5, -7, -4, -7, -6, -4, -5.5, -6] }
   },
   "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 1.а Область определения квадратичной функции",
+  "question_template": "Найдите область определения функции:<br>\\( y = {a}x^2 + {b}x + {c} \\)<br><i>Ответ введите в виде промежутка, например (-∞; +∞)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [6, 3, -4, 2, 1, -7, 8, 5] },
+    "b": { "type": "choice", "values": [-1, 2, 0, -3, 5, 4, 0, -9] },
+    "c": { "type": "choice", "values": [-5, 7, 5, 9, -6, 3, -10, 0] },
+    "ANS": { "type": "choice", "values": ["(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)", "(-∞; +∞)"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 1.б Область определения функции дробного вида",
+  "question_template": "Найдите область определения функции:<br>\\( y = \\dfrac{1}{ {a}x - {b}x^2 } \\)<br><i>В ответе перечислите исключаемые значения через точку с запятой, например: 0; 2.5</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 3, 5, 4, 6, 8, 10, 3] },
+    "b": { "type": "choice", "values": [1, 1, 2, 1, 3, 4, 5, 2] },
+    "ANS": { "type": "choice", "values": ["0; 2", "0; 3", "0; 2.5", "0; 4", "0; 2", "0; 2", "0; 2", "0; 1.5"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 1.в Область определения функции с корнем",
+  "question_template": "Найдите область определения функции:<br>\\( y = \\sqrt{x + {a}} \\)<br><i>Ответ введите в виде промежутка, например [-4; +∞)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [4, 3, 5, 7, 2, 6, 1, 8] },
+    "ANS": { "type": "choice", "values": ["[-4; +∞)", "[-3; +∞)", "[-5; +∞)", "[-7; +∞)", "[-2; +∞)", "[-6; +∞)", "[-1; +∞)", "[-8; +∞)"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 2.а Проверка функции на чётность",
+  "question_template": "Является ли функция чётной или нечётной?<br>\\( y = {a} - {b}x^2 \\)<br><i>Введите ответ: чётная / нечётная</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 7, 2, -4, 1, 6, 0] },
+    "b": { "type": "choice", "values": [1, 2, 3, 1, 5, 7, 4, 3] },
+    "ANS": { "type": "choice", "values": ["чётная", "чётная", "чётная", "чётная", "чётная", "чётная", "чётная", "чётная"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 2.б Проверка функции на чётность",
+  "question_template": "Найдите, является ли функция чётной или нечётной:<br>\\( y = \\dfrac{{a}}{x} \\)<br><i>Введите ответ: чётная / нечётная</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 3, -4, 5, -6, 1, 8, 10] },
+    "ANS": { "type": "choice", "values": ["нечётная", "нечётная", "нечётная", "нечётная", "нечётная", "нечётная", "нечётная", "нечётная"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. Номер 3. Решить уравнение (x² - a)² + (x² + x - b)² = 0",
+  "question_template": "Решите уравнение:<br>\\( (x^2 - {a})^2 + (x^2 + x - {b})^2 = 0 \\)<br><i>Введите корень уравнения</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 1, 9, 16] },
+    "b": { "type": "choice", "values": [12, 2, 6, 12] },
+    "ANS": { "type": "choice", "values": [3, 1, -3, -4] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. Номер 4. Решить уравнение (x² - a)(x² + x - b) = 0",
+  "question_template": "Решите уравнение:<br>\\( (x^2 - {a})(x^2 + x - {b}) = 0 \\)<br><i>Ответ введите через точку с запятой, например: -3; 2; 3.  В порядке возрастания</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 1, 9, 16] },
+    "b": { "type": "choice", "values": [6, 2, 12, 12] },
+    "ANS": { "type": "choice", "values": ["-3; 2; 3", "-2; -1; 1", "-4; -3; 3", "-4; 3; 4"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 0.а Раскрытие скобок a(x - b)",
+  "question_template": "Раскройте скобки:<br>\\( {a}(x - {b}) \\)<br><i>Введите выражение в виде ax - c</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 2, 4, 5, 6, 8, 10, 12] },
+    "b": { "type": "choice", "values": [4, 5, 3, 7, 2, 9, 6, 11] },
+    "ANS": { "type": "choice", "values": ["3x - 12", "2x - 10", "4x - 12", "5x - 35", "6x - 12", "8x - 72", "10x - 60", "12x - 132"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 0.б Раскрытие скобок a(x + b)",
+  "question_template": "Раскройте скобки:<br>\\( {a}(x + {b}) \\)<br><i>Введите выражение в виде ax + c</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [-2, -3, -5, -4, -6, -7, -8, -10] },
+    "b": { "type": "choice", "values": [1, 4, 2, 6, 3, 5, 9, 7] },
+    "ANS": { "type": "choice", "values": ["-2x - 2", "-3x - 12", "-5x - 10", "-4x - 24", "-6x - 18", "-7x - 35", "-8x - 72", "-10x - 70"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 0.в Раскрытие скобок (x + a)(x - b)",
+  "question_template": "Раскройте скобки:<br>\\( (x + {a})(x - {b}) \\)<br><i>Введите раскрытое выражение в виде x^2 + kx + c</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 1, 3, 4, 5, 2, 6, 3] },
+    "b": { "type": "choice", "values": [3, 4, 5, 6, 7, 8, 9, 10] },
+    "ANS": { "type": "choice", "values": ["x^2 - x - 6", "x^2 - 3x - 4", "x^2 - 2x - 15", "x^2 - 2x - 24", "x^2 - 2x - 35", "x^2 - 6x - 16", "x^2 - 3x - 54", "x^2 - 7x - 30"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-23. 0.г Раскрытие скобок (x - a)²",
+  "question_template": "Раскройте скобки:<br>\\( (x - {a})^2 \\)<br><i>Введите раскрытое выражение в виде x^2 + kx + c</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 2, 3, 4, 6, 7, 8, 9] },
+    "ANS": { "type": "choice", "values": ["x^2 - 10x + 25", "x^2 - 4x + 4", "x^2 - 6x + 9", "x^2 - 8x + 16", "x^2 - 12x + 36", "x^2 - 14x + 49", "x^2 - 16x + 64", "x^2 - 18x + 81"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-24. 1.а Решение квадратного уравнения x² = a (целые корни)",
+  "question_template": "Решите уравнение:<br>\\( x^2 = {a} \\)<br><i>Введите наибольший корень (x > 0), если корней нет, то введите - корней нет</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 4, 16, 25, 36, 49, 64, 81] },
+    "ANS": { "type": "choice", "values": [3, 2, 4, 5, 6, 7, 8, 9] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-24. 1.б Решение квадратного уравнения x² = a (иррациональные корни)",
+  "question_template": "Решите уравнение:<br>\\( x^2 = {a} \\)<br><i>Введите наибольший корень (x > 0). если корней нет, то введите - корней нет.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 2, 5, 6, 7, 8, 10, 12] },
+    "ANS": { "type": "choice", "values": ["√3", "√2", "√5", "√6", "√7", "√8", "√10", "√12"] }
+  },
+  "conditions": ""
+},
+{ 
+  "textbook_id": 9,
+  "name": "У-24. 1.в Решение квадратного уравнения x² + a/b = 0",
+  "question_template": "Решите уравнение:<br>\\( x^2 + \\dfrac{{a}}{{b}} = 0 \\)<br><i>Если корней нет, то введите - корней нет</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 3, 5, 2, 7, 9, 11, 1] },
+    "b": { "type": "choice", "values": [4, 9, 16, 25, 49, 81, 100, 9] },
+    "ANS": { "type": "choice", "value": "корней нет" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "У-24. 1.г Решение кубического уравнения x³ − ax = 0 (наибольший корень)",
+  "question_template": "Решите уравнение:<br>\\( x^3 - {a}x = 0 \\)<br><i>Введите наибольший корень (x > 0). Если корней нет, то введите - корней нет.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 4, 16, 25, 36, 49, 64, 81] },
+    "ANS": { "type": "choice", "values": [3, 2, 4, 5, 6, 7, 8, 9] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "217.а Решение кубического уравнения y³ − ay = 0 (все корни по возрастанию)",
+  "question_template": "Решите уравнение:<br>\\( y^3 - {a}y = 0 \\)<br><i>Введите все корни в порядке возрастания через точку с запятой (;)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [6, 4, 9, 16, 25, 36, 49, 64] },
+    "ANS": { 
+      "type": "choice", 
+      "values": [
+        "-√6; 0; √6",
+        "-2; 0; 2",
+        "-3; 0; 3",
+        "-4; 0; 4",
+        "-5; 0; 5",
+        "-6; 0; 6",
+        "-7; 0; 7",
+        "-8; 0; 8"
+      ] 
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "217.в Решение уравнения x³ + a·x = b·x² (все корни по возрастанию)",
+  "question_template": "Решите уравнение:<br>\\( x^3 + {a}x = {b}x^2 \\)<br><i>Введите все корни в порядке возрастания через точку с запятой (;)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 4, 3, 10, 24, 2, 15, 5] },
+    "b": { "type": "choice", "values": [3.5, 4, 4, 7, 10, 3, 8, 6] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "0; 1.5; 2",
+        "0; 2",
+        "0; 1; 3",
+        "0; 2; 5",
+        "0; 4; 6",
+        "0; 1; 2",
+        "0; 3; 5",
+        "0; 1; 5"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "118.а Решение кубического уравнения a·x³ − b·x² + c·x − d = 0",
+  "question_template": "Решите уравнение:<br>\\( {a}x^3 - {b}x^2 + {c}x - {d} = 0 \\)<br><i>Введите корень (x)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 2, 4, 5] },
+    "b": { "type": "choice", "values": [1, 1, 2, 2] },
+    "c": { "type": "choice", "values": [18, 8, 20, 15] },
+    "d": { "type": "choice", "values": [6, 4, 10, 6] },
+    "ANS": { "type": "choice", "values": ["1/3", "1/2", "1/2", "2/5"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "221.а Решение уравнения с введением новой переменной (по возрастанию)",
+  "question_template": "Решите уравнение, введя новую переменную:<br>\\( ({a}x^2 + {b})^2 - {m}({a}x^2 + {b}) + {n} = 0 \\)<br><i>Введите все корни x по возрастанию через точку с запятой (;)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 1, 1] },
+    "b": { "type": "choice", "values": [3, 4, 5] },
+    "m": { "type": "choice", "values": [12, 8, 6] },
+    "n": { "type": "choice", "values": [11, 15, 8] },
+    "ANS": { "type": "choice", "values": ["-2; 2", "-1; 1", "-1; 1"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "221.б Решение уравнения с введением новой переменной (четыре корня)",
+  "question_template": "Решите уравнение, введя новую переменную:<br>\\( ({a}x^2 + {b})^2 - {m}({a}x^2 + {b}) + {n} = 0 \\)<br><i>Введите все корни x по возрастанию через точку с запятой (;)</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "value": 1 },
+    "b": { "type": "choice", "value": 3 },
+    "m": { "type": "choice", "value": 11 },
+    "n": { "type": "choice", "value": 28 },
+    "ANS": { "type": "choice", "value": "-2; -1; 1; 2" }
+  },
+  "conditions": ""
 }
-
 
 
 ]

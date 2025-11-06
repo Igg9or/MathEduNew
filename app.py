@@ -2635,5 +2635,47 @@ def student_lesson_rating(lesson_id):
 
 
 
+@app.route('/api/ai_tutor_dialog', methods=['POST'])
+def ai_tutor_dialog():
+    data = request.get_json()
+    task_id = data.get("task_id")
+    question = data.get("question", "")
+    history = data.get("history", [])
+    
+    # Формируем контекст: сначала системную инструкцию, затем описание задачи
+    system_prompt = (
+        "Ты — терпеливый и доброжелательный учитель математики в российской школе. "
+        "Помогай ученику разобраться в задаче, но не давай сразу правильный ответ. "
+        "Твоя цель — наводить на правильные мысли, поддерживать, объяснять шаг за шагом, "
+        "как на уроке с пятиклассником или семиклассником. "
+        "Если ученик ошибается, мягко подскажи, где ошибка, предложи подумать ещё. "
+        "Говори просто, дружелюбно, по-русски, избегай сухих формулировок."
+    )
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"Вот задача, которую решает ученик:\n{question}"}
+    ]
+
+    # Добавляем историю диалога
+    messages.extend(history)
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.8,
+            max_tokens=600
+        )
+        reply = response.choices[0].message.content
+        return jsonify({"reply": reply})
+    except Exception as e:
+        print("Ошибка в ai_tutor_dialog:", e)
+        return jsonify({"reply": "Ошибка при получении ответа от ИИ."}), 500
+
+
+
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
