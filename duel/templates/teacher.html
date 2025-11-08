@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Учительская панель дуэлей</title>
+  <link rel="stylesheet" href="{{ url_for('duel.static', filename='css/duel.css') }}">
+</head>
+<body>
+  <h1>Создание дуэли</h1>
+
+  <form id="duelForm">
+    <input type="text" id="duelName" placeholder="Название дуэли" required>
+    <input type="text" id="duelSubject" placeholder="Предмет" required>
+    <input type="number" id="teacherId" placeholder="ID учителя" required>
+    <button type="submit">Создать дуэль</button>
+  </form>
+
+  <div id="duelResult"></div>
+
+  <script src="{{ url_for('duel.static', filename='js/duel.js') }}"></script>
+</body>
+</html>

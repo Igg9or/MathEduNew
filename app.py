@@ -24,12 +24,16 @@ import psycopg2
 import psycopg2.extras
 import subprocess, sys, socket, atexit, time
 from dotenv import load_dotenv
+from duel import duel_bp
+
+
+
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
-
+app.register_blueprint(duel_bp, url_prefix='/duel')
 
 @app.after_request
 def add_header(response):
@@ -1556,6 +1560,7 @@ def api_check_answer():
     try:
         data = request.get_json()
         print("DEBUG DATA:", data)
+        
         user_answer = data['answer'].strip()
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')

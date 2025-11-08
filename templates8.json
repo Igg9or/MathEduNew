@@ -4500,6 +4500,181 @@
     "c": { "type": "choice", "values": [0.02, -0.04, -0.05, -0.02, -0.025, -0.02, -0.025, -0.02] },
     "ANS": { "type": "choice", "values": ["Нет", "Да", "Да", "Да", "Да", "Да", "Да", "Да"] }
   }
+},
+{
+  "textbook_id": 6,
+  "name": "291.а Найдите значение корня √a",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [49, 64, 25, 81, 100, 121, 144, 169] },
+    "ANS": { "type": "choice", "values": [7, 8, 5, 9, 10, 11, 12, 13] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.б Найдите значение корня √a",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [16, 36, 49, 25, 64, 81, 100, 121] },
+    "ANS": { "type": "choice", "values": [4, 6, 7, 5, 8, 9, 10, 11] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.в Найдите значение корня √a",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [400, 900, 1600, 2500, 3600, 4900, 6400, 8100] },
+    "ANS": { "type": "choice", "values": [20, 30, 40, 50, 60, 70, 80, 90] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.г Найдите значение корня √a",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10000, 40000, 90000, 160000, 250000, 360000, 490000, 640000] },
+    "ANS": { "type": "choice", "values": [100, 200, 300, 400, 500, 600, 700, 800] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.д Найдите значение корня √a (десятичные дроби)",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.04, 0.09, 0.16, 0.25, 0.36, 0.49, 0.64, 0.81] },
+    "ANS": { "type": "choice", "values": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.е Найдите значение корня √a (десятичные дроби)",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.81, 0.64, 0.49, 0.36, 0.25, 0.16, 0.09, 0.04] },
+    "ANS": { "type": "choice", "values": [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.ж Найдите значение корня √(a/b)",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{\\dfrac{{{a}}}{{{b}}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [81, 49, 100, 64, 225, 121, 400, 36] },
+    "b": { "type": "choice", "values": [4, 9, 25, 16, 9, 100, 25, 4] },
+    "ANS": { "type": "choice", "values": ["4.5", "7/3", "2", "2", "5", "1.1", "4", "3"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "291.з Найдите значение корня √((a+c)/b)",
+  "question_template": "Найдите значение корня:<br>\\( \\sqrt{ {{{c}}}\\frac{{{a}}}{{{b}}} } \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [1, 2, 3, 1, 2, 1, 2, 1] },
+    "a": { "type": "choice", "values": [24, 1, 0, 9, 22, 7, 7, 4] },
+    "b": { "type": "choice", "values": [25, 4, 16, 16, 49, 9, 9, 16] },
+    "ANS": { "type": "choice", "values": ["7/5", "3/2", "2", "5/4", "11/7", "4/3", "5/3", "3/2"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "292.а Вычислите √a (целые значения)",
+  "question_template": "Вычислите:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [900, 400, 100, 1600, 2500, 3600, 4900, 6400] },
+    "ANS": { "type": "choice", "values": [30, 20, 10, 40, 50, 60, 70, 80] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "292.б Вычислите √a (десятичные дроби)",
+  "question_template": "Вычислите:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.01, 0.04, 0.09, 0.16, 0.25, 0.36, 0.49, 0.64] },
+    "ANS": { "type": "choice", "values": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "292.в Вычислите √a (дробные значения, обратный порядок)",
+  "question_template": "Вычислите:<br>\\( \\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.64, 0.81, 0.49, 0.36, 0.25, 0.16, 0.09, 0.04] },
+    "ANS": { "type": "choice", "values": [0.8, 0.9, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "292.г Вычислите √(a/b)",
+  "question_template": "Вычислите:<br>\\( \\sqrt{\\dfrac{{{a}}}{{{b}}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [121, 49, 100, 81, 225, 16, 400, 25] },
+    "b": { "type": "choice", "values": [64, 36, 49, 25, 100, 9, 225, 9] },
+    "ANS": { "type": "choice", "values": ["11/8", "7/6", "10/7", "9/5", "3/2", "4/3", "4/3", "5/3"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "292.д Вычислите √((a+c)/b)",
+  "question_template": "Вычислите:<br>\\( \\sqrt{ {{{c}}}\\frac{{{a}}}{{{b}}} } \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [6, 2, 3, 1, 2, 1, 2] },
+    "a": { "type": "choice", "values": [1, 1, 1, 9, 7, 7, 4] },
+    "b": { "type": "choice", "values": [4, 4, 16, 16, 9, 9, 16] },
+    "ANS": { "type": "choice", "values": ["5/2", "3/2", "7/4", "5/4", "5/3", "4/3", "3/2"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "293.a Найдите значение выражения √(a + b) (целые числа)",
+  "question_template": "Найдите значение выражения:<br>\\( \\sqrt{{{a}+{b}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [33, 50, 20, 18, 8, 45, 99, 63] },
+    "b": { "type": "choice", "values": [-8, -41, 5, 7, 1, -36, 1, -54] },
+    "ANS": { "type": "choice", "values": [5, 3, 5, 5, 3, 3, 10, 3] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "293.б Найдите значение выражения √(a + b) (десятичные дроби)",
+  "question_template": "Найдите значение выражения:<br>\\( \\sqrt{{{a}+{b}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.65, 0.49, 0.36, 0.25, 0.09, 0.04, 0.16, 0.81] },
+    "b": { "type": "choice", "values": [0.16, 0.15, 0.13, 0.11, 0.07, 0.05, 0.09, 0.19] },
+    "ANS": { "type": "choice", "values": [0.9, 0.8, 0.7, 0.6, 0.4, 0.3, 0.5, 1] }
+  },
+  "conditions": ""
 }
 
 
