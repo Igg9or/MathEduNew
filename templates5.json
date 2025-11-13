@@ -4019,7 +4019,331 @@
     "ANS": { "type": "choice", "values": [46, 8, 0, 41, 48, 50, 0, 12] }
   },
   "conditions": ""
+},
+ {
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.1",
+  "question_template": "В магазине было {a} упаковок товара, по {b} штук в каждой.<br>За день продали {c} упаковок.<br><br><b>Сколько штук товара осталось продать?</b>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [12, 15, 10, 18, 20, 14, 16, 9] },
+    "b": { "type": "choice", "values": [50, 40, 60, 25, 30, 45, 35, 80] },
+    "c": { "type": "choice", "values": [9, 8, 4, 6, 12, 5, 9, 3] },
+    "ANS": { "type": "choice", "values": [150, 280, 360, 300, 240, 405, 245, 480] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.2а",
+  "question_template": "Упростите выражение:<br><br>a + {b}a",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "b": { "type": "choice", "values": [3, 5, 7, 2, 9, 4, 6, 8] },
+    "ANS": { "type": "choice", "values": ["4a", "6a", "8a", "3a", "10a", "5a", "7a", "9a"] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.2б",
+  "question_template": "Упростите выражение:<br><br>{m}x - {n}x",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [25, 18, 40, 50, 30, 22, 60, 100] },
+    "n": { "type": "choice", "values": [19, 12, 35, 45, 28, 15, 52, 80] },
+    "ANS": { "type": "choice", "values": ["6x", "6x", "5x", "5x", "2x", "7x", "8x", "20x"] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.2в",
+  "question_template": "Упростите выражение:<br><br>{a}{b} · {c} · {d}",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [18, 10, 12, 8, 6, 20, 15, 9] },
+    "b": { "type": "choice", "values": ["b"] },
+    "c": { "type": "choice", "values": [2, 3, 5, 4, 5, 2, 3, 4] },
+    "d": { "type": "choice", "values": [5, 4, 2, 3, 5, 3, 2, 5] },
+    "ANS": { "type": "choice", "values": ["180b", "120b", "120b", "96b", "150b", "120b", "90b", "180b"] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.2г",
+  "question_template": "Упростите выражение:<br><br>{a} · ( {b}t − {c}t )",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 2, 7, 3, 4, 10, 6, 8] },
+    "b": { "type": "choice", "values": [3, 6, 5, 8, 9, 5, 7, 4] },
+    "c": { "type": "choice", "values": [1, 4, 2, 6, 7, 3, 5, 2] },
+    "ANS": { "type": "choice", "values": ["10t", "4t", "21t", "6t", "8t", "20t", "12t", "16t"] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.2д",
+  "question_template": "Упростите выражение:<br><br>( {a}s + {b} ) · {c}",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [21, 10, 15, 18, 12, 25, 14, 20] },
+    "b": { "type": "choice", "values": [79, 25, 40, 50, 36, 60, 45, 55] },
+    "c": { "type": "choice", "values": [3, 4, 2, 5, 6, 2, 3, 4] },
+    "ANS": { "type": "choice", "values": ["63s + 237", "40s + 100", "30s + 80", "90s + 250", "72s + 216", "50s + 120", "42s + 135", "80s + 220"] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.3а",
+  "question_template": "Вычислите значение выражения, выбирая удобный способ:<br><br>{a}·{b} + {a}·{c}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [23, 15, 12, 8, 30, 9, 25, 11] },
+    "b": { "type": "choice", "values": [21, 18, 25, 14, 40, 27, 15, 13] },
+    "c": { "type": "choice", "values": [79, 22, 35, 16, 50, 33, 5, 7] },
+    "ANS": { "type": "choice", "values": [2300, 600, 720, 240, 2700, 540, 500, 220] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.3б",
+  "question_template": "Вычислите значение выражения, выбирая удобный способ:<br><br>{a} · ({b} + {c})",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 6, 9, 4, 5, 7, 10, 12] },
+    "b": { "type": "choice", "values": [25, 30, 20, 12, 40, 50, 15, 18] },
+    "c": { "type": "choice", "values": [7, 5, 10, 8, 4, 3, 5, 6] },
+    "ANS": { "type": "choice", "values": [256, 210, 270, 80, 220, 371, 200, 288] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.3в",
+  "question_template": "Вычислите значение выражения, выбирая удобный способ:<br><br>{a}·{b} − {c}·{a}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [74, 50, 25, 100, 80, 40, 60, 20] },
+    "b": { "type": "choice", "values": [238, 90, 60, 45, 55, 70, 85, 45] },
+    "c": { "type": "choice", "values": [38, 30, 20, 15, 35, 20, 65, 15] },
+    "ANS": { "type": "choice", "values": [14800, 3000, 1000, 3000, 1600, 2000, 1200, 600] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.3г",
+  "question_template": "Вычислите значение выражения, выбирая удобный способ:<br><br>{a} · {b}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [208, 315, 427, 512, 243, 600, 125, 378] },
+    "b": { "type": "choice", "values": [1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001] },
+    "ANS": { "type": "choice", "values": [208208, 315315, 427427, 512512, 243243, 600600, 125125, 378378] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.3д",
+  "question_template": "Вычислите значение выражения, выбирая удобный способ:<br><br>{a} · {b}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [99, 99, 99, 99, 99, 99, 99, 99] },
+    "b": { "type": "choice", "values": [134, 250, 408, 512, 325, 640, 225, 178] },
+    "ANS": { "type": "choice", "values": [13266, 24750, 40392, 50688, 32175, 63360, 22275, 17622] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.4а",
+  "question_template": "Решите уравнение:<br><br>{a}x + {b}x = {c}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 6, 10, 4, 7, 5, 9, 12] },
+    "b": { "type": "choice", "values": [7, 9, 5, 8, 3, 10, 6, 3] },
+    "c": { "type": "choice", "values": [1500, 2250, 2250, 1440, 1000, 2250, 1800, 1800] },
+    "ANS": { "type": "choice", "values": [100, 150, 150, 120, 100, 150, 120, 120] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 1.4б",
+  "question_template": "Решите уравнение:<br><br>{a}·({b}x − {c}) = {d}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 5, 6, 7, 9, 4, 3, 10] },
+    "b": { "type": "choice", "values": [2, 3, 4, 3, 2, 4, 6, 2] },
+    "c": { "type": "choice", "values": [6, 4, 2, 5, 3, 4, 0, 4] },
+    "d": { "type": "choice", "values": [128, 145, 228, 175, 153, 192, 234, 200] },
+    "ANS": { "type": "choice", "values": [11, 11, 10, 10, 10, 13, 13, 12] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1а",
+  "question_template": "Сумма {a}x и {b}x равна {c}.<br>Найдите значение x.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 4, 2, 7, 9, 5, 6] },
+    "b": { "type": "choice", "values": [8, 10, 6, 3, 8, 6, 4, 3] },
+    "c": { "type": "choice", "values": [121, 225, 100, 100, 225, 225, 180, 180] },
+    "ANS": { "type": "choice", "values": [11, 15, 10, 20, 15, 15, 20, 20] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1б",
+  "question_template": "Разность {a}y и {b}y равна {c}.<br>Найдите значение y.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [46, 30, 25, 50, 60, 35, 42, 54] },
+    "b": { "type": "choice", "values": [15, 10, 5, 20, 30, 10, 12, 24] },
+    "c": { "type": "choice", "values": [186, 80, 40, 150, 180, 125, 150, 180] },
+    "ANS": { "type": "choice", "values": [6, 4, 2, 5, 6, 5, 5, 6] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1в",
+  "question_template": "Выражение {a1}a меньше {b1}a на {c}.<br>Найдите значение a.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a1": { "type": "choice", "values": [3, 2, 4, 5, 2, 6, 3, 4] },
+    "b1": { "type": "choice", "values": [7, 5, 6, 9, 8, 10, 9, 7] },
+    "c": { "type": "choice", "values": [224, 180, 120, 320, 360, 160, 360, 210] },
+    "ANS": { "type": "choice", "values": [56, 60, 60, 80, 60, 40, 60, 70] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1г",
+  "question_template": "Выражение {a}c больше {b}c на {d}.<br>Найдите значение c.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 10, 8, 12, 7, 15, 11, 14] },
+    "b": { "type": "choice", "values": [2, 4, 5, 6, 3, 9, 5, 8] },
+    "d": { "type": "choice", "values": [84, 72, 60, 96, 80, 72, 90, 108] },
+    "ANS": { "type": "choice", "values": [12, 12, 20, 16, 20, 12, 15, 18] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1д",
+  "question_template": "Выражение {a}b на {d} меньше, чем {c}.<br>Найдите значение b.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [37, 25, 40, 20, 15, 50, 30, 45] },
+    "b": { "type": "constant", "values": ["b", "b", "b", "b", "b", "b", "b", "b"] },
+    "c": { "type": "choice", "values": [280, 300, 400, 260, 225, 350, 210, 315] },
+    "d": { "type": "choice", "values": [58, 50, 80, 60, 45, 100, 60, 90] },
+    "ANS": { "type": "choice", "values": [6, 10, 8, 10, 12, 5, 5, 5] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 15. Проверь себя 2.1е",
+  "question_template": "Выражение {a}k в {n} раз больше, чем {b}.<br>Найдите значение k.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [6, 8, 5, 9, 10, 4, 7, 12] },
+    "n": { "type": "choice", "values": [3, 2, 4, 3, 2, 5, 3, 2] },
+    "b": { "type": "choice", "values": [24, 16, 20, 27, 30, 40, 21, 48] },
+    "ANS": { "type": "choice", "values": [12, 4, 16, 9, 6, 50, 9, 8] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 16. Проверь себя 2.а",
+  "question_template": "Вычислите значение выражения:<br><br>{a} : {b} + {c} · {d} − {e} : {f}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [312, 240, 156, 260, 225, 168, 264, 180] },
+    "b": { "type": "choice", "values": [13, 12, 12, 10, 9, 8, 12, 9] },
+    "c": { "type": "choice", "values": [17, 10, 15, 9, 12, 11, 10, 8] },
+    "d": { "type": "choice", "values": [52, 30, 20, 18, 16, 14, 15, 20] },
+    "e": { "type": "choice", "values": [90, 48, 36, 80, 54, 60, 72, 90] },
+    "f": { "type": "choice", "values": [2, 4, 3, 4, 3, 5, 4, 5] },
+    "ANS": { "type": "choice", "values": [863, 308, 301, 168, 199, 163, 154, 162] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 16. Проверь себя 2.б",
+  "question_template": "Вычислите значение выражения:<br><br>( {a} : {b} + {c} · {d} ) − {e} : {f}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [312, 240, 156, 260, 225, 168, 264, 180] },
+    "b": { "type": "choice", "values": [13, 12, 12, 10, 9, 8, 12, 9] },
+    "c": { "type": "choice", "values": [17, 10, 15, 9, 12, 11, 10, 8] },
+    "d": { "type": "choice", "values": [52, 30, 20, 18, 16, 14, 15, 20] },
+    "e": { "type": "choice", "values": [90, 48, 36, 80, 54, 60, 72, 90] },
+    "f": { "type": "choice", "values": [2, 4, 3, 4, 3, 5, 4, 5] },
+    "ANS": { "type": "choice", "values": [863, 308, 301, 168, 199, 163, 154, 162] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 16. Проверь себя 2.в",
+  "question_template": "Вычислите значение выражения:<br><br>{a} : {b} + ( {c} · {d} − {e} ) : {f}",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [312, 240, 156, 260, 225, 168, 264, 180] },
+    "b": { "type": "choice", "values": [13, 12, 12, 10, 9, 8, 12, 9] },
+    "c": { "type": "choice", "values": [17, 10, 15, 9, 12, 11, 10, 8] },
+    "d": { "type": "choice", "values": [52, 30, 20, 18, 16, 14, 15, 20] },
+    "e": { "type": "choice", "values": [90, 48, 36, 80, 54, 60, 72, 90] },
+    "f": { "type": "choice", "values": [2, 4, 3, 2, 3, 2, 3, 5] },
+    "ANS": { "type": "choice", "values": [421, 83, 101, 67, 71, 68, 48, 34] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 16. Проверь себя 2.г",
+  "question_template": "Вычислите значение выражения:<br><br>{a} : {b} + {c} · ( {d} − {e} : {f} )",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [312, 240, 156, 260, 225, 168, 264, 180] },
+    "b": { "type": "choice", "values": [13, 12, 12, 10, 9, 8, 12, 9] },
+    "c": { "type": "choice", "values": [17, 10, 15, 9, 12, 11, 10, 8] },
+    "d": { "type": "choice", "values": [52, 30, 20, 18, 16, 14, 15, 20] },
+    "e": { "type": "choice", "values": [90, 48, 36, 8, 6, 60, 6, 90] },
+    "f": { "type": "choice", "values": [2, 4, 3, 2, 3, 5, 3, 5] },
+    "ANS": { "type": "choice", "values": [143, 200, 133, 152, 193, 43, 152, 36] }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Параграф 16. Проверь себя 3.а Решите уравнение (a + x):2 − b = c",
+  "question_template": "Решите уравнение:<br>\\( ({a} + x) : 2 - {b} = {c} \\).<br><i>Найдите значение x</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [63, 72, 58, 67, 74, 69, 76, 84] },
+    "b": { "type": "choice", "values": [18, 24, 19, 22, 21, 23, 20, 27] },
+    "c": { "type": "choice", "values": [27, 30, 25, 31, 33, 28, 32, 35] },
+    "ANS": { "type": "choice", "values": [27, 36, 30, 39, 34, 33, 28, 40] }
+  }
 }
+
+
 
 
 ]

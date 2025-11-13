@@ -1506,6 +1506,31 @@
     "ANS": { "type": "choice", "value": "-2; -1; 1; 2" }
   },
   "conditions": ""
+},
+{
+  "textbook_id": 9,
+  "name": "223.а Решите биквадратное уравнение",
+  "question_template": "Решите биквадратное уравнение:<br><br>x⁴ - {a}x² - {b} = 0<br><i>В ответ введите больший корень</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 6, 7, 11] },
+    "b": { "type": "choice", "values": [36, 27, 144, 900] },
+    "ANS": { "type": "choice", "values": ["3", "3", "4", "6"] }
+  }
+},
+{
+  "textbook_id": 9,
+  "name": "223.б Решите биквадратное уравнение",
+  "question_template": "Решите биквадратное уравнение:<br><br>{a}x⁴ - {b}x² - {c} = 0<br><i>В ответ введите больший корень</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 1, 1, 1] },
+    "b": { "type": "choice", "values": [8, 3, 15, 24] },
+    "c": { "type": "choice", "values": [9, 4, 16, 25] },
+    "ANS": { "type": "choice", "values": ["3", "2", "4", "5"] }
+  }
 }
 
 
