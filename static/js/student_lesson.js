@@ -214,78 +214,84 @@ function normalizeLatexForRetry(text) {
     return normalized;
 }
 
-    // Функция проверки ответа в модальном окне
-    async function checkRetryAnswer() {
-        const modal = document.getElementById('retryModal');
-        const input = modal.querySelector('.retry-answer-input');
-        const feedback = modal.querySelector('.retry-feedback');
-        const correctAnswer = modal.querySelector('.retry-correct-answer').value;
-        const answerType = modal.querySelector('.retry-answer-type').value;
-        const userAnswer = input.value.trim();
-        
-        if (!userAnswer) {
-            alert('Введите ответ!');
-            return;
-        }
-        
-        try {
-            const response = await fetch('/api/check_answer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    answer: userAnswer,
-                    correct_answer: correctAnswer,
-                    answer_type: answerType
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.is_correct) {
-                // ✅ Если правильно - засчитываем оригинальное задание как верное
-                feedback.innerHTML = '<div class="success">Правильно! Задание засчитано.</div>';
-                feedback.classList.remove('hidden');
-                
-                // Блокируем поле ввода
-                input.disabled = true;
-                document.querySelector('.btn-check-retry').disabled = true;
+ // Функция проверки ответа в модальном окне
+async function checkRetryAnswer() {
+    const modal = document.getElementById('retryModal');
+    const input = modal.querySelector('.retry-answer-input');
+    const feedback = modal.querySelector('.retry-feedback');
+    const correctAnswer = modal.querySelector('.retry-correct-answer').value;
+    const answerType = modal.querySelector('.retry-answer-type').value;
+    const userAnswer = input.value.trim();
 
-                setTimeout(async () => {
-                    await saveAnswerToServer(currentRetryTaskId, userAnswer, true, true);
+    if (!userAnswer) {
+        alert('Введите ответ!');
+        return;
+    }
 
-                    // 🔒 Помечаем задание как перерешанное (больше нельзя)
-                    currentRetryTaskCard.dataset.retryCompleted = "true";
-                    const retryBtn = currentRetryTaskCard.querySelector('.btn-retry');
-                    if (retryBtn) {
-                        retryBtn.disabled = true;
-                        retryBtn.classList.add('hidden');
-                    }
+    // ---------------------------------------------------------
+    // 🔥 1) АВТОМАТИЧЕСКАЯ ПРОВЕРКА (как кнопка "не согласен")
+    // ---------------------------------------------------------
+    const normalizedUser = userAnswer.trim().replace(/\s+/g, "").toLowerCase();
+    const normalizedCorrect = correctAnswer.trim().replace(/\s+/g, "").toLowerCase();
 
-                    // Обновляем интерфейс оригинального задания
-                    showResult(currentRetryTaskCard, true, userAnswer);
-                    currentRetryTaskCard.querySelector('.answer-input').disabled = true;
-                    currentRetryTaskCard.querySelector('.btn-check').disabled = true;
+    if (normalizedUser === normalizedCorrect) {
+        console.log("✔ Автоматически засчитано (retry)");
 
-                    // Закрываем модальное окно
-                    closeRetryModal();
-                }, 1500);
+        feedback.innerHTML = '<div class="success">Правильно! Задание засчитано.</div>';
+        feedback.classList.remove('hidden');
 
-            } else {
-                // ❌ Если неправильно - показываем ошибку
-                feedback.innerHTML = `
-                    <div class="error">
-                        Неправильно! Правильный ответ: ${correctAnswer}
-                        <br>Больше нельзя перерешать это задание.
-                    </div>
-                `;
-                feedback.classList.remove('hidden');
+        input.disabled = true;
+        document.querySelector('.btn-check-retry').disabled = true;
 
-                // Блокируем дальнейшие попытки
-                input.disabled = true;
-                document.querySelector('.btn-check-retry').disabled = true;
-                document.querySelector('.btn-cancel').textContent = 'Закрыть';
+        setTimeout(async () => {
+            await saveAnswerToServer(currentRetryTaskId, userAnswer, true, true);
 
-                // 🔒 Также блокируем кнопку "Решить ещё раз" навсегда
+            // 🔒 фиксируем, что задание перерешано
+            currentRetryTaskCard.dataset.retryCompleted = "true";
+            const retryBtn = currentRetryTaskCard.querySelector('.btn-retry');
+            if (retryBtn) {
+                retryBtn.disabled = true;
+                retryBtn.classList.add('hidden');
+            }
+
+            // обновляем исходную карточку
+            showResult(currentRetryTaskCard, true, userAnswer);
+            currentRetryTaskCard.querySelector('.answer-input').disabled = true;
+            currentRetryTaskCard.querySelector('.btn-check').disabled = true;
+
+            closeRetryModal();
+        }, 1200);
+
+        return; // 🚀 Никакого API — сразу выходим
+    }
+
+    // ---------------------------------------------------------
+    // 2) Обычная проверка через API check_answer
+    // ---------------------------------------------------------
+    try {
+        const response = await fetch('/api/check_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                answer: userAnswer,
+                correct_answer: correctAnswer,
+                answer_type: answerType
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.is_correct) {
+            // 💚 Правильный ответ
+            feedback.innerHTML = '<div class="success">Правильно! Задание засчитано.</div>';
+            feedback.classList.remove('hidden');
+
+            input.disabled = true;
+            document.querySelector('.btn-check-retry').disabled = true;
+
+            setTimeout(async () => {
+                await saveAnswerToServer(currentRetryTaskId, userAnswer, true, true);
+
                 currentRetryTaskCard.dataset.retryCompleted = "true";
                 const retryBtn = currentRetryTaskCard.querySelector('.btn-retry');
                 if (retryBtn) {
@@ -293,18 +299,44 @@ function normalizeLatexForRetry(text) {
                     retryBtn.classList.add('hidden');
                 }
 
-                // Сохраняем результат как неправильный
-                await saveAnswerToServer(currentRetryTaskId, userAnswer, false, true);
+                showResult(currentRetryTaskCard, true, userAnswer);
+                currentRetryTaskCard.querySelector('.answer-input').disabled = true;
+                currentRetryTaskCard.querySelector('.btn-check').disabled = true;
 
-                
-            }
-            
-        } catch (error) {
-            console.error('Ошибка проверки:', error);
-            feedback.innerHTML = '<div class="error">Ошибка проверки ответа</div>';
+                closeRetryModal();
+            }, 1500);
+
+        } else {
+            // ❌ Неверно
+            feedback.innerHTML = `
+                <div class="error">
+                    Неправильно! Правильный ответ: ${correctAnswer}
+                    <br>Больше нельзя перерешать это задание.
+                </div>
+            `;
             feedback.classList.remove('hidden');
+
+            input.disabled = true;
+            document.querySelector('.btn-check-retry').disabled = true;
+            document.querySelector('.btn-cancel').textContent = 'Закрыть';
+
+            currentRetryTaskCard.dataset.retryCompleted = "true";
+            const retryBtn = currentRetryTaskCard.querySelector('.btn-retry');
+            if (retryBtn) {
+                retryBtn.disabled = true;
+                retryBtn.classList.add('hidden');
+            }
+
+            await saveAnswerToServer(currentRetryTaskId, userAnswer, false, true);
         }
+
+    } catch (error) {
+        console.error('Ошибка проверки:', error);
+        feedback.innerHTML = '<div class="error">Ошибка проверки ответа</div>';
+        feedback.classList.remove('hidden');
     }
+}
+
 
     // Функция закрытия модального окна
     function closeRetryModal() {
@@ -392,110 +424,104 @@ function normalizeLatexForRetry(text) {
     }
 
     // Функция проверки ответа (основная логика без изменений)
-    async function checkAnswer(taskCard) {
-        const taskId = taskCard.dataset.taskId;
-        let userAnswer = taskCard.querySelector('.answer-input').value.trim();
+    // --- ОБНОВЛЁННАЯ ФУНКЦИЯ БЕЗ ПОТЕРИ ФУНКЦИОНАЛА ---
+async function checkAnswer(taskCard) {
+    const taskId = taskCard.dataset.taskId;
+    let userAnswer = taskCard.querySelector('.answer-input').value.trim();
 
-// ✅ Автозамена "√5" → "sqrt(5)" перед отправкой
-userAnswer = userAnswer.replace(/([0-9]*\.?[0-9]*|)\s*√\s*(\(?[a-zA-Z0-9+*/\s-]+\)?)/g, function(_, coeff, radicand) {
-    const coefficient = coeff.trim() === '' ? '' : coeff.trim() + '*';
-    return coefficient + 'sqrt(' + radicand.trim() + ')';
-});
-        const correctAnswer = taskCard.dataset.correctAnswer;
-        const answerType = taskCard.dataset.answerType || 'numeric';
+    // Автозамена "√5" → "sqrt(5)"
+    userAnswer = userAnswer.replace(/([0-9]*\.?[0-9]*|)\s*√\s*(\(?[a-zA-Z0-9+*/\s-]+\)?)/g, function(_, coeff, radicand) {
+        const coefficient = coeff.trim() === '' ? '' : coeff.trim() + '*';
+        return coefficient + 'sqrt(' + radicand.trim() + ')';
+    });
 
-        // Счетчик попыток на карточке
-        if (typeof taskCard.attempts === "undefined") taskCard.attempts = 0;
+    const correctAnswer = taskCard.dataset.correctAnswer;
+    const answerType = taskCard.dataset.answerType || 'numeric';
 
-        // Проверяем, не отправлен ли уже ответ
-        if (taskCard.querySelector('.answer-input').disabled) {
-            return;
-        }
-
-        if (!userAnswer) {
-            alert('Введите ответ!');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/check_answer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    answer: userAnswer,
-                    correct_answer: correctAnswer,
-                    answer_type: answerType
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.error) {
-                throw new Error(result.error);
-            }
-
-            taskCard.attempts += 1; // +1 попытка
-
-            // Показываем результат
-            showResult(taskCard, result.is_correct, userAnswer);
-
-            if (result.is_correct) {
-    // Если правильно — блокируем поле
-    taskCard.querySelector('.answer-input').disabled = true;
-    taskCard.querySelector('.btn-check').disabled = true;
-    await saveAnswerToServer(taskId, userAnswer, true);
-
-} else if (taskCard.attempts >= 1) {
-    // Если 1 ошибка — блокируем, сохраняем и показываем правильный ответ
-    taskCard.querySelector('.answer-input').disabled = true;
-    taskCard.querySelector('.btn-check').disabled = true;
-    await saveAnswerToServer(taskId, userAnswer, false);
-    const msg = taskCard.querySelector('.feedback-incorrect .error-message');
-    if (msg) {
-      msg.innerHTML = "Ответ неверный. Правильный ответ: <span class='correct-answer'>" +
-                      correctAnswer + "</span>";
+    if (!userAnswer) {
+        alert("Введите ответ!");
+        return;
     }
 
-    taskCard.querySelector('.btn-dispute')?.classList.remove('hidden');
-    showRetryButton(taskCard);
-    fetchAISolution(taskCard);       // показать полное решение от ИИ
+    // Блокируем повторный ввод
+    if (taskCard.querySelector('.answer-input').disabled) return;
 
-} else {
-    // Это первая попытка (и если она неправильная — будет последняя)
-    taskCard.attempts += 1;
+    // Счётчик попыток
+    if (typeof taskCard.attempts === "undefined") taskCard.attempts = 0;
 
-    // Автоматическая проверка по символам
-    const normalizedUser = userAnswer.trim().replace(/\s+/g, '').toLowerCase();
-    const normalizedCorrect = correctAnswer.trim().replace(/\s+/g, '').toLowerCase();
+    // ---------------------------------------------------------
+    // 1) 🔥 АВТОМАТИЧЕСКАЯ ПРОВЕРКА (логика кнопки "НЕ СОГЛАСЕН")
+    // ---------------------------------------------------------
+    const normalizedUser = userAnswer.trim().replace(/\s+/g, "").toLowerCase();
+    const normalizedCorrect = correctAnswer.trim().replace(/\s+/g, "").toLowerCase();
 
     if (normalizedUser === normalizedCorrect) {
-        console.log("Ответ символически совпадает — автоматически засчитан.");
+        console.log("✔ Автоматически засчитано — символическое совпадение");
+
+        showResult(taskCard, true, userAnswer);
+
         taskCard.querySelector('.answer-input').disabled = true;
         taskCard.querySelector('.btn-check').disabled = true;
-        taskCard.querySelector('.task-feedback .feedback-correct').classList.remove('hidden');
-        taskCard.querySelector('.task-feedback .feedback-incorrect').classList.add('hidden');
-        taskCard.querySelector('.answer-input').classList.add('correct');
+
         await saveAnswerToServer(taskId, userAnswer, true);
         return;
     }
 
-    // Если не совпадает — сразу считаем ошибкой (одна попытка)
-    taskCard.querySelector('.task-feedback .feedback-incorrect').classList.remove('hidden');
-    taskCard.querySelector('.task-feedback .feedback-correct').classList.add('hidden');
-    await saveAnswerToServer(taskId, userAnswer, false);
-    showRetryButton(taskCard);
-    fetchAISolution(taskCard);
-    taskCard.querySelector('.answer-input').disabled = true;
-    taskCard.querySelector('.btn-check').disabled = true;
+    // ---------------------------------------------------------
+    // 2) Обычная проверка через /api/check_answer
+    // ---------------------------------------------------------
+    try {
+        const response = await fetch('/api/check_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                task_id: taskId,
+                answer: userAnswer,
+                correct_answer: correctAnswer,
+                answer_type: answerType
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.error) throw new Error(result.error);
+
+        taskCard.attempts += 1;
+
+        // 🔹 Показ результата (зеленый/красный)
+        showResult(taskCard, result.is_correct, userAnswer);
+
+        if (result.is_correct) {
+            // ✔ Правильный
+            taskCard.querySelector('.answer-input').disabled = true;
+            taskCard.querySelector('.btn-check').disabled = true;
+            await saveAnswerToServer(taskId, userAnswer, true);
+            return;
+        }
+
+        // ❌ Неправильно
+        taskCard.querySelector('.answer-input').disabled = true;
+        taskCard.querySelector('.btn-check').disabled = true;
+
+        const msg = taskCard.querySelector('.feedback-incorrect .error-message');
+        if (msg) {
+            msg.innerHTML = "Ответ неверный. Правильный ответ: <span class='correct-answer'>" +
+                correctAnswer + "</span>";
+        }
+
+        // кнопка "Показать решение" и "Решить ещё раз"
+        taskCard.querySelector('.btn-dispute')?.classList.add('hidden');
+        showRetryButton(taskCard);
+        fetchAISolution(taskCard);
+
+        await saveAnswerToServer(taskId, userAnswer, false);
+
+    } catch (error) {
+        console.error(error);
+        alert("Ошибка: " + error.message);
+    }
 }
 
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Произошла ошибка: ' + error.message);
-        }
-    }
 
     // Функция показа результата
     function showResult(taskCard, isCorrect, userAnswer) {
@@ -949,7 +975,7 @@ const questionText = extractQuestionForAI(taskCard);
     }
   } catch (e) {
     console.error('fetchAISolution error:', e);
-    solutionNode.textContent = 'Ошибка при получении решения.';
+    solutionNode.textContent = '';
   }
 }
 

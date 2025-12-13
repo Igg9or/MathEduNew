@@ -4882,7 +4882,7 @@
   "answer_type": "string",
   "parameters": {
     "d": { "type": "choice", "values": [17, 10, 5, 2, 3, 8, 12, 6] },
-    "ANS": { "type": "choice", "values": ["-√17; √17", "-√10; √10", "-√5; √5", "-√2; √2", "-√3; √3", "-√8; √8", "-√12; √12", "-√6; √6"] }
+    "ANS": { "type": "choice", "values": ["-sqrt(17); sqrt(17)", "-sqrt(10); sqrt(10)", "-sqrt(5); sqrt(5)", "-sqrt(2);sqrt(2)", "-sqrt(3); sqrt(3)", "-sqrt(8); sqrt(8)", "-sqrt(12); sqrt(12)", "-sqrt(6); sqrt(6)"] }
   }
 },
 {
@@ -4954,9 +4954,2066 @@
     "b": { "type": "choice", "values": [2, 9, 25, 16, 9, 2, 36, 3] },
     "ANS": { "type": "choice", "values": ["-5−√2; -5+√2", "-6; 0", "-9; 1", "-6; 2", "-9; -3", "-1−√2; -1+√2", "-13; -1", "-8−√3; -8+√3"] }
   }
+},
+{
+  "textbook_id": 6,
+  "name": "315.а Решите уравнение p + y² = q",
+  "question_template": "Решите уравнение:<br>\\( {p} + y^2 = {q} \\).<br><i>Если корней нет, напишите «корней нет». Если есть — запишите оба корня в порядке возрастания через точку с запятой. .</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [80, 50, 25, 60, 15, 72, 90, 48] },
+    "q": { "type": "choice", "values": [81, 74, 41, 69, 40, 76, 99, 60] },
+    "ANS": { "type": "choice", "values": ["-1; 1", "-sqrt(24); sqrt(24)", "-4; 4", "-3; 3", "-5; 5", "-2; 2", "-3; 3", "-sqrt(12); sqrt(12)"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "315.б Решите уравнение r + c² = s",
+  "question_template": "Решите уравнение:<br>\\( {r} + c^2 = {s} \\).<br><i>Если подкоренное выражение отрицательное (s − r < 0), напишите «корней нет». Если есть — запишите оба корня в порядке возрастания через точку с запятой. .</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "r": { "type": "choice", "values": [19, 25, 30, 11, 40, 18, 22, 14] },
+    "s": { "type": "choice", "values": [10, 4, 12, 5, 7, 3, 8, 1] },
+    "ANS": { "type": "choice", "values": ["корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "315.в Решите уравнение a − b² = c",
+  "question_template": "Решите уравнение:<br>\\( {a} - b^2 = {c} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет». Если корни есть — запишите оба в порядке возрастания через точку с запятой. .</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [20, 26, 10, 13, 17, 9, 5, 11] },
+    "c": { "type": "choice", "values": [-5, 10, -6, -3, 1, -7, -4, -5] },
+    "ANS": { "type": "choice", "values": ["-5; 5", "-4; 4", "-4; 4", "-4; 4", "-4; 4", "-4; 4", "-3; 3", "-4; 4"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "315.г Решите уравнение kx² = m",
+  "question_template": "Решите уравнение:<br>\\( {k}x^2 = {m} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет». Если корни есть — запишите оба в порядке возрастания через точку с запятой. .</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [3, 4, 5, 2, 6, 7, 10, 9] },
+    "m": { "type": "choice", "values": [1.47, 1.44, 1.25, 0.98, 2.16, 1.75, 0.90, 0.81] },
+    "ANS": { "type": "choice", "values": ["-0.7; 0.7", "-0.6; 0.6", "-0.5; 0.5", "-0.7; 0.7", "-0.6; 0.6", "-0.5; 0.5", "-0.3; 0.3", "-0.3; 0.3"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "315.д Решите уравнение (1/n)·a² = m",
+  "question_template": "Решите уравнение:<br>\\( \\dfrac{1}{{{n}}}a^2 = {m} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет». Если корни есть — запишите оба в порядке возрастания через точку с запятой.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "n": { "type": "choice", "values": [4, 2, 5, 8, 3, 1, 12, 7] },
+    "m": { "type": "choice", "values": [9, 18, 5, 2, 12, 49, 3, 7] },
+    "ANS": { "type": "choice", "values": ["-6; 6", "-6; 6", "-5; 5", "-4; 4", "-6; 6", "-7; 7", "-6; 6", "-7; 7"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "315.е Решите уравнение –k·y² = p",
+  "question_template": "Решите уравнение:<br>\\( -{k}y^2 = {p} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет».</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [5, 3, 2, 4, 6, 7, 8, 10] },
+    "p": { "type": "choice", "values": [2.5, 0.9, 7, 1, 4.2, 1, 0.16, 5] },
+    "ANS": { "type": "choice", "values": ["корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.а Решите уравнение a + x² = 0",
+  "question_template": "Решите уравнение:<br>\\( {a} + x^2 = 0 \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет».</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [9, 4, 25, 0.36, 49, 1, 0.25, 100] },
+    "ANS": { "type": "choice", "values": ["корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.б Решите уравнение kx² = m",
+  "question_template": "Решите уравнение:<br>\\( {k}x^2 = {m} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет». Если корни есть — запишите оба в порядке возрастания через точку с запятой.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [0.5, 0.2, 0.3, 0.25, 1, 0.15, 2, 3] },
+    "m": { "type": "choice", "values": [0.125, 0.098, 0.108, 0.0625, 0.81, 0.0135, 0.5, 1.47] },
+    "ANS": { "type": "choice", "values": ["-0.5; 0.5", "-0.7; 0.7", "-0.6; 0.6", "-0.5; 0.5", "-0.9; 0.9", "-0.3; 0.3", "-0.5; 0.5", "-0.7; 0.7"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.в Решите уравнение kx² = m",
+  "question_template": "Решите уравнение:<br>\\( {k}x^2 = {m} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет». Если корни есть — запишите оба в порядке возрастания через точку с запятой.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [0.5, 0.25, 0.30, 0.45, 0.20, 0.15, 0.75, 0.90] },
+    "m": { "type": "choice", "values": [0.125, 0.09, 0.147, 0.3645, 0.018, 0.0735, 0.27, 0.225] },
+    "ANS": { "type": "choice", "values": ["-0.5; 0.5", "-0.6; 0.6", "-0.7; 0.7", "-0.9; 0.9", "-0.3; 0.3", "-0.7; 0.7", "-0.6; 0.6", "-0.5; 0.5"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.г Решите уравнение –k·x² = p",
+  "question_template": "Решите уравнение:<br>\\( -{k}x^2 = {p} \\).<br><i>Если подкоренное выражение отрицательное, напишите «корней нет».</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [5, 3, 2, 4, 6, 7, 8, 10] },
+    "p": { "type": "choice", "values": [2, 0.9, 7, 1, 4.2, 1.4, 0.16, 5] },
+    "ANS": { "type": "choice", "values": ["корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет", "корней нет"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.д Решите уравнение x³ – a·x = 0",
+  "question_template": "Решите уравнение:<br>\\( x^3 - {a}x = 0 \\).<br><i>Ответ запишите в порядке возрастания через точку с запятой.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [4, 9, 16, 25, 36, 49, 64, 81] },
+    "ANS": { "type": "choice", "values": ["-2; 0; 2", "-3; 0; 3", "-4; 0; 4", "-5; 0; 5", "-6; 0; 6", "-7; 0; 7", "-8; 0; 8", "-9; 0; 9"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "316.е Решите уравнение x³ – b·x = 0",
+  "question_template": "Решите уравнение:<br>\\( x^3 - {b}x = 0 \\).<br><i>Ответ запишите в порядке возрастания через точку с запятой.</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "b": { "type": "choice", "values": [1, 4, 9, 25, 36, 49, 64, 100] },
+    "ANS": { "type": "choice", "values": ["-1; 0; 1", "-2; 0; 2", "-3; 0; 3", "-5; 0; 5", "-6; 0; 6", "-7; 0; 7", "-8; 0; 8", "-10; 0; 10"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.а Вычислите (√a)²",
+  "question_template": "Вычислите:<br>\\( (\\sqrt{{{a}}})^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 6, 8, 10, 12, 15, 21] },
+    "ANS": { "type": "choice", "values": [3, 5, 6, 8, 10, 12, 15, 21] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.б Вычислите (–√b)²",
+  "question_template": "Вычислите:<br>\\( (-\\sqrt{{{b}}})^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": { "type": "choice", "values": [4, 7, 11, 13, 17, 19, 22, 28] },
+    "ANS": { "type": "choice", "values": [4, 7, 11, 13, 17, 19, 22, 28] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.в Вычислите k√a·√a",
+  "question_template": "Вычислите:<br>\\( {k}\\sqrt{{{a}}}\\cdot\\sqrt{{{a}}} \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "k": { "type": "choice", "values": [-3, -4, -5, -2, 3, 4, -6, 7] },
+    "a": { "type": "choice", "values": [6, 7, 3, 10, 8, 5, 2, 11] },
+    "ANS": { "type": "choice", "values": [-18, -28, -15, -20, 24, 20, -12, 77] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.г Вычислите (p√b)²",
+  "question_template": "Вычислите:<br>\\( ({p}\\sqrt{{{b}}})^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [2, 3, -4, 5, -3, 6, -2, 7] },
+    "b": { "type": "choice", "values": [7, 3, 2, 6, 8, 5, 11, 4] },
+    "ANS": { "type": "choice", "values": [28, 27, 32, 150, 72, 180, 44, 196] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.д Вычислите p(-√a)²",
+  "question_template": "Вычислите:<br>\\( {p}(-\\sqrt{{{a}}})^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [0.4, 0.6, 0.3, 0.8, 0.2, 0.75, 0.5, 0.9] },
+    "a": { "type": "choice", "values": [7, 5, 9, 3, 11, 4, 6, 2] },
+    "ANS": { "type": "choice", "values": [2.8, 3, 2.7, 2.4, 2.2, 3, 3, 1.8] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.е Вычислите (q√b)²",
+  "question_template": "Вычислите:<br>\\( ({q}\\sqrt{{{b}}})^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { "type": "choice", "values": [-3, 4, -5, 6, -2, 7, -8, 3] },
+    "b": { "type": "choice", "values": [7, 6, 2, 3, 10, 4, 5, 11] },
+    "ANS": { "type": "choice", "values": [63, 96, 50, 108, 40, 196, 320, 99] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.ж Вычислите (√a / b)²",
+  "question_template": "Вычислите:<br>\\( \\left(\\frac{\\sqrt{{{a}}}}{{{b}}}\\right)^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 7, 2, 6, 10, 8, 11, 14] },
+    "b": { "type": "choice", "values": [3, 4, 5, 3, 2, 5, 6, 7] },
+    "ANS": { "type": "choice", "values": ["5/9", "7/16", "2/25", "2/3", "5/2", "8/25", "11/36", "2/7"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "322.з Вычислите (√c / √d)²",
+  "question_template": "Вычислите:<br>\\( \\left(\\frac{\\sqrt{{{c}}}}{\\sqrt{{{d}}}}\\right)^2 \\).",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [4, 6, 9, 10, 12, 15, 7, 18] },
+    "d": { "type": "choice", "values": [5, 2, 3, 8, 6, 5, 14, 9] },
+    "ANS": { "type": "choice", "values": ["4/5", "3", "3", "5/4", "2", "3", "1/2", "2"] }
+  }
+},
+{
+  "textbook_id": 6,
+  "name": "Геометрия. Контрольная работа. Площади фигур",
+  "question_template": "https://infourok.ru/kontrolnye-raboty-po-geometrii-8-klass-4574231.html",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [4, 6, 9, 10, 12, 15, 7, 18] },
+    "d": { "type": "choice", "values": [5, 2, 3, 8, 6, 5, 14, 9] },
+    "ANS": { "type": "choice", "values": ["4/5", "3", "3", "5/4", "2", "3", "1/2", "2"] }
+  }
+},
+ {
+  "textbook_id": 6,
+  "name": "3.329.а Два целых числа, между которыми расположено √A",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{A}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [21, 24, 26, 28, 30, 31, 33, 35]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4; 5",
+        "4; 5",
+        "5; 6",
+        "5; 6",
+        "5; 6",
+        "5; 6",
+        "5; 6",
+        "5; 6"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.329.б Два целых числа, между которыми расположено √B",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{B}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [37, 42, 45, 51, 55, 58, 60, 62]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "6; 7",
+        "6; 7",
+        "6; 7",
+        "7; 8",
+        "7; 8",
+        "7; 8",
+        "7; 8",
+        "7; 8"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "329.в Два последовательных целых для √A",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{A}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [120, 130, 145, 160, 170, 180, 200, 215]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "10; 11",
+        "11; 12",
+        "12; 13",
+        "12; 13",
+        "13; 14",
+        "13; 14",
+        "14; 15",
+        "14; 15"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "329.г Два последовательных целых для √B",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{B}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [9.2, 8.1, 7.4, 10.5, 11.7, 12.3, 14.8]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "3; 4",
+        "2; 3",
+        "2; 3",
+        "3; 4",
+        "3; 4",
+        "3; 4",
+        "3; 4"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "329.д Два последовательных целых для √C",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{C}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "C": {
+      "type": "choice",
+      "values": [0.4, 0.3, 0.6, 0.7, 0.8, 0.9, 0.5, 0.2]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "0; 1",
+        "0; 1",
+        "0; 1",
+        "0; 1",
+        "0; 1",
+        "0; 1",
+        "0; 1",
+        "0; 1"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "329.е Два последовательных целых для √D",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{D}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "D": {
+      "type": "choice",
+      "values": [15, 17, 20, 22, 26, 28, 30, 34]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "3; 4",
+        "4; 5",
+        "4; 5",
+        "4; 5",
+        "5; 6",
+        "5; 6",
+        "5; 6",
+        "5; 6"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "329.Ж Два последовательных целых для √A",
+  "question_template": "Подберите два последовательных целых числа, между которыми заключено число \\(\\sqrt{A}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [167, 170, 180, 190, 200, 210, 220, 230]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "12; 13",
+        "13; 14",
+        "13; 14",
+        "13; 14",
+        "14; 15",
+        "14; 15",
+        "14; 15",
+        "15; 16"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "331.a Проверка неравенства √A > k",
+  "question_template": "Верно ли утверждение:<br>\\( \\sqrt{A} > {k} \\)?<br><i>Ответ введите: верно / неверно</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [5, 3, 8, 12, 7, 10, 15, 20] },
+    "k": { "type": "choice", "values": [2, 1, 2, 3, 2, 3, 3, 4] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "331.б Проверка неравенства √B < m",
+  "question_template": "Верно ли утверждение:<br>\\( \\sqrt{B} < {m} \\)?<br><i>Ответ введите: верно / неверно</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "B": { "type": "choice", "values": [5.2, 3.5, 2.8, 4.9, 1.5, 0.9, 3.2, 5.8] },
+    "m": { "type": "choice", "values": [2, 2, 2, 2, 2, 1, 2, 2] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "неверно",
+        "верно",
+        "верно",
+        "неверно",
+        "верно",
+        "верно",
+        "верно",
+        "неверно"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "331.в Проверка неравенства √A < k",
+  "question_template": "Верно ли утверждение:<br>\\( \\sqrt{A} < {k} \\)?<br><i>Ответ введите: верно / неверно</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [170, 160, 150, 155, 165, 180, 190, 200] },
+    "k": { "type": "choice", "values": [13, 13, 13, 13, 13, 14, 14, 14] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "неверно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "неверно"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "331.г Проверка неравенства √B > √C",
+  "question_template": "Верно ли утверждение:<br>\\( \\sqrt{B} > \\sqrt{C} \\)?<br><i>Ответ введите: верно / неверно</i>",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "B": { "type": "choice", "values": [39, 50, 82, 91, 70, 101, 120, 130] },
+    "C": { "type": "choice", "values": [38, 49, 80, 90, 71, 99, 119, 131] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "верно",
+        "верно",
+        "верно",
+        "верно",
+        "неверно",
+        "верно",
+        "верно",
+        "неверно"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "362а",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} \\cdot {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [36, 25, 64, 49, 9, 144, 169, 196, 121, 225, 256, 400] },
+    "b": { "type": "choice", "values": [49, 16, 81, 100, 121, 25, 4, 9, 16, 4, 49, 9] },
+    "answer": { "type": "choice", "values": [42, 20, 72, 70, 33, 60, 26, 42, 44, 30, 112, 60] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "362б",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c} \\cdot {d} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [49, 81, 100, 16, 36, 121, 144, 25, 400, 324, 169, 441] },
+    "d": { "type": "choice", "values": [64, 25, 144, 225, 169, 9, 49, 196, 4, 25, 16, 4] },
+    "answer": { "type": "choice", "values": [56, 45, 120, 60, 78, 33, 84, 70, 40, 90, 52, 42] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "362в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {e} \\cdot {f} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "e": { "type": "choice", "values": [16, 25, 36, 49, 64, 81, 100, 121, 144, 225, 256, 324] },
+    "f": { "type": "choice", "values": [121, 144, 64, 81, 225, 100, 49, 64, 169, 36, 25, 49] },
+    "answer": { "type": "choice", "values": [44, 60, 48, 63, 120, 90, 70, 88, 156, 90, 80, 126] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "362г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {g} \\cdot {h} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "g": { "type": "choice", "values": [25, 49, 36, 64, 81, 100, 121, 144, 169, 196, 225, 256] },
+    "h": { "type": "choice", "values": [0.16, 0.25, 0.09, 0.04, 0.01, 0.16, 0.04, 0.09, 0.25, 0.04, 0.09, 0.16] },
+    "answer": { "type": "choice", "values": [2, 3.5, 1.8, 1.6, 0.9, 4, 2.2, 3.6, 6.5, 2.8, 4.5, 6.4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "362д",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} \\cdot {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.01, 0.04, 0.09, 0.16, 0.25, 0.36, 0.49, 0.64, 0.81, 0.04, 0.09, 0.16] },
+    "b": { "type": "choice", "values": [144, 169, 100, 81, 64, 49, 36, 25, 16, 225, 196, 121] },
+    "answer": { "type": "choice", "values": [1.2, 2.6, 3, 3.6, 4, 4.2, 4.2, 4, 3.6, 3, 4.2, 4.4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "362е",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c} \\cdot {d} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [2.25, 1.44, 3.24, 4.00, 6.25, 9.00, 7.29, 5.76, 8.41, 2.56, 3.61, 4.84] },
+    "d": { "type": "choice", "values": [0.04, 0.09, 0.01, 0.25, 0.16, 0.04, 0.09, 0.04, 0.01, 0.16, 0.25, 0.04] },
+    "answer": { "type": "choice", "values": [0.3, 0.36, 0.18, 1, 1, 0.6, 0.81, 0.48, 0.29, 0.64, 0.95, 0.44] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363а",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a}/{b} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [4, 9, 16, 25, 36, 49, 64, 121] },
+    "b": { "type": "choice", "values": [25, 49, 81, 36, 49, 64, 121, 169] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.4", "3/7", "4/9", "5/6", "6/7", "7/8", "8/11", "11/13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363б",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c}/{d} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [16, 36, 64, 25, 81, 100, 49, 144] },
+    "d": { "type": "choice", "values": [25, 49, 81, 49, 100, 121, 64, 169] },
+    "answer": {
+      "type": "choice",
+      "values": ["4/5", "6/7", "8/9", "5/7", "9/10", "10/11", "7/8", "12/13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {e}/{f} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "e": { "type": "choice", "values": [49, 81, 100, 144, 121, 169, 196, 225] },
+    "f": { "type": "choice", "values": [25, 49, 64, 100, 64, 81, 100, 121] },
+    "answer": {
+      "type": "choice",
+      "values": ["7/5", "9/7", "5/4", "6/5", "11/8", "13/9", "7/5", "15/11"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {k}\\ \\dfrac{{{m}}}{{{n}}} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "k": { "type": "choice", "values": [1, 1, 2, 1, 1, 2, 3, 2] },
+    "m": { "type": "choice", "values": [9, 7, 7, 11, 24, 14, 6, 1] },
+    "n": { "type": "choice", "values": [16, 9, 9, 25, 25, 25, 25, 4] },
+    "answer": {
+      "type": "choice",
+      "values": ["5/4", "4/3", "5/3", "6/5", "7/5", "8/5", "9/5", "3/2"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363д",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} \\ \\dfrac{ {b} }{ {c} } } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 1, 6, 1, 1, 5, 3, 7] },
+    "b": { "type": "choice", "values": [1, 7, 1, 9, 11, 4, 1, 1] },
+    "c": { "type": "choice", "values": [4, 9, 4, 16, 25, 9, 16, 9] },
+    "answer": {
+      "type": "choice",
+      "values": ["3/2", "4/3", "5/2", "5/4", "6/5", "7/3", "7/4", "8/3"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "363е",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {d} \\ \\dfrac{ {e} }{ {f} } } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "d": { "type": "choice", "values": [5, 3, 1, 1, 2, 1, 7, 4] },
+    "e": { "type": "choice", "values": [1, 6, 32, 17, 2, 19, 9, 21] },
+    "f": { "type": "choice", "values": [16, 25, 49, 64, 49, 81, 16, 25] },
+    "answer": {
+      "type": "choice",
+      "values": ["9/4", "9/5", "9/7", "9/8", "10/7", "10/9", "11/4", "11/5"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "364а",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} \\cdot {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [49, 64, 36, 25, 81, 100, 144, 225] },
+    "b": { "type": "choice", "values": [400, 225, 324, 196, 256, 169, 121, 64] },
+    "answer": {
+      "type": "choice",
+      "values": [140, 120, 108, 70, 144, 130, 132, 120]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "364б",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c} \\cdot {d} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [0.25, 0.49, 0.16, 0.09, 0.36, 0.81, 0.04, 0.64] },
+    "d": { "type": "choice", "values": [36, 25, 81, 64, 16, 49, 225, 100] },
+    "answer": {
+      "type": "choice",
+      "values": [3, 3.5, 3.6, 2.4, 2.4, 6.3, 3, 8]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "364в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} \\dfrac{ {b} }{ {c} } } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [7, 8, 5, 6, 9, 10, 4, 11] },
+    "b": { "type": "choice", "values": [1, 9, 4, 1, 4, 9, 1, 4] },
+    "c": { "type": "choice", "values": [4, 16, 9, 16, 25, 25, 9, 16] },
+    "answer": {
+      "type": "choice",
+      "values": ["15/2", "13/4", "7/3", "13/4", "19/5", "21/5", "13/3", "9/2"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "364г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {d} \\dfrac{ {e} }{ {f} } } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "d": { "type": "choice", "values": [6, 7, 8, 5, 9, 10, 12, 4] },
+    "e": { "type": "choice", "values": [9, 1, 4, 9, 4, 9, 1, 9] },
+    "f": { "type": "choice", "values": [16, 4, 9, 16, 25, 25, 9, 16] },
+    "answer": {
+      "type": "choice",
+      "values": ["13/4", "15/2", "10/3", "11/4", "19/5", "21/5", "11/3", "11/4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376а",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {X} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "X": {
+      "type": "choice",
+      "values": [36100, 48400, 52900, 67600, 72900, 78400, 84100, 90000]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [190, 220, 230, 260, 270, 280, 290, 300]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376б",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {Y} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "choice",
+      "values": [115600, 129600, 152100, 160000, 176400, 202500, 211600, 230400]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [340, 360, 390, 400, 420, 450, 460, 480]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {X} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "X": {
+      "type": "choice",
+      "values": [96100, 102400, 108900, 122500, 136900, 144400, 168100, 184900]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [310, 320, 330, 350, 370, 380, 410, 430]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {Y} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "choice",
+      "values": [193600, 202500, 220900, 240100, 260100, 280900, 302500, 336400]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [440, 450, 470, 490, 510, 530, 550, 580]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {X} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "X": {
+      "type": "choice",
+      "values": [96100, 102400, 108900, 122500, 136900, 144400, 168100, 184900]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [310, 320, 330, 350, 370, 380, 410, 430]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {Y} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "choice",
+      "values": [193600, 202500, 220900, 240100, 260100, 280900, 302500, 336400]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [440, 450, 470, 490, 510, 530, 550, 580]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376д",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [12.25, 6.25, 30.25, 15.21, 2.25, 0.49, 42.25, 56.25]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3.5, 2.5, 5.5, 3.9, 1.5, 0.7, 6.5, 7.5]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376е",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": {
+      "type": "choice",
+      "values": [4.84, 1.44, 7.84, 2.89, 0.64, 5.29, 3.24, 8.41]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [2.2, 1.2, 2.8, 1.7, 0.8, 2.3, 1.8, 2.9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376д",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [12.25, 6.25, 30.25, 15.21, 2.25, 0.49, 42.25, 56.25]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3.5, 2.5, 5.5, 3.9, 1.5, 0.7, 6.5, 7.5]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376е",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": {
+      "type": "choice",
+      "values": [4.84, 1.44, 7.84, 2.89, 0.64, 5.29, 3.24, 8.41]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [2.2, 1.2, 2.8, 1.7, 0.8, 2.3, 1.8, 2.9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376ж",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [17.64, 12.96, 28.09, 24.01, 14.44, 32.49, 10.24, 26.01]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [4.2, 3.6, 5.3, 4.9, 3.8, 5.7, 3.2, 5.1]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "376з",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": {
+      "type": "choice",
+      "values": [6.25, 3.61, 8.41, 4.41, 7.29, 2.56, 5.76, 9.00]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [2.5, 1.9, 2.9, 2.1, 2.7, 1.6, 2.4, 3.0]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378а",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {x} } \\cdot \\sqrt{ {y} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "x": { "type": "choice", "values": [3, 5, 6, 7, 2, 8, 10, 12] },
+    "y": { "type": "choice", "values": [12, 20, 6, 28, 18, 2, 40, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [6, 10, 6, 14, 6, 4, 20, 6]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378б",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {p} } \\cdot \\sqrt{ {q} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [12, 27, 75, 48, 108, 4, 20, 45] },
+    "q": { "type": "choice", "values": [3, 12, 3, 12, 3, 75, 5, 5] },
+    "answer": {
+      "type": "choice",
+      "values": [6, 18, 15, 24, 18, 10, 10, 15]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378в",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} } \\cdot \\sqrt{ {b} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [18, 45, 50, 63, 98, 28, 72, 75] },
+    "b": { "type": "choice", "values": [8, 5, 2, 7, 2, 7, 2, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [12, 15, 10, 21, 14, 14, 12, 15]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378г",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {m} } \\cdot \\sqrt{ {n} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [2, 8, 32, 18, 12, 50, 72, 98] },
+    "n": { "type": "choice", "values": [50, 18, 2, 8, 12, 2, 2, 2] },
+    "answer": {
+      "type": "choice",
+      "values": [10, 12, 8, 12, 12, 10, 12, 14]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378д",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {{x}} } \\cdot \\sqrt{ {{y}} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "x": { "type": "choice", "values": [11, 17, 19, 21, 25, 12, 18, 7] },
+    "y": { "type": "choice", "values": [44, 68, 76, 84, 36, 48, 50, 28] },
+    "answer": { "type": "choice", "values": [22, 34, 38, 42, 30, 24, 30, 14] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378е",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {{m}} } \\cdot \\sqrt{ {{n}} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [45, 28, 72, 98, 75, 27, 50, 18] },
+    "n": { "type": "choice", "values": [5, 7, 2, 2, 3, 12, 2, 8] },
+    "answer": { "type": "choice", "values": [15, 14, 12, 14, 15, 18, 10, 12] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378ж",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a} } \\cdot \\sqrt{ {b} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [18, 20, 10, 40, 25, 27, 22, 32]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4.5, 3.2, 6.4, 2.5, 4.0, 3.0, 5.5, 4.5]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [9, 8, 8, 10, 10, 9, 11, 12]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "378з",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c} } \\cdot \\sqrt{ {d} \\dfrac{ {n} }{ {k} } } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": {
+      "type": "choice",
+      "values": [2.7, 4.8, 7.5, 0.3, 3.0, 12.0, 3.0, 1.2]
+    },
+    "d": {
+      "type": "choice",
+      "values": [3, 3, 3, 13, 1, 1, 8, 13]
+    },
+    "n": {
+      "type": "choice",
+      "values": [1, 1, 1, 1, 1, 1, 1, 1]
+    },
+    "k": {
+      "type": "choice",
+      "values": [3, 3, 3, 3, 3, 3, 3, 3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 2, 2, 4, 5, 4]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "379a",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ \\dfrac{ {a} }{ {b} } } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [8, 50, 27, 32, 18, 98, 72, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [18, 200, 12, 50, 2, 8, 18, 75]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["2/3", "1/2", "3/2", "4/5", "3", "7/2", "2", "2/5"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "379б",
+  "question_template": "Вычислите значение выражения: \\( \\dfrac{ \\sqrt{ {a} } }{ \\sqrt{ {b} } } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [12, 15, 23, 37, 48, 52, 69, 81]
+    },
+    "b": {
+      "type": "choice",
+      "values": [1200, 1500, 2300, 3700, 4800, 5200, 6900, 8100]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["1/10", "1/10", "1/10", "1/10", "1/10", "1/10", "1/10", "1/10"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "379в",
+  "question_template": "Вычислите значение выражения: \\( \\dfrac{ \\sqrt{ {a} } }{ \\sqrt{ {b} } } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [18, 32, 75, 28, 45, 98, 27, 44]
+    },
+    "b": {
+      "type": "choice",
+      "values": [50, 72, 12, 63, 20, 50, 48, 11]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["3/5", "2/3", "5/2", "2/3", "3/2", "7/5", "3/4", "2"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "379г",
+  "question_template": "Вычислите значение выражения: \\( \\dfrac{ \\sqrt{ {a} } }{ \\sqrt{ {b} } } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [9800, 8100, 6400, 5000, 4500, 7200, 18000, 20000]
+    },
+    "b": {
+      "type": "choice",
+      "values": [200, 100, 400, 200, 500, 450, 500, 800]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [7, 9, 4, 5, 3, 4, 6, 5]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "379ж",
+  "question_template": "Вычислите значение выражения: \\( \\dfrac{ \\sqrt{ {a} } }{ \\sqrt{ {b} } } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [4.5, 12.8, 18.75, 10.8, 24.5, 32.0, 28.8, 12.15]
+    },
+    "b": {
+      "type": "choice",
+      "values": [0.5, 0.8, 0.75, 0.3, 0.5, 0.5, 0.8, 0.15]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 6, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Самостоятельная работа. Корни. Вариант 1",
+  "question_template": "https://imgfoto.host/i/OVRfHE",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [4.5, 12.8, 18.75, 10.8, 24.5, 32.0, 28.8, 12.15]
+    },
+    "b": {
+      "type": "choice",
+      "values": [0.5, 0.8, 0.75, 0.3, 0.5, 0.5, 0.8, 0.15]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 6, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Самостоятельная работа. Корни. Вариант 2",
+  "question_template": "https://imgfoto.host/i/OVRzEV",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [4.5, 12.8, 18.75, 10.8, 24.5, 32.0, 28.8, 12.15]
+    },
+    "b": {
+      "type": "choice",
+      "values": [0.5, 0.8, 0.75, 0.3, 0.5, 0.5, 0.8, 0.15]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 6, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Самостоятельная работа. Корни. Вариант 3",
+  "question_template": "https://imgfoto.host/i/OVR7XK",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [4.5, 12.8, 18.75, 10.8, 24.5, 32.0, 28.8, 12.15]
+    },
+    "b": {
+      "type": "choice",
+      "values": [0.5, 0.8, 0.75, 0.3, 0.5, 0.5, 0.8, 0.15]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 6, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Самостоятельная работа. Корни. Вариант 4",
+  "question_template": "https://imgfoto.host/i/OVRv71",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [4.5, 12.8, 18.75, 10.8, 24.5, 32.0, 28.8, 12.15]
+    },
+    "b": {
+      "type": "choice",
+      "values": [0.5, 0.8, 0.75, 0.3, 0.5, 0.5, 0.8, 0.15]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 6, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400а_x",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {x} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": { "type": "choice", "values": [20, 28, 45, 63, 72, 98, 52, 44] },
+    "a": { "type": "choice", "values": [4, 4, 9, 9, 36, 49, 4, 4] },
+    "b": { "type": "choice", "values": [5, 7, 5, 7, 2, 2, 13, 11] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "2sqrt(5)",
+        "2sqrt(7)",
+        "3sqrt(5)",
+        "3sqrt(7)",
+        "6sqrt(2)",
+        "7sqrt(2)",
+        "2sqrt(13)",
+        "2sqrt(11)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400б_y",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {y} })\\.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "y": { "type": "choice", "values": [24, 54, 75, 80, 12, 27, 96, 147] },
+    "a": { "type": "choice", "values": [4, 9, 25, 16, 4, 9, 16, 49] },
+    "b": { "type": "choice", "values": [6, 6, 3, 5, 3, 3, 6, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "2sqrt{6}",
+        "3sqrt{6}",
+        "5sqrt{3}",
+        "4sqrt{5}",
+        "2sqrt{3}",
+        "3sqrt{3}",
+        "4sqrt{6}",
+        "7sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400_z",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {z} }\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "z": { "type": "choice", "values": [50, 72, 98, 200, 75, 150, 180, 300] },
+    "a": { "type": "choice", "values": [25, 36, 49, 100, 25, 25, 36, 100] },
+    "b": { "type": "choice", "values": [2, 2, 2, 2, 3, 6, 5, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "5sqrt{2}",
+        "6sqrt{2}",
+        "7sqrt{2}",
+        "10sqrt{2}",
+        "5sqrt{3}",
+        "5sqrt{6}",
+        "6sqrt{5}",
+        "10sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400_t",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {t} }\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "t": { "type": "choice", "values": [48, 108, 147, 300, 80, 180, 175, 112] },
+    "a": { "type": "choice", "values": [16, 36, 49, 100, 16, 36, 25, 16] },
+    "b": { "type": "choice", "values": [3, 3, 3, 3, 5, 5, 7, 7] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "4sqrt{3}",
+        "6sqrt{3}",
+        "7sqrt{3}",
+        "10sqrt{3}",
+        "4sqrt{5}",
+        "6sqrt{5}",
+        "5sqrt{7}",
+        "4sqrt{7}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400d_x",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {x} }\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": { "type": "choice", "values": [63, 80, 98, 125, 147, 175, 112, 432] },
+    "a": { "type": "choice", "values": [9, 16, 49, 25, 49, 25, 16, 144] },
+    "b": { "type": "choice", "values": [7, 5, 2, 5, 3, 7, 7, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "3sqrt{7}",
+        "4sqrt{5}",
+        "7sqrt{2}",
+        "5sqrt{5}",
+        "7sqrt{3}",
+        "5sqrt{7}",
+        "4sqrt{7}",
+        "12sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400e_y",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {y} }\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "y": { "type": "choice", "values": [108, 150, 200, 242, 288, 300, 392, 432] },
+    "a": { "type": "choice", "values": [36, 25, 100, 121, 144, 100, 49, 144] },
+    "b": { "type": "choice", "values": [3, 6, 2, 2, 2, 3, 8, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "6sqrt{3}",
+        "5sqrt{6}",
+        "10sqrt{2}",
+        "11sqrt{2}",
+        "12sqrt{2}",
+        "10sqrt{3}",
+        "14sqrt{2}",
+        "12sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "400f_z",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{ {z} }\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "z": { "type": "choice", "values": [363, 507, 675, 735, 588, 972, 448, 507] },
+    "a": { "type": "choice", "values": [121, 169, 225, 49, 49, 324, 64, 169] },
+    "b": { "type": "choice", "values": [3, 3, 3, 15, 12, 3, 7, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "11sqrt{3}",
+        "13sqrt{3}",
+        "15sqrt{3}",
+        "7sqrt{15}",
+        "14sqrt{3}",
+        "18sqrt{3}",
+        "8sqrt{7}",
+        "13sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "401a",
+  "description": "Вынести множитель из под знака корня.",
+  "question_template": "Упростите выражение: \\( \\dfrac{ {p_num} }{ {p_den} } \\sqrt{ {x} }\\) ",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p_num": { "type": "choice", "values": [1, 1, 1, 3, 2, 1, 2, 1] },
+    "p_den": { "type": "choice", "values": [2, 3, 2, 4, 5, 3, 5, 4] },
+
+    "x": { "type": "choice", "values": [24, 27, 20, 48, 50, 12, 18, 32] },
+    "a": { "type": "choice", "values": [4, 9, 4, 16, 25, 4, 9, 16] },
+    "b": { "type": "choice", "values": [6, 3, 5, 3, 2, 3, 2, 2] },
+
+    "answer": {
+      "type": "choice",
+      "values": [
+        "sqrt(6)",
+        "sqrt(3)",
+        "sqrt(5)",
+        "3sqrt(3)",
+        "2sqrt(2)",
+        "2/3sqrt(3)",
+        "6/5sqrt(2)",
+        "sqrt(2)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "401b",
+  "description": "Вынести множитель из под знака корня.",
+  "question_template": "Упростите выражение: \\( \\dfrac{ {q_num} }{ {q_den} } \\sqrt{ {y} } \\) ",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "q_num": { "type": "choice", "values": [2, 3, 2, 3, 4, 2, 5, 3] },
+    "q_den": { "type": "choice", "values": [3, 4, 3, 5, 5, 3, 7, 4] },
+
+    "y": { "type": "choice", "values": [45, 27, 75, 20, 80, 12, 98, 75] },
+    "a": { "type": "choice", "values": [9, 9, 25, 4, 16, 4, 49, 25] },
+    "b": { "type": "choice", "values": [5, 3, 3, 5, 5, 3, 2, 3] },
+
+    "answer": {
+      "type": "choice",
+      "values": [
+        "2sqrt(5)",
+        "9/4sqrt(3)",
+        "10/3sqrt(3)",
+        "6/5sqrt(5)",
+        "16/5sqrt(5)",
+        "4/3sqrt(3)",
+        "5sqrt(2)",
+        "15/4sqrt(3)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "401в",
+  "question_template": "Вынесите множитель из-под знака корня: \\(-\\dfrac{ {p} }{ {q} } \\sqrt{ {x} }\\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [1, 1, 1, 1, 1, 1, 1, 1] },
+    "q": { "type": "choice", "values": [7, 3, 2, 5, 7, 3, 2, 4] },
+    "x": { "type": "choice", "values": [147, 75, 98, 125, 175, 108, 200, 112] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "-sqrt(3)",
+        "-5/3 sqrt(3)",
+        "-7/2 sqrt(2)",
+        "-sqrt(5)",
+        "-5/7 sqrt(7)",
+        "-2 sqrt(3)",
+        "-5 sqrt(2)",
+        "-sqrt(7)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "401г",
+  "question_template": "Вынесите множитель из-под знака корня: \\(-\\dfrac{ {m} }{ {n} } \\sqrt{ {y} }\\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [1, 1, 1, 1, 1, 1, 2, 1] },
+    "n": { "type": "choice", "values": [5, 3, 2, 5, 7, 4, 3, 5] },
+    "y": { "type": "choice", "values": [275, 300, 147, 500, 343, 192, 75, 432] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "-sqrt(11)",
+        "-10/3 sqrt(3)",
+        "-7/2 sqrt(3)",
+        "-2 sqrt(5)",
+        "-sqrt(7)",
+        "-2 sqrt(3)",
+        "-10/3 sqrt(3)",
+        "-12/5 sqrt(3)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№401д",
+  "question_template": "Вынесите множитель из под знака корня: \\( {k}\\sqrt{ {x} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "k": {
+      "type": "choice",
+      "values": [
+        0.1,
+        0.2,
+        0.05,
+        0.1,
+        0.25,
+      0.4,
+        0.1,
+        0.2
+      ]
+    },
+    "x": {
+      "type": "choice",
+      "values": [20000, 7200, 12500, 12800, 3600, 8100, 72000, 50000]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "10sqrt(2)",
+        "12sqrt(2)",
+        "2.5sqrt(5)",
+        "8sqrt(2)",
+        "15",
+        "36",
+        "12sqrt(5)",
+        "20sqrt(5)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№401е",
+  "question_template": "Вынесите множитель из под знака корня: \\( {k}\\sqrt{ {y} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "k": {
+      "type": "choice",
+      "values": [
+        -0.05,
+        -0.1,
+        -0.02,
+        -0.05,
+        -0.1,
+        -0.04,
+        -0.02,
+        -0.05
+      ]
+    },
+    "y": {
+      "type": "choice",
+      "values": [28800, 12800, 18000, 50000, 72900, 8100, 32000, 45000]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-12sqrt(2)",
+        "-8sqrt(2)",
+        "-3sqrt(5)",
+        "-5sqrt(5)",
+        "-27",
+        "-3.6",
+        "-4sqrt(5)",
+        "-15sqrt(2)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "402a",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{{x}} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": {
+      "type": "choice",
+      "values": [20, 45, 12, 28, 75, 32, 80, 72]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "2sqrt(5)",
+        "3sqrt(5)",
+        "2sqrt(3)",
+        "2sqrt(7)",
+        "5sqrt(3)",
+        "4sqrt(2)",
+        "4sqrt(5)",
+        "6sqrt(2)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "402b",
+  "question_template": "Вынесите множитель из-под знака корня: \\(\\sqrt{{x}}\\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": {
+      "type": "choice",
+      "values": [98, 147, 63, 27, 108, 162, 50, 200]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "7sqrt(2)",
+        "7sqrt(3)",
+        "3sqrt(7)",
+        "3sqrt(3)",
+        "6sqrt(3)",
+        "9sqrt(2)",
+        "5sqrt(2)",
+        "10sqrt(2)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "402v",
+  "question_template": "Вынесите множитель из-под знака корня: \\( \\sqrt{{x}} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": {
+      "type": "choice",
+      "values": [200, 500, 800, 450, 720, 245, 180, 320]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "10sqrt(2)",
+        "10sqrt(5)",
+        "20sqrt(2)",
+        "15sqrt(2)",
+        "12sqrt(5)",
+        "7sqrt(5)",
+        "6sqrt(5)",
+        "8sqrt(5)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "402g",
+  "question_template": "Вынесите множитель из-под знака корня: \\( \\sqrt{{x}} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": {
+      "type": "choice",
+      "values": [160, 360, 90, 250, 40, 112, 448, 224]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "4sqrt(10)",
+        "6sqrt(10)",
+        "3sqrt(10)",
+        "5sqrt(10)",
+        "2sqrt(10)",
+        "4sqrt(7)",
+        "8sqrt(7)",
+        "4sqrt(14)"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№414a",
+  "question_template": "Вычислите выражение: \\( \\sqrt{ {A} } + \\sqrt{ {B} } - \\sqrt{ {C} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [75, 12, 27, 108, 48, 300, 27, 12]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 75, 48, 12, 147, 192, 147, 147]
+    },
+    "C": {
+      "type": "choice",
+      "values": [300, 108, 75, 300, 192, 75, 243, 108]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-sqrt{3}",
+        "sqrt{3}",
+        "2sqrt{3}",
+        "-2sqrt{3}",
+        "3sqrt{3}",
+        "13sqrt{3}",
+        "sqrt{3}",
+        "3sqrt{3}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№414b",
+  "question_template": "Вычислите выражение: \\( {p}\\sqrt{ {A} } + {q}\\sqrt{ {B} } + {r}\\sqrt{ {C} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "p": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 2, 7, 3, 4]
+    },
+    "A": {
+      "type": "choice",
+      "values": [8, 8, 18, 8, 50, 18, 32, 50]
+    },
+    "q": {
+      "type": "choice",
+      "values": [-1, -2, -3, -4, 3, -5, 2, -3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [50, 32, 50, 18, 8, 8, 18, 32]
+    },
+    "r": {
+      "type": "choice",
+      "values": [2, 1, 2, 1, -1, 1, -1, 2]
+    },
+    "C": {
+      "type": "choice",
+      "values": [18, 50, 8, 50, 18, 32, 8, 8]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "7sqrt{2}",
+        "5sqrt{2}",
+        "4sqrt{2}",
+        "5sqrt{2}",
+        "13sqrt{2}",
+        "15sqrt{2}",
+        "16sqrt{2}",
+        "12sqrt{2}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№414v",
+  "question_template": "Вычислите выражение: \\( \\sqrt{ {A} } - \\sqrt{ {B} } + \\sqrt{ {C} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [242, 162, 288, 450, 98, 128, 288, 162]
+    },
+    "B": {
+      "type": "choice",
+      "values": [200, 50, 162, 242, 72, 32, 200, 128]
+    },
+    "C": {
+      "type": "choice",
+      "values": [8, 8, 18, 32, 50, 200, 18, 50]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "3sqrt{2}",
+        "6sqrt{2}",
+        "6sqrt{2}",
+        "8sqrt{2}",
+        "6sqrt{2}",
+        "14sqrt{2}",
+        "5sqrt{2}",
+        "6sqrt{2}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№415a",
+  "question_template": "Вычислите выражение: \\( \\sqrt{ {A}p } - \\sqrt{ {B}p } + \\sqrt{ {C}p } \\). Ответ запишите в виде k\\sqrt{2p}.",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [8, 50, 32, 18, 72, 98, 162, 128]
+    },
+    "B": {
+      "type": "choice",
+      "values": [2, 8, 2, 8, 50, 18, 32, 50]
+    },
+    "C": {
+      "type": "choice",
+      "values": [18, 18, 72, 50, 8, 8, 18, 18]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "4sqrt{2p}",
+        "6sqrt{2p}",
+        "9sqrt{2p}",
+        "6sqrt{2p}",
+        "3sqrt{2p}",
+        "6sqrt{2p}",
+        "8sqrt{2p}",
+        "6sqrt{2p}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№415b",
+  "question_template": "Вычислите выражение: \\( \\sqrt{ {A}c } + {p}\\sqrt{ {B}c } - {q}\\sqrt{ {C}c } \\). Ответ запишите в виде k\\sqrt{10c}.",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [160, 250, 360, 40, 90, 360, 40, 250]
+    },
+    "p": {
+      "type": "choice",
+      "values": [2, 1, 2, 2, 1, 0, 3, 0]
+    },
+    "B": {
+      "type": "choice",
+      "values": [40, 40, 10, 40, 40, 250, 40, 40]
+    },
+    "q": {
+      "type": "choice",
+      "values": [3, 3, 4, 1, 3, 2, 2, 1]
+    },
+    "C": {
+      "type": "choice",
+      "values": [90, 90, 90, 250, 160, 90, 90, 360]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-1sqrt{10c}",
+        "-2sqrt{10c}",
+        "-4sqrt{10c}",
+        "-4sqrt{10c}",
+        "-7sqrt{10c}",
+        "-2sqrt{10c}",
+        "-4sqrt{10c}",
+        "-3sqrt{10c}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "№415v",
+  "question_template": "Вычислите выражение: \\( {a}\\sqrt{ {A}m } - {b}\\sqrt{ {B}m } - {c}\\sqrt{ {C}m } \\). Ответ запишите в виде k\\sqrt{3m}.",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [5, 4, 6, 7, 3, 5, 8]
+    },
+    "A": {
+      "type": "choice",
+      "values": [27, 75, 12, 48, 108, 48, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 3, 5, 6, 4, 7, 3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 48, 27, 75, 27, 27, 75]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 2, 3, 2, 3, 2, 3]
+    },
+    "C": {
+      "type": "choice",
+      "values": [12, 108, 48, 12, 12, 108, 48]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-5sqrt{3m}",
+        "-4sqrt{3m}",
+        "-15sqrt{3m}",
+        "-6sqrt{3m}",
+        "0",
+        "-13sqrt{3m}",
+        "-11sqrt{3m}"
+      ]
+    }
+  },
+  "conditions": []
 }
-
-
 
 
 

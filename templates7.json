@@ -5225,7 +5225,1550 @@
     "ANS": { "type": "choice", "values": ["-3/2", "-32/23", "-22/17", "-35/33", "-22/7", "-26/15", "-67/41", "-80/39"] }
   },
   "conditions": ""
+},
+
+{
+  "textbook_id": 5,
+  "name": "267 Значения функции y = ax + b",
+  "question_template": "Функция задана формулой: <br>\\( y = {a}x + {b} \\).<br>Найдите значения функции при \\(x = {x1}\\), \\(x = {x2}\\), \\(x = {x3}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 3, -1, 4, -2, 5, -3, 1.5, 6, -4, 2.5, -1.5] },
+    "b": { "type": "choice", "values": [5, -4, 8, 1, 7, -3, 10, -6, -2, 4, -5, 3] },
+    "x1": { "type": "choice", "values": [3, 2, 5, -3, 8, -2, 1, 4, -6, 7, -4, 9] },
+    "x2": { "type": "choice", "values": [-7, 10, -2, 6, -1, 3, -5, 0, 8, -3, 11, -6] },
+    "x3": { "type": "choice", "values": [12, -3, 9, 0, 4, 7, 4, -8, 6, -2, 10, -7] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "11; -9; 29",
+        "2; 26; -13",
+        "3; 10; -1",
+        "-11; 25; 1",
+        "-9; 9; -1",
+        "-13; 12; 32",
+        "7; 25; -2",
+        "0; -6; -18",
+        "6; 14; 42",
+        "-18; 2; -26",
+        "5; -3; 17",
+        "-7; 9; -15"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "268 Значения функции y = ax + b (десятичные коэффициенты)",
+  "question_template": "Функция задана формулой:<br>\\( y = {a}x + {b} \\).<br>Для значений аргумента, равных \\(x = {x1}\\), \\(x = {x2}\\), \\(x = {x3}\\), найдите соответствующие значения функции.<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [0.1, 0.2, 0.3, 0.4, 0.15, 0.25, 0.05, 0.3]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 5, 2, 1, 6, 3, 7, -1]
+    },
+    "x1": {
+      "type": "choice",
+      "values": [8, 10, 5, 3, 4, 6, 20, 7]
+    },
+    "x2": {
+      "type": "choice",
+      "values": [30, 25, 15, 20, 12, 18, 40, 10]
+    },
+    "x3": {
+      "type": "choice",
+      "values": [100, 60, 40, 50, 80, 24, 200, 90]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4.8; 7; 14",
+        "7; 10; 17",
+        "3.5; 6.5; 14",
+        "2.2; 9; 21",
+        "6.6; 7.8; 18",
+        "4.5; 7.5; 9",
+        "8; 9; 17",
+        "1.1; 2; 26"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "269.a Значения функции y = a / x (три значения аргумента)",
+  "question_template": "Функция задана формулой:<br>\\( y = \\frac{{a}}{{x}} \\).<br>Для значений аргумента \\(x = {x1}\\), \\(x = {x2}\\), \\(x = {x3}\\), найдите соответствующие значения функции.<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [18, 20, 15, 24, 16, 30, 21, 28] },
+    "x1": { "type": "choice", "values": [-9, -10, -5, -12, -8, -15, -7, -14] },
+    "x2": { "type": "choice", "values": [-6, -4, -3, -8, -4, -6, -3, -7] },
+    "x3": { "type": "choice", "values": [-3, -2, -1, -6, -2, -5, -1, -4] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "-2; -3; -6",
+        "-2; -5; -10",
+        "-3; -5; -15",
+        "-2; -3; -4",
+        "-2; -4; -8",
+        "-2; -5; -6",
+        "-3; -7; -21",
+        "-2; -4; -7"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "269.б Значения функции y = a / x (четыре значения аргумента)",
+  "question_template": "Функция задана формулой:<br>\\( y = \\frac{{a}}{{x}} \\).<br>Для значений аргумента \\(x = {x4}\\), \\(x = {x5}\\), \\(x = {x6}\\), \\(x = {x7}\\), найдите соответствующие значения функции.<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [18, 20, 15, 24, 16, 30, 21, 28] },
+    "x4": { "type": "choice", "values": [3, 2, 3, 3, 2, 3, 3, 2] },
+    "x5": { "type": "choice", "values": [6, 4, 5, 4, 4, 5, 7, 4] },
+    "x6": { "type": "choice", "values": [9, 5, 15, 6, 8, 6, 21, 7] },
+    "x7": { "type": "choice", "values": [18, 10, 30, 12, 16, 10, 42, 14] },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "6; 3; 2; 1",
+        "10; 5; 4; 2",
+        "5; 3; 1; 0.5",
+        "8; 6; 4; 2",
+        "8; 4; 2; 1",
+        "10; 6; 5; 3",
+        "7; 3; 1; 0.5",
+        "14; 7; 4; 2"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "273 Нахождение аргумента по значению функции (y = ax + b)",
+  "question_template": "Формула<br>\\( y = {a}x + {b} \\)<br>задаёт некоторую функцию.<br>При каком значении аргумента значение функции равно \\(y_1 = {y1}\\), \\(y_2 = {y2}\\), \\(y_3 = {y3}\\)?<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [-5, -4, 3, 2, -3, 4, -2, 5]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 6, -9, 5, 7, -8, 10, -3]
+    },
+    "y1": {
+      "type": "choice",
+      "values": [9, 10, -6, 11, 4, -4, 4, 7]
+    },
+    "y2": {
+      "type": "choice",
+      "values": [14, 2, 0, -1, -5, 8, 16, 17]
+    },
+    "y3": {
+      "type": "choice",
+      "values": [-6, -18, 12, 25, 22, 20, -8, -8]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "-1; -2; 2",
+        "-1; 1; 6",
+        "1; 3; 7",
+        "3; -3; 10",
+        "1; 4; -5",
+        "1; 4; 7",
+        "3; -3; 9",
+        "2; 4; -1"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "275. Нахождение аргумента по значению функции (y = ax − b)",
+  "question_template": "Функция задана формулой:<br>\\( y = {a}x - {b} \\).<br>Найдите значение аргумента, при котором значение функции равно \\(y_1 = {y1}\\), \\(y_2 = {y2}\\), \\(y_3 = {y3}\\).<br><i>Ответ введите через точку с запятой</i>.",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [0.5, 0.25, 0.2, 0.4, 0.8, 0.5, 0.25, 0.2]
+    },
+    "b": {
+      "type": "choice",
+      "values": [6, 3, 4, 1, 2, 2, 7, 1]
+    },
+    "y1": {
+      "type": "choice",
+      "values": [-4, -1, -4, -1, -2, -2, -3, -1]
+    },
+    "y2": {
+      "type": "choice",
+      "values": [0, 5, 1, 3, 2, 4, -7, 0]
+    },
+    "y3": {
+      "type": "choice",
+      "values": [5, 0, 6, 9, 6, 10, 1, 9]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4; 12; 22",
+        "8; 32; 12",
+        "0; 25; 50",
+        "0; 10; 25",
+        "0; 5; 10",
+        "0; 12; 24",
+        "16; 0; 32",
+        "0; 5; 50"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "Вероятность и статистика. Медиана",
+  "question_template": "https://kopilkaurokov.ru/algebra/prochee/s_r_srednee_arifmeticheskoe_i_mediana_7_klass",
+  "answer_template": "{ANS}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [0.5, 0.25, 0.2, 0.4, 0.8, 0.5, 0.25, 0.2]
+    },
+    "b": {
+      "type": "choice",
+      "values": [6, 3, 4, 1, 2, 2, 7, 1]
+    },
+    "y1": {
+      "type": "choice",
+      "values": [-4, -1, -4, -1, -2, -2, -3, -1]
+    },
+    "y2": {
+      "type": "choice",
+      "values": [0, 5, 1, 3, 2, 4, -7, 0]
+    },
+    "y3": {
+      "type": "choice",
+      "values": [5, 0, 6, 9, 6, 10, 1, 9]
+    },
+    "ANS": {
+      "type": "choice",
+      "values": [
+        "4; 12; 22",
+        "8; 32; 12",
+        "0; 25; 50",
+        "0; 10; 25",
+        "0; 5; 10",
+        "0; 12; 24",
+        "16; 0; 32",
+        "0; 5; 50"
+      ]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "388а",
+  "question_template": "Вычислите значение выражения: \\( {a}^{ {p} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 3, 2] },
+    "p": { "type": "choice", "values": [3, 4, 3, 2, 3, 2, 5, 6] },
+    "answer": {
+      "type": "choice",
+      "values": [8, 81, 64, 25, 216, 49, 243, 64]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388б",
+  "question_template": "Вычислите значение выражения: \\( {b}^{ {q} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": { "type": "choice", "values": [3, 5, 6, 7, 4, 2, 8, 9] },
+    "q": { "type": "choice", "values": [2, 3, 2, 3, 4, 5, 2, 2] },
+    "answer": {
+      "type": "choice",
+      "values": [9, 125, 36, 343, 256, 32, 64, 81]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388в",
+  "question_template": "Вычислите значение выражения: \\( {c}^{ {r} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [4, 3, 2, 5, 6, 7, 8, 9] },
+    "r": { "type": "choice", "values": [3, 5, 7, 4, 3, 2, 3, 2] },
+    "answer": {
+      "type": "choice",
+      "values": [64, 243, 128, 625, 216, 49, 512, 81]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388г",
+  "question_template": "Вычислите значение выражения: \\( {d}^{ {s} } \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "d": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "s": { "type": "choice", "values": [8, 4, 5, 3, 2, 3, 4, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [256, 81, 1024, 125, 36, 343, 4096, 729]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388д",
+  "question_template": "Вычислите значение выражения: \\( ({a})^{2} \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [1.2, 2.5, 3.4, 4.7, 5.6, 6.8, 8.3, 9.4]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [1.44, 6.25, 11.56, 22.09, 31.36, 46.24, 68.89, 88.36]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388е",
+  "question_template": "Вычислите значение выражения: \\( ({b})^{3} \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": {
+      "type": "choice",
+      "values": [-1.2, -1.4, -1.6, -1.8, -1.3, -1.7, -2.2, -2.5]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [-1.728, -2.744, -4.096, -5.832, -2.197, -4.913, -10.648, -15.625]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388ж",
+  "question_template": "Вычислите значение выражения: \\( \\left( \\dfrac{ {a} }{ {b} } \\right)^{ {n} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 2, 3, 4, 3, 5, 7, 5] },
+    "b": { "type": "choice", "values": [2, 3, 5, 7, 4, 6, 8, 9] },
+    "n": { "type": "choice", "values": [3, 3, 4, 3, 5, 4, 3, 5] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "1/8",
+        "8/27",
+        "81/625",
+        "64/343",
+        "243/1024",
+        "625/1296",
+        "343/512",
+        "3125/59049"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "388з",
+  "question_template": "Вычислите значение выражения: \\( \\left( -\\dfrac{ {c} }{ {d} } \\right)^{ {k} } \\). Ответ введите дробью.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "c": { "type": "choice", "values": [1, 2, 3, 2, 4, 5, 3, 7] },
+    "d": { "type": "choice", "values": [2, 3, 4, 5, 7, 6, 8, 9] },
+    "k": { "type": "choice", "values": [3, 5, 3, 5, 3, 5, 5, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "-1/8",
+        "-32/243",
+        "-27/64",
+        "-32/3125",
+        "-64/343",
+        "-3125/7776",
+        "-243/32768",
+        "-343/729"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380а",
+  "question_template": "Вычислите значение выражения: \\( {a}^2 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [12, 15, 18, 22, 28, 30, 32, 35] },
+    "answer": {
+      "type": "choice",
+      "values": [144, 225, 324, 484, 784, 900, 1024, 1225]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380б",
+  "question_template": "Вычислите значение выражения: \\( {b}^4 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "answer": {
+      "type": "choice",
+      "values": [16, 81, 256, 625, 1296, 2401, 4096, 6561]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380в",
+  "question_template": "Вычислите значение выражения: \\( {c}^3 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [3, 4, 5, 6, 8, 9, 11, 12] },
+    "answer": {
+      "type": "choice",
+      "values": [27, 64, 125, 216, 512, 729, 1331, 1728]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380г",
+  "question_template": "Вычислите значение выражения: \\( {d}^5 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "d": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "answer": {
+      "type": "choice",
+      "values": [32, 243, 1024, 3125, 7776, 16807, 32768, 59049]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380д",
+  "question_template": "Вычислите значение выражения: \\( (-{p})^3 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": {
+      "type": "choice",
+      "values": [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.1, 1.3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [-0.027, -0.064, -0.125, -0.216, -0.343, -0.512, -1.331, -2.197]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380е",
+  "question_template": "Вычислите значение выражения: \\( -{q}^2 \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": {
+      "type": "choice",
+      "values": [1.1, 1.3, 1.5, 1.7, 1.9, 2.2, 2.5, 2.8]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [1.21, 1.69, 2.25, 2.89, 3.61, 4.84, 6.25, 7.84]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389a",
+  "question_template": "Вычислите значение выражения: \\( {a}^2 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [14, 16, 18, 20, 22, 24, 26, 28] },
+    "final": { "type": "choice", "values": [196, 256, 324, 400, 484, 576, 676, 784] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389b",
+  "question_template": "Вычислите значение выражения: \\( {b}^4 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "b": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "final": { "type": "choice", "values": [16, 81, 256, 625, 1296, 2401, 4096, 6561] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389c",
+  "question_template": "Вычислите значение выражения: \\( {c}^3 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [3, 4, 5, 6, 7, 8, 9, 10] },
+    "final": { "type": "choice", "values": [27, 64, 125, 216, 343, 512, 729, 1000] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389d",
+  "question_template": "Вычислите значение выражения: \\( {d}^5 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "d": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "final": {
+      "type": "choice",
+      "values": [32, 243, 1024, 3125, 7776, 16807, 32768, 59049]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389e",
+  "question_template": "Вычислите значение выражения: \\( (-{p})^3 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { 
+      "type": "choice",
+      "values": [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.2]
+    },
+    "final": {
+      "type": "choice",
+      "values": [-0.027, -0.064, -0.125, -0.216, -0.343, -0.512, -1.000, -1.728]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "389f",
+  "question_template": "Вычислите значение выражения: \\( (-{q})^2 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [1.00, 1.44, 1.96, 2.56, 3.24, 4.00, 4.84, 5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №3. Функции. Вариант 1",
+  "question_template": "Вариант 1.  https://imgfoto.host/i/OLRzD5",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [1.00, 1.44, 1.96, 2.56, 3.24, 4.00, 4.84, 5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №3. Вариант 2",
+  "question_template": "Вариант 2.  https://imgfoto.host/i/OLRBYw",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [1.00, 1.44, 1.96, 2.56, 3.24, 4.00, 4.84, 5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №3. Вариант 3",
+  "question_template": "Вариант 3. https://imgfoto.host/i/OLR14M",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [1.00, 1.44, 1.96, 2.56, 3.24, 4.00, 4.84, 5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №3. Вариант 4",
+  "question_template": "Вариант 4. https://imgfoto.host/i/OLRTux",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [1.00, 1.44, 1.96, 2.56, 3.24, 4.00, 4.84, 5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380и",
+  "question_template": "Вычислите значение выражения: \\(-{p}^3\\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": {
+      "type": "choice",
+      "values": [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.2]
+    },
+    "final": {
+      "type": "choice",
+      "values": [-0.027, -0.064, -0.125, -0.216, -0.343, -0.512, -1.000, -1.728]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "380к",
+  "question_template": "Вычислите значение выражения: \\(-{q}^2\\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": {
+      "type": "choice",
+      "values": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4]
+    },
+    "final": {
+      "type": "choice",
+      "values": [-1.00, -1.44, -1.96, -2.56, -3.24, -4.00, -4.84, -5.76]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394а",
+  "question_template": "Представьте число \\({A}\\) в виде куба: \\(A = a^3\\). Введите значение \\(a\\).",
+  "answer_template": "{a}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [27, 64, 125, 216, 343, 512, 729, 1000] },
+    "a": { "type": "choice", "values": [3, 4, 5, 6, 7, 8, 9, 10] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394б",
+  "question_template": "Представьте число \\({B}\\) в виде квадрата: \\(B = b^2\\). Введите значение \\(b\\).",
+  "answer_template": "{b}",
+  "answer_type": "numeric",
+  "parameters": {
+    "B": { "type": "choice", "values": [16, 25, 36, 49, 64, 81, 100, 121] },
+    "b": { "type": "choice", "values": [4, 5, 6, 7, 8, 9, 10, 11] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394в",
+  "question_template": "Представьте число \\({C}\\) в виде куба: \\(C = c^3\\). Введите значение \\(c\\).",
+  "answer_template": "{c}",
+  "answer_type": "numeric",
+  "parameters": {
+    "C": { "type": "choice", "values": [8, 27, 64, 125, 216, 343, 512, 729] },
+    "c": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394г",
+  "question_template": "Представьте число \\({D}\\) в виде квадрата: \\(D = d^2\\). Введите значение \\(d\\).",
+  "answer_template": "{d}",
+  "answer_type": "numeric",
+  "parameters": {
+    "D": { "type": "choice", "values": [25, 36, 49, 64, 81, 100, 121, 144] },
+    "d": { "type": "choice", "values": [5, 6, 7, 8, 9, 10, 11, 12] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394д",
+  "question_template": "Представьте число \\({E}\\) в виде куба: \\(E = e^3\\). Введите значение \\(e\\).",
+  "answer_template": "{e}",
+  "answer_type": "numeric",
+  "parameters": {
+    "E": {
+      "type": "choice",
+      "values": [0.001, 0.008, 0.027, 0.064, 0.125, 0.216, 0.343, 0.512]
+    },
+    "e": {
+      "type": "choice",
+      "values": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394е",
+  "question_template": "Представьте смешанное число \\({A}\\) в виде куба: \\(A = x^3\\). Введите значение \\(x\\) без степени.",
+  "answer_template": "{x}",
+  "answer_type": "string",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [
+        "3 \\tfrac{3}{8}",
+        "2 \\tfrac{10}{27}",
+        "4 \\tfrac{17}{27}",
+        "1 \\tfrac{61}{64}",
+        "1 \\tfrac{91}{125}",
+        "2 \\tfrac{93}{125}",
+        "4 \\tfrac{12}{125}",
+        "5 \\tfrac{4}{125}"
+      ]
+    },
+    "x": {
+      "type": "choice",
+      "values": [
+        "3/2",
+        "4/3",
+        "5/3",
+        "5/4",
+        "6/5",
+        "7/5",
+        "8/5",
+        "9/5"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "394ж",
+  "question_template": "Представьте смешанное число \\({B}\\) в виде квадрата: \\(B = y^2\\). Введите значение \\(y\\) без степени.",
+  "answer_template": "{y}",
+  "answer_type": "string",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [
+        "1 \\tfrac{11}{25}",
+        "1 \\tfrac{24}{25}",
+        "2 \\tfrac{14}{25}",
+        "3 \\tfrac{6}{25}",
+        "2 \\tfrac{2}{49}",
+        "2 \\tfrac{23}{49}",
+        "2 \\tfrac{46}{49}",
+        "3 \\tfrac{22}{49}"
+      ]
+    },
+    "y": {
+      "type": "choice",
+      "values": [
+        "6/5",
+        "7/5",
+        "8/5",
+        "9/5",
+        "10/7",
+        "11/7",
+        "12/7",
+        "13/7"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396а",
+  "question_template": "Вычислите значение выражения: \\( {a} \\cdot {b}^2 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 6, 7, 8, 9, 4, 10] },
+    "b": { "type": "choice", "values": [4, 3, 2, 3, 4, 5, 6, 3] },
+    "final": { "type": "choice", "values": [48, 45, 24, 63, 128, 225, 144, 90] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396б",
+  "question_template": "Вычислите значение выражения: \\( ({a} \\cdot {b})^2 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 3, 4, 5, 6, 3, 8, 9] },
+    "b": { "type": "choice", "values": [3, 4, 5, 6, 7, 7, 2, 3] },
+    "final": { "type": "choice", "values": [36, 144, 400, 900, 1764, 441, 256, 729] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396в",
+  "question_template": "Вычислите значение выражения: \\( (-{p})^3 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { 
+      "type": "choice",
+      "values": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0]
+    },
+    "final": {
+      "type": "choice",
+      "values": [-0.008, -0.027, -0.064, -0.125, -0.216, -0.343, -0.512, -1.000]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396г",
+  "question_template": "Вычислите значение выражения: \\( -{q}^3 \\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "q": { 
+      "type": "choice",
+      "values": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.1]
+    },
+    "final": {
+      "type": "choice",
+      "values": [-0.008, -0.027, -0.064, -0.125, -0.216, -0.343, -0.512, -1.331]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396д",
+  "question_template": "Вычислите значение выражения: \\(-{a} \\cdot {b}^{n}\\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 4, 5, 6, 2, 7, 3, 8] },
+    "b": { "type": "choice", "values": [2, 2, 3, 2, 5, 2, 4, 3] },
+    "n": { "type": "choice", "values": [5, 4, 3, 6, 3, 4, 3, 2] },
+    "final": {
+      "type": "choice",
+      "values": [-96, -64, -135, -384, -250, -112, -192, -72]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "396е",
+  "question_template": "Вычислите значение выражения: \\(-{a}^2 \\cdot (-{b})\\). Ответ введите числом.",
+  "answer_template": "{final}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [6, 4, 5, 3, 7, 8, 2, 9] },
+    "b": { "type": "choice", "values": [12, 7, 8, 9, 6, 5, 11, 4] },
+    "final": {
+      "type": "choice",
+      "values": [432, 112, 200, 81, 294, 320, 44, 324]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "418a",
+  "question_template": "Вычислите степень: x^{a} · x^{b}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 6, 4, 8, 9, 7, 10] },
+    "b": { "type": "choice", "values": [4, 2, 3, 7, 2, 3, 5, 1] },
+    "answer": {
+      "type": "choice",
+      "values": ["x**7", "x**7", "x**9", "x**11", "x**10", "x**12", "x**12", "x**11"]
+    }
+  }
+},
+
+{
+  "textbook_id": 5,
+  "name": "418b",
+  "question_template": "Вычислите степень: a^{m} · a^{n}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [4, 6, 5, 7, 8, 9, 6, 10] },
+    "n": { "type": "choice", "values": [3, 2, 5, 3, 4, 1, 7, 2] },
+    "answer": {
+      "type": "choice",
+      "values": ["a^7", "a^8", "a^10", "a^10", "a^12", "a^10", "a^13", "a^12"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418v",
+  "question_template": "Вычислите степень: y^{s} · y^{t}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "s": { "type": "choice", "values": [3, 4, 6, 7, 5, 8, 9, 7] },
+    "t": { "type": "choice", "values": [4, 5, 3, 2, 6, 2, 1, 7] },
+    "answer": {
+      "type": "choice",
+      "values": ["y^7", "y^9", "y^9", "y^9", "y^11", "y^10", "y^10", "y^14"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418g",
+  "question_template": "Вычислите степень: b^{p} · b^{q}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [4, 5, 7, 9, 8, 10, 6, 11] },
+    "q": { "type": "choice", "values": [6, 8, 5, 3, 4, 5, 9, 2] },
+    "answer": {
+      "type": "choice",
+      "values": ["b^10", "b^13", "b^12", "b^12", "b^12", "b^15", "b^15", "b^13"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418d",
+  "question_template": "Вычислите степень: x^{a} · x^{b}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 5, 6, 7, 4, 8, 9, 10] },
+    "b": { "type": "choice", "values": [4, 3, 2, 1, 5, 3, 2, 3] },
+    "answer": {
+      "type": "choice",
+      "values": ["x^7", "x^8", "x^8", "x^8", "x^9", "x^11", "x^11", "x^13"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418e",
+  "question_template": "Вычислите степень: y^{m} · y^{n}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [2, 4, 6, 7, 5, 8, 9, 10] },
+    "n": { "type": "choice", "values": [3, 4, 2, 1, 6, 2, 3, 4] },
+    "answer": {
+      "type": "choice",
+      "values": ["y^5", "y^8", "y^8", "y^8", "y^11", "y^10", "y^12", "y^14"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418z",
+  "question_template": "Вычислите степень: 2^{p} · 2^{q}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [3, 5, 6, 4, 7, 8, 9, 10] },
+    "q": { "type": "choice", "values": [4, 2, 1, 5, 2, 3, 4, 3] },
+    "answer": {
+      "type": "choice",
+      "values": ["2^7", "2^7", "2^7", "2^9", "2^9", "2^11", "2^13", "2^13"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "418i",
+  "question_template": "Вычислите степень: 7^{r} · 7^{s}.",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "r": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
+    "s": { "type": "choice", "values": [1, 2, 3, 1, 2, 3, 5, 4] },
+    "answer": {
+      "type": "choice",
+      "values": ["7^3", "7^5", "7^7", "7^6", "7^8", "7^10", "7^13", "7^13"]
+    }
+  }
+},
+{
+  "textbook_id": 5,
+  "name": "419a",
+  "question_template": "Вычислите степень: m^{a} · m^{b}. ",
+  "answer_template": "m^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [2, 4, 3, 7, 8, 6, 5, 9]
+    },
+    "b": {
+      "type": "choice",
+      "values": [3, 5, 6, 1, 2, 4, 7, 3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["5", "9", "9", "8", "10", "10", "12", "12"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419b",
+  "question_template": "Вычислите степень: x^{p} · x^{q}. ",
+  "answer_template": "x^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p": {
+      "type": "choice",
+      "values": [1, 2, 3, 6, 7, 5, 8, 9]
+    },
+    "q": {
+      "type": "choice",
+      "values": [3, 5, 4, 2, 1, 5, 3, 4]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["4", "7", "7", "8", "8", "10", "11", "13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419c",
+  "question_template": "Вычислите степень: c^{k} · c^{n}. .",
+  "answer_template": "c^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "k": {
+      "type": "choice",
+      "values": [4, 5, 8, 9, 6, 7, 10, 11]
+    },
+    "n": {
+      "type": "choice",
+      "values": [6, 7, 4, 3, 6, 8, 5, 4]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["10", "12", "12", "12", "12", "15", "15", "15"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419d",
+  "question_template": "Вычислите степень: p^{s} · p^{t}. ",
+  "answer_template": "p^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "s": {
+      "type": "choice",
+      "values": [3, 5, 8, 7, 9, 10, 6, 11]
+    },
+    "t": {
+      "type": "choice",
+      "values": [4, 6, 3, 5, 2, 4, 9, 3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["7", "11", "11", "12", "11", "14", "15", "14"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419e",
+  "question_template": "Вычислите степень: a^{u} · a^{v}..",
+  "answer_template": "a^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "u": {
+      "type": "choice",
+      "values": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "v": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 9, 10]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["4", "6", "8", "10", "12", "14", "16", "18"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419f",
+  "question_template": "Вычислите степень: b^{r} · b^{s}. ",
+  "answer_template": "b^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "r": {
+      "type": "choice",
+      "values": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "s": {
+      "type": "choice",
+      "values": [1, 2, 2, 3, 4, 3, 5, 4]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["2", "4", "5", "7", "9", "9", "12", "12"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419g",
+  "question_template": "Вычислите степень: 5^{α} · 5^{β}. ",
+  "answer_template": "5^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "α": {
+      "type": "choice",
+      "values": [2, 4, 6, 7, 5, 8, 9, 10]
+    },
+    "β": {
+      "type": "choice",
+      "values": [3, 4, 2, 1, 5, 3, 4, 3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["5", "8", "8", "8", "10", "11", "13", "13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "419h",
+  "question_template": "Вычислите степень: 3^{m} · 3^{n}. ",
+  "answer_template": "3^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": {
+      "type": "choice",
+      "values": [2, 3, 5, 6, 7, 8, 9, 10]
+    },
+    "n": {
+      "type": "choice",
+      "values": [3, 4, 3, 2, 4, 5, 4, 3]
+    },
+    "answer": {
+      "type": "choice",
+      "values": ["5", "7", "8", "8", "11", "13", "13", "13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423a",
+  "question_template": "Вычислите степень: x^{a} · x^{b} · x^{c}. Ответ запишите в виде x^{k}.",
+  "answer_template": "x^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 1, 3, 4, 5, 6, 3, 7] },
+    "b": { "type": "choice", "values": [3, 4, 5, 4, 2, 1, 6, 2] },
+    "c": { "type": "choice", "values": [4, 3, 2, 1, 3, 4, 2, 1] },
+    "answer": { "type": "choice", "values": ["9", "8", "10", "9", "10", "11", "11", "10"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423b",
+  "question_template": "Вычислите степень: y^{m} · y^{n} · y^{k}. ",
+  "answer_template": "y^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [2, 1, 3, 4, 5, 6, 7, 8] },
+    "n": { "type": "choice", "values": [3, 4, 3, 1, 2, 1, 3, 2] },
+    "k": { "type": "choice", "values": [1, 2, 2, 4, 3, 2, 1, 1] },
+    "answer": { "type": "choice", "values": ["6", "7", "8", "9", "10", "9", "11", "11"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423c",
+  "question_template": "Вычислите степень: m^{a} · m^{b} · m^{c} · m^{d}. ",
+  "answer_template": "m^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 2, 3, 4, 5, 6, 3, 4] },
+    "b": { "type": "choice", "values": [2, 3, 2, 3, 1, 2, 5, 4] },
+    "c": { "type": "choice", "values": [3, 1, 4, 2, 2, 1, 2, 1] },
+    "d": { "type": "choice", "values": [4, 5, 1, 1, 3, 1, 1, 1] },
+    "answer": { "type": "choice", "values": ["10", "11", "10", "10", "11", "10", "11", "10"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423d",
+  "question_template": "Вычислите степень: p^{r} · p^{s} · p · p. ",
+  "answer_template": "p^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "r": { "type": "choice", "values": [2, 1, 3, 4, 6, 7, 5, 8] },
+    "s": { "type": "choice", "values": [3, 4, 2, 5, 3, 4, 6, 3] },
+    "answer": { "type": "choice", "values": ["7", "7", "7", "11", "11", "13", "13", "13"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423e",
+  "question_template": "Вычислите степень: 10^{a} · 10^{b} · 10^{c}. .",
+  "answer_template": "10^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [1, 2, 3, 4, 5, 2, 3, 5] },
+    "b": { "type": "choice", "values": [2, 3, 1, 2, 1, 4, 4, 3] },
+    "c": { "type": "choice", "values": [3, 1, 2, 1, 1, 1, 2, 1] },
+    "answer": { "type": "choice", "values": ["6", "6", "6", "7", "7", "7", "9", "9"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "423f",
+  "question_template": "Вычислите степень: 3^{u} · 3^{v} · 3^{w} · 3. ",
+  "answer_template": "3^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "u": { "type": "choice", "values": [1, 2, 3, 4, 5, 6, 7, 8] },
+    "v": { "type": "choice", "values": [2, 3, 1, 2, 3, 2, 3, 4] },
+    "w": { "type": "choice", "values": [1, 1, 2, 1, 1, 1, 2, 1] },
+    "answer": { "type": "choice", "values": ["5", "7", "7", "8", "10", "10", "13", "14"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429a",
+  "question_template": "Вычислите степень: x^{a} : x^{b}. ",
+  "answer_template": "x^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 7, 8, 9, 10, 12, 11, 14] },
+    "b": { "type": "choice", "values": [3, 4, 2, 5, 3, 4, 6, 7] },
+    "answer": { "type": "choice", "values": ["2", "3", "6", "4", "7", "8", "5", "7"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429b",
+  "question_template": "Вычислите степень: y^{m} : y^{n}. ",
+  "answer_template": "y^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 12, 15, 9, 11, 13, 14, 16] },
+    "n": { "type": "choice", "values": [7, 8, 5, 3, 4, 5, 6, 7] },
+    "answer": { "type": "choice", "values": ["3", "4", "10", "6", "7", "8", "8", "9"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429c",
+  "question_template": "Вычислите степень: a^{p} : a. ",
+  "answer_template": "a^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "p": { "type": "choice", "values": [6, 7, 10, 12, 14, 9, 11, 15] },
+    "answer": { "type": "choice", "values": ["5", "6", "9", "11", "13", "8", "10", "14"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429d",
+  "question_template": "Вычислите степень: b^{r} : b^{s}. ",
+  "answer_template": "b^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "r": { "type": "choice", "values": [19, 20, 22, 25, 30, 18, 21, 24] },
+    "s": { "type": "choice", "values": [18, 17, 18, 20, 27, 10, 15, 19] },
+    "answer": { "type": "choice", "values": ["1", "3", "4", "5", "3", "8", "6", "5"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429e",
+  "question_template": "Вычислите степень: c^{u} : c^{v}. ",
+  "answer_template": "c^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "u": { "type": "choice", "values": [12, 14, 15, 16, 18, 20, 22, 25] },
+    "v": { "type": "choice", "values": [3, 4, 5, 6, 8, 7, 11, 10] },
+    "answer": { "type": "choice", "values": ["9", "10", "10", "10", "10", "13", "11", "15"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429f",
+  "question_template": "Вычислите степень: p^{k} : p^{t}. ",
+  "answer_template": "p^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "k": { "type": "choice", "values": [20, 24, 18, 22, 26, 30, 28, 16] },
+    "t": { "type": "choice", "values": [10, 12, 9, 11, 13, 15, 14, 8] },
+    "answer": { "type": "choice", "values": ["10", "12", "9", "11", "13", "15", "14", "8"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429g",
+  "question_template": "Вычислите степень: 3^{a} : 3^{b}. ",
+  "answer_template": "3^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 9, 10, 11, 12, 14, 15, 16] },
+    "b": { "type": "choice", "values": [5, 4, 7, 6, 8, 9, 6, 4] },
+    "answer": { "type": "choice", "values": ["3", "5", "3", "5", "4", "5", "9", "12"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "429h",
+  "question_template": "Вычислите степень: 0,7^{x} : 0,7^{y}. ",
+  "answer_template": "0{,}7^{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "x": { "type": "choice", "values": [4, 5, 7, 8, 9, 10, 12, 11] },
+    "y": { "type": "choice", "values": [2, 3, 4, 5, 6, 4, 3, 1] },
+    "answer": { "type": "choice", "values": ["2", "2", "3", "3", "3", "6", "9", "10"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "433a",
+  "question_template": "Упростите выражение: \\( \\dfrac{a^{m} \\cdot a^{n}}{a^{k}} \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": {
+      "type": "choice",
+      "values": [7, 6, 8, 5, 9, 7, 6, 5]
+    },
+    "n": {
+      "type": "choice",
+      "values": [4, 3, 5, 2, 3, 2, 3, 4]
+    },
+    "k": {
+      "type": "choice",
+      "values": [9, 7, 10, 4, 10, 5, 7, 7]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [9, 25, 8, 216, 16, 4096, 81, 100]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "433b",
+  "question_template": "Упростите выражение: \\( \\dfrac{b^{p}}{b^{q} \\cdot b^{r}} \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": {
+      "type": "choice",
+      "values": [12, 15, 18, 14, 16, 20, 17, 22]
+    },
+    "q": {
+      "type": "choice",
+      "values": [5, 7, 10, 6, 8, 12, 9, 11]
+    },
+    "r": {
+      "type": "choice",
+      "values": [4, 6, 7, 5, 7, 6, 7, 10]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [27, 4, 5, 64, 7, 36, 8, 9]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "433v",
+  "question_template": "Упростите выражение: \\( \\dfrac{a^{m} \\cdot a^{n}}{a^{k}} \\). Ответ введите числом.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 9, 8, 7, 12, 11, 15, 20] },
+    "n": { "type": "choice", "values": [3, 4, 5, 2, 3, 4, 2, 5] },
+    "k": { "type": "choice", "values": [12, 11, 10, 8, 14, 13, 14, 23] },
+    "answer": { "type": "choice", "values": [5, 49, 27, 6, 4, 64, 729, 4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Геометрия. Контрольная. Признаки равенства треугольников. Вариант 1",
+  "question_template": "Вариант 1. https://yapx.ru/album/cUOqk",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 9, 8, 7, 12, 11, 15, 20] },
+    "n": { "type": "choice", "values": [3, 4, 5, 2, 3, 4, 2, 5] },
+    "k": { "type": "choice", "values": [12, 11, 10, 8, 14, 13, 14, 23] },
+    "answer": { "type": "choice", "values": [5, 49, 27, 6, 4, 64, 729, 4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Геометрия. Контрольная. Признаки равенства треугольников. Вариант 2",
+  "question_template": "Вариант 2. https://yapx.ru/album/cUOrO",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 9, 8, 7, 12, 11, 15, 20] },
+    "n": { "type": "choice", "values": [3, 4, 5, 2, 3, 4, 2, 5] },
+    "k": { "type": "choice", "values": [12, 11, 10, 8, 14, 13, 14, 23] },
+    "answer": { "type": "choice", "values": [5, 49, 27, 6, 4, 64, 729, 4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Геометрия. Контрольная. Признаки равенства треугольников. Вариант 3",
+  "question_template": "Вариант 3. https://yapx.ru/album/cUOr8",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 9, 8, 7, 12, 11, 15, 20] },
+    "n": { "type": "choice", "values": [3, 4, 5, 2, 3, 4, 2, 5] },
+    "k": { "type": "choice", "values": [12, 11, 10, 8, 14, 13, 14, 23] },
+    "answer": { "type": "choice", "values": [5, 49, 27, 6, 4, 64, 729, 4] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Геометрия. Контрольная. Признаки равенства треугольников. Вариант 4",
+  "question_template": "Вариант 4. https://yapx.ru/album/cUOuU",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 9, 8, 7, 12, 11, 15, 20] },
+    "n": { "type": "choice", "values": [3, 4, 5, 2, 3, 4, 2, 5] },
+    "k": { "type": "choice", "values": [12, 11, 10, 8, 14, 13, 14, 23] },
+    "answer": { "type": "choice", "values": [5, 49, 27, 6, 4, 64, 729, 4] }
+  },
+  "conditions": []
 }
+
 
 
 ]
