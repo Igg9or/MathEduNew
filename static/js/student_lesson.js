@@ -512,7 +512,7 @@ async function checkAnswer(taskCard) {
         // кнопка "Показать решение" и "Решить ещё раз"
         taskCard.querySelector('.btn-dispute')?.classList.add('hidden');
         showRetryButton(taskCard);
-        fetchAISolution(taskCard);
+        
 
         await saveAnswerToServer(taskId, userAnswer, false);
 
@@ -525,39 +525,36 @@ async function checkAnswer(taskCard) {
 
     // Функция показа результата
     function showResult(taskCard, isCorrect, userAnswer) {
-        const feedback = taskCard.querySelector('.task-feedback');
-        const correctFeedback = taskCard.querySelector('.feedback-correct');
-        const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
-        const status = taskCard.querySelector('.task-status');
+    const feedback = taskCard.querySelector('.task-feedback');
+    const correctFeedback = taskCard.querySelector('.feedback-correct');
+    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+    const status = taskCard.querySelector('.task-status');
 
-        if (isCorrect) {
-            correctFeedback.classList.remove('hidden');
-            incorrectFeedback.classList.add('hidden');
-            status.style.backgroundColor = 'var(--success-color)';
-        } else {
-            correctFeedback.classList.add('hidden');
-            incorrectFeedback.classList.remove('hidden');
-            status.style.backgroundColor = 'var(--error-color)';
-            
-            // Изменяем текст для первой/второй попытки
-            if (taskCard.attempts === 1) {
-                incorrectFeedback.querySelector('.error-message').innerHTML = "Ответ неверный. Попробуй еще раз!";
-            } else {
-                incorrectFeedback.querySelector('.error-message').innerHTML =
-                    "Ответ неверный. Правильный ответ: <span class='correct-answer'>" +
-                    taskCard.dataset.correctAnswer +
-                    "</span>";
-                
-                // ПОКАЗЫВАЕМ КНОПКУ "РЕШИТЬ ЕЩЕ РАЗ" после второй ошибки
-                showRetryButton(taskCard);
-                
-                fetchAISolution(taskCard);
-            }
-        }
+    if (isCorrect) {
+        correctFeedback.classList.remove('hidden');
+        incorrectFeedback.classList.add('hidden');
+        status.style.backgroundColor = 'var(--success-color)';
+    } else {
+        correctFeedback.classList.add('hidden');
+        incorrectFeedback.classList.remove('hidden');
+        status.style.backgroundColor = 'var(--error-color)';
 
-        feedback.classList.remove('hidden');
-        updateProgress();
+        incorrectFeedback.querySelector('.error-message').innerHTML =
+            "Ответ неверный. Правильный ответ: <span class='correct-answer'>" +
+            (taskCard.dataset.correctAnswer || '') +
+            "</span>";
+
+        // ✅ СРАЗУ запускаем ИИ-решение
+        fetchAISolution(taskCard, userAnswer);
+
+        // кнопки
+        showRetryButton(taskCard);
     }
+
+    feedback.classList.remove('hidden');
+    updateProgress();
+}
+
 
     // Функция сохранения ответа на сервере
     async function saveAnswerToServer(taskId, answer, isCorrect, retryUsed = false) {
@@ -860,7 +857,7 @@ function removeTypingIndicator(node) {
 
 
     // === НОВАЯ ВЕРСИЯ ===
-    async function fetchAISolution(taskCard) {
+    async function fetchAISolution(taskCard, studentAnswer = '') {
   // Контейнер решения внутри карточки
   const feedbackBlock = taskCard.querySelector('.task-feedback') || taskCard;
   let solutionNode = feedbackBlock.querySelector('.ai-solution');
@@ -941,6 +938,7 @@ const questionText = extractQuestionForAI(taskCard);
         task_id: taskId,
         question: questionText,
         correct_answer: correctAnswer,
+        student_answer: studentAnswer || '',
         student_grade: studentGrade,
         user_id: userId
       })
@@ -953,6 +951,29 @@ const questionText = extractQuestionForAI(taskCard);
 
     const data = await resp.json();
     let raw = data && data.solution ? data.solution : 'Ошибка получения решения.';
+
+    // ✅ если AI решил, что ученик прав — засчитываем
+    if (data && data.ai_verdict && data.ai_verdict.is_student_correct === true) {
+    console.log("✅ AI подтвердил правильность ответа ученика");
+
+    // визуально перекрасить карточку в "правильно"
+    const userAnswer = studentAnswer;
+    showResult(taskCard, true, userAnswer);
+
+    // заблокировать ввод/кнопку
+    taskCard.querySelector('.answer-input').disabled = true;
+    taskCard.querySelector('.btn-check').disabled = true;
+
+    // сохранить как правильный (если ранее было неверно)
+    await saveAnswerToServer(taskId, userAnswer, true);
+
+    // можно ещё текстом сообщить
+    const msg = taskCard.querySelector('.feedback-correct');
+    if (msg) {
+        msg.classList.remove('hidden');
+    }
+    }
+
 
     // Нормализация
     raw = normalizeLatexBlocks(raw);
@@ -975,8 +996,9 @@ const questionText = extractQuestionForAI(taskCard);
     }
   } catch (e) {
     console.error('fetchAISolution error:', e);
-    solutionNode.textContent = '';
-  }
+    solutionNode.innerHTML =
+        '<div class="ai-solution-block">Ошибка получения решения от ИИ.</div>';
+}
 }
 
 document.querySelectorAll('.btn-dispute').forEach(button => {

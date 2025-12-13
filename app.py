@@ -24,7 +24,7 @@ import psycopg2
 import psycopg2.extras
 import subprocess, sys, socket, atexit, time
 from dotenv import load_dotenv
-
+import requests
 
 
 
@@ -2219,24 +2219,45 @@ def ai_step_dialog():
     
 @app.route('/api/ai_full_solution', methods=['POST'])
 def ai_full_solution():
-    data = request.get_json()
-    question = data.get("question")
-    correct_answer = data.get("correct_answer")
+    data = request.get_json() or {}
+    question = data.get("question", "")
     student_grade = data.get("student_grade", data.get("grade", 5))
-    # user_id можно использовать для логов, если надо
+    student_answer = (data.get("student_answer") or "").strip()
 
     prompt = f"""
-    Ты — преподаватель математики в российской школе. 
+Ты — преподаватель математики в российской школе. Учитывай пожалуйста русский ход решения, а не американский и т.д. 
 Дай пошаговое объяснение решения задачи для ученика {student_grade} класса.
-Ты объясняешь материал в духе школьных учебников и методических пособий Минпросвещения РФ, но без заумных определений. Чтобы ученик все понял. 5 класс. Чтобы найти часть от числа надо разделить часть на знаменатель  и умножить на числитель. Чтобы найти целое по части надо ражзделить на числитель и умножить на знаменатель  
+Ты объясняешь материал в духе школьных учебников и методических пособий Минпросвещения РФ, но без заумных определений.
 Задача:
-    "{question}"
-    Дай пошаговое объяснение, чтобы ученик понял ход рассуждений. 
-    В конце обязательно укажи правильный ответ
-    Не упоминай, что ты ИИ.
-    Все математические формулы оформляй в LaTeX:
+"{question}"
+
+ТРЕБОВАНИЯ К ОТВЕТУ (ОЧЕНЬ ВАЖНО):
+
+1️⃣ СНАЧАЛА выведи раздел "РЕШЕНИЕ:"  
+— только математические действия  
+— без слов и комментариев  
+— как запись в тетради  
+— в зависимости от типа задачи:
+   • вычисление — в одну или несколько строк
+   • уравнение — пошаговые преобразования
+   • задача — нумерованные действия и т.д.
+
+2️⃣ ПОТОМ выведи раздел "ПОЯСНЕНИЕ:"  
+
+Дай пошаговое объяснение, чтобы ученик понял ход рассуждений.
+В конце обязательно укажи правильный ответ.
+Не упоминай, что ты ИИ.
+Все математические формулы оформляй в LaTeX.
 Не используй одинарные квадратные скобки [ ... ] для формул.
-    """
+
+ВАЖНО:
+1) В самом конце (последней строкой) выведи JSON без markdown и без ``` вида:
+{{"final_answer":"...","is_student_correct":true/false}}
+2) final_answer — это итоговый ответ по твоему решению (строкой).
+3) is_student_correct сравнивает final_answer с ответом ученика: "{student_answer}".
+Сравнение делай по смыслу (эквивалентность выражений, степени, дроби), а не только по точному совпадению строк.
+"""
+
     try:
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
@@ -2244,11 +2265,46 @@ def ai_full_solution():
             max_tokens=3000,
             temperature=0.2
         )
-        content = response.choices[0].message.content
-        return jsonify({"solution": content})
+
+        content = response.choices[0].message.content or ""
+
+        ai_verdict = None
+        solution_text = content
+
+        # Ищем последний JSON-блок вида {"final_answer":"...","is_student_correct":...}
+        matches = re.findall(
+            r'\{[^{}]*"final_answer"\s*:\s*".*?"[^{}]*"is_student_correct"\s*:\s*(true|false)[^{}]*\}',
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+        # ^ тут matches вернёт только true/false из-за группы — поэтому ниже другой подход:
+        json_blocks = re.findall(
+            r'\{[^{}]*"final_answer"\s*:\s*".*?"[^{}]*"is_student_correct"\s*:\s*(?:true|false)[^{}]*\}',
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+
+        if json_blocks:
+            last_json = json_blocks[-1]
+            try:
+                ai_verdict = json.loads(last_json)
+                solution_text = content.replace(last_json, "").strip()
+            except Exception:
+                ai_verdict = None
+
+        return jsonify({
+            "solution": solution_text,
+            "ai_verdict": ai_verdict
+        })
+
     except Exception as e:
         print("Ошибка OpenAI:", e)
-        return jsonify({"solution": "Ошибка ИИ: не удалось получить решение."}), 500
+        return jsonify({
+            "solution": "Ошибка при получении решения от ИИ.",
+            "ai_verdict": None,
+            "error": str(e)
+        }), 500
+
 
 
 @app.route('/dispute_answer', methods=['POST'])
