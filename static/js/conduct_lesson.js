@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Обновляем задания
             student.tasks.forEach((task, index) => {
-                const cell = row.cells[index + 1]; // +1 пропускаем ячейку с именем
+                const tasksCount = student.tasks.length;
+                const cell = row.cells[index + 1]; // ОК, НО ниже важное
                 if (!cell) return;
                 
                 cell.innerHTML = task.answered 
@@ -77,16 +78,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Обновляем прогресс
-            const progressBar = row.querySelector('.progress-bar');
-            const progressText = row.querySelector('.progress-container span');
-            if (progressBar && progressText) {
-                progressBar.style.width = `${student.progress}%`;
-                progressBar.className = `progress-bar ${
-                    student.progress > 75 ? 'high' : 
-                    student.progress > 40 ? 'medium' : 'low'
-                }`;
-                progressText.textContent = `${student.progress}%`;
-            }
+            // Обновляем прогресс
+const progressBar = row.querySelector('.progress-bar');
+const progressText = row.querySelector('.progress-container span');
+
+if (progressBar && progressText) {
+    const total = student.tasks.length;
+    const correct = student.tasks.filter(t => t.is_correct).length;
+    const percent = total ? Math.round((correct / total) * 100) : 0;
+
+    progressBar.style.width = percent + '%';
+    progressText.textContent = percent + '%';
+}
+
         });
     }
 

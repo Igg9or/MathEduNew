@@ -6187,7 +6187,632 @@
       "values": [56]
     }
   }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2а",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2,3,1,5,4,6,2,7] },
+    "b": { "type": "choice", "values": [5,4,6,3,7,5,9,1] },
+    "n": { "type": "choice", "values": [10,12,8,16,20,15,11,14] },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "7/10","7/12","7/8","8/16","11/20","11/15","11/11","8/14"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2б",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {a} }{ {n} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [1,2,3,4,5,6,7,8] },
+    "n": { "type": "choice", "values": [2,5,7,9,11,13,15,17] },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "2/2","4/5","6/7","8/9","10/11","12/13","14/15","16/17"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2в",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2,4,5,3,6,7,8,9] },
+    "b": { "type": "choice", "values": [3,1,6,8,5,4,3,2] },
+    "n": { "type": "choice", "values": [7,9,13,15,17,19,21,23] },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "5/7","5/9","11/13","11/15","11/17","11/19","11/21","11/23"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2г",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [10,8,14,11,9,13,15,18] },
+    "b": { "type": "choice", "values": [15,9,7,12,16,6,4,11] },
+    "n": { "type": "choice", "values": [31,21,29,25,27,19,23,31] },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "25/31","17/21","21/29","23/25","25/27","19/19","19/23","29/31"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2д",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [1, 2, 3, 4, 2, 3, 5, 4]
+    },
+    "b": {
+      "type": "choice",
+      "values": [2, 1, 2, 1, 3, 4, 2, 3]
+    },
+    "n": {
+      "type": "choice",
+      "values": [3, 4, 5, 6, 7, 8, 9, 10]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "3/3",
+        "3/4",
+        "5/5",
+        "5/6",
+        "5/7",
+        "7/8",
+        "7/9",
+        "7/10"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №2е",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } + \\frac{ {c} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [1, 2, 1, 3, 2, 1, 4, 2]
+    },
+    "b": {
+      "type": "choice",
+      "values": [1, 1, 2, 1, 2, 3, 1, 3]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 1, 1, 2, 2, 2, 1, 1]
+    },
+    "n": {
+      "type": "choice",
+      "values": [5, 6, 7, 10, 9, 8, 12, 11]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "4/5",
+        "4/6",
+        "4/7",
+        "6/10",
+        "6/9",
+        "6/8",
+        "6/12",
+        "6/11"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №1. №3",
+  "question_template": "Для куклы сшили из \\( \\frac{ {a} }{ {n} } \\) м ткани пододеяльник, а из \\( \\frac{ {b} }{ {n} } \\) м — наволочки. Сколько метров ткани ушло на пошив пододеяльника и наволочек для куклы?",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [7, 9, 11, 8, 13, 6, 15, 10]
+    },
+    "b": {
+      "type": "choice",
+      "values": [5, 6, 9, 4, 7, 4, 5, 6]
+    },
+    "n": {
+      "type": "choice",
+      "values": [20, 30, 40, 24, 50, 18, 40, 32]
+    },
+    "answer": {
+      "type": "choice",
+      "values": [
+        "12/20",
+        "15/30",
+        "20/40",
+        "12/24",
+        "20/50",
+        "10/18",
+        "20/40",
+        "16/32"
+      ]
+    }
+  }
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1а",
+  "question_template": "Найдите сумму: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2,4,6,5,8,3,7,9] },
+    "b": { "type": "choice", "values": [5,9,3,7,5,10,6,4] },
+    "n": { "type": "choice", "values": [14,14,12,16,18,20,15,13] },
+    "answer": {
+      "type": "choice",
+      "values": ["7/14","13/14","9/12","12/16","13/18","13/20","13/15","13/13"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1б",
+  "question_template": "Найдите сумму: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5,7,4,6,3,9,2,8] },
+    "b": { "type": "choice", "values": [6,8,9,7,10,4,11,5] },
+    "n": { "type": "choice", "values": [15,15,13,20,18,17,14,19] },
+    "answer": {
+      "type": "choice",
+      "values": ["11/15","15/15","13/13","13/20","13/18","13/17","13/14","13/19"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1в",
+  "question_template": "Вычислите разность: \\( \\frac{ {a} }{ {n} } - \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [9,8,7,10,6,12,11,13] },
+    "b": { "type": "choice", "values": [4,3,2,5,1,7,6,8] },
+    "n": { "type": "choice", "values": [14,11,9,15,7,20,17,21] },
+    "answer": {
+      "type": "choice",
+      "values": ["5/14","5/11","5/9","5/15","5/7","5/20","5/17","5/21"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1г",
+  "question_template": "Вычислите разность: \\( \\frac{ {a} }{ {n} } - \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [6,9,7,10,5,12,8,14] },
+    "b": { "type": "choice", "values": [5,8,6,9,4,11,7,13] },
+    "n": { "type": "choice", "values": [15,17,13,20,9,25,16,30] },
+    "answer": {
+      "type": "choice",
+      "values": ["1/15","1/17","1/13","1/20","1/9","1/25","1/16","1/30"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1д",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } - \\frac{ {c} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [7,10,6,9,8,12,15,11] },
+    "b": { "type": "choice", "values": [9,8,12,11,14,10,9,14] },
+    "c": { "type": "choice", "values": [11,13,13,15,17,17,19,20] },
+    "n": { "type": "choice", "values": [21,21,25,35,40,50,60,70] },
+    "answer": {
+      "type": "choice",
+      "values": ["5/21","5/21","5/25","5/35","5/40","5/50","5/60","5/70"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №1е",
+  "question_template": "Вычислите: \\( \\frac{ {a} }{ {n} } + \\frac{ {b} }{ {n} } - \\frac{ {c} }{ {n} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [30,28,25,22,20,19,18,17] },
+    "b": { "type": "choice", "values": [14,12,9,6,4,3,2,1] },
+    "c": { "type": "choice", "values": [1,1,1,1,1,1,1,1] },
+    "n": { "type": "choice", "values": [48,41,34,27,21,20,19,18] },
+    "answer": {
+      "type": "choice",
+      "values": ["17/48","17/41","17/34","17/27","17/21","17/20","17/19","17/18"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2а",
+  "question_template": "Решите уравнение: \\( \\frac{ {a} }{ {n} } + y = \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{y}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5,9,7,11,13,15,8,14] },
+    "b": { "type": "choice", "values": [17,21,19,23,25,27,20,26] },
+    "n": { "type": "choice", "values": [24,30,36,40,48,60,32,52] },
+    "y": {
+      "type": "choice",
+      "values": [
+        "12/24",
+        "12/30",
+        "12/36",
+        "12/40",
+        "12/48",
+        "12/60",
+        "12/32",
+        "12/52"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2б",
+  "question_template": "Решите уравнение: \\( x - \\frac{ {a} }{ {n} } = \\frac{ {b} }{ {n} } \\).",
+  "answer_template": "{x}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [5,7,9,11,13,15,6,10] },
+    "b": { "type": "choice", "values": [25,23,21,19,17,15,24,20] },
+    "n": { "type": "choice", "values": [60,50,45,40,30,60,36,70] },
+    "x": {
+      "type": "choice",
+      "values": [
+        "30/60",
+        "30/50",
+        "30/45",
+        "30/40",
+        "30/30",
+        "30/60",
+        "30/36",
+        "30/70"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2в",
+  "question_template": "Решите уравнение: \\( \\frac{ {p} }{ {n} } + \\frac{ {q} }{ {n} } - a = \\frac{ {r} }{ {n} } \\). Найдите \\(a\\).",
+  "answer_template": "{a}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [18, 20, 22, 19, 21, 23, 24, 26] },
+    "q": { "type": "choice", "values": [14, 16, 15, 18, 17, 16, 15, 14] },
+    "r": { "type": "choice", "values": [7, 11, 12, 12, 13, 14, 14, 15] },
+    "n": { "type": "choice", "values": [25, 25, 25, 25, 25, 25, 25, 25] },
+    "a": { "type": "choice", "values": [1, 1, 1, 1, 1, 1, 1, 1] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2г",
+  "question_template": "Решите уравнение: \\( b + \\frac{ {m} }{ {n} } - \\frac{ {k} }{ {n} } = \\frac{ {s} }{ {n} } \\). Найдите \\(b\\).",
+  "answer_template": "{b}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [12, 14, 15, 13, 16, 11, 10, 17] },
+    "k": { "type": "choice", "values": [5, 3, 6, 4, 7, 2, 1, 8] },
+    "s": { "type": "choice", "values": [16, 20, 18, 18, 18, 18, 18, 18] },
+    "n": { "type": "choice", "values": [23, 23, 23, 23, 23, 23, 23, 23] },
+    "b": { "type": "choice", "values": ["9/23", "9/23", "9/23", "9/23", "9/23", "9/23", "9/23", "9/23"] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2д",
+  "question_template": "Решите уравнение: \\( \\frac{ {a} }{ {n} } - ( x - \\frac{ {b} }{ {n} } ) = \\frac{ {c} }{ {n} } \\).",
+  "answer_template": "{x}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [12, 14, 16, 18, 20, 17, 19, 22] },
+    "b": { "type": "choice", "values": [8, 6, 9, 7, 11, 13, 14, 8] },
+    "c": { "type": "choice", "values": [5, 8, 10, 10, 16, 15, 18, 15] },
+    "n": { "type": "choice", "values": [25, 20, 30, 30, 30, 30, 30, 30] },
+    "x": {
+      "type": "choice",
+      "values": [
+        "15/25",
+        "12/20",
+        "15/30",
+        "15/30",
+        "15/30",
+        "15/30",
+        "15/30",
+        "15/30"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №2е",
+  "question_template": "Решите уравнение: \\( ( \\frac{ {p} }{ {n} } + x ) - \\frac{ {q} }{ {n} } = \\frac{ {r} }{ {n} } \\).",
+  "answer_template": "{x}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [18, 21, 25, 14, 19, 22, 16, 27] },
+    "q": { "type": "choice", "values": [10, 9, 13, 6, 11, 14, 8, 15] },
+    "r": { "type": "choice", "values": [20, 24, 24, 20, 20, 24, 20, 24] },
+    "n": { "type": "choice", "values": [32, 36, 48, 28, 40, 48, 32, 60] },
+    "x": {
+      "type": "choice",
+      "values": [
+        "12/32",
+        "12/36",
+        "12/48",
+        "12/28",
+        "12/40",
+        "12/48",
+        "12/32",
+        "12/60"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №3",
+  "question_template": "В коробке лежит A конфет. Петя съел \\( \\frac{1}{ {k} } \\) всех конфет. Сколько конфет съел Петя?",
+  "answer_template": "{ans}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [25, 30, 40, 45, 50, 35, 60, 20] },
+    "k": { "type": "choice", "values": [5, 5, 5, 5, 5, 5, 5, 5] },
+    "ans": {
+      "type": "choice",
+      "values": ["5", "6", "8", "9", "10", "7", "12", "4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №4",
+  "question_template": "В саду растёт A яблонь. \\( \\frac{1}{ {k} } \\) всех деревьев — молодые. Сколько молодых яблонь в саду?",
+  "answer_template": "{ans}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [24, 32, 40, 28, 36, 20, 48, 16] },
+    "k": { "type": "choice", "values": [4, 4, 4, 4, 4, 4, 4, 4] },
+    "ans": {
+      "type": "choice",
+      "values": ["6", "8", "10", "7", "9", "5", "12", "4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №5",
+  "question_template": "В вазе стоят цветы. \\( \\frac{1}{ {k} } \\) всех цветов — это {R} роз. Сколько всего цветов в вазе?",
+  "answer_template": "{ans}",
+  "answer_type": "numeric",
+  "parameters": {
+    "R": { "type": "choice", "values": [5, 4, 6, 7, 3, 8, 10, 9] },
+    "k": { "type": "choice", "values": [6, 6, 6, 6, 6, 6, 6, 6] },
+    "ans": {
+      "type": "choice",
+      "values": ["30", "24", "36", "42", "18", "48", "60", "54"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №6",
+  "question_template": "В библиотеке \\( \\frac{ {a} }{ {b} } \\) всех книг составляют учебники. Известно, что учебников {U}. Сколько всего книг в библиотеке?",
+  "answer_template": "{ans}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 2, 2, 2, 2, 2, 2, 2] },
+    "b": { "type": "choice", "values": [7, 7, 7, 7, 7, 7, 7, 7] },
+    "U": { "type": "choice", "values": [14, 10, 20, 16, 8, 18, 6, 12] },
+    "ans": {
+      "type": "choice",
+      "values": ["49", "35", "70", "56", "28", "63", "21", "42"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №7",
+  "question_template": "За день Маша прочитала \\( \\frac{ {a} }{ {n} } \\) книги утром и \\( \\frac{ {b} }{ {n} } \\) книги вечером. Какую часть книги Маша прочитала за день?",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [2, 1, 3, 4, 2, 3, 1, 4] },
+    "b": { "type": "choice", "values": [3, 4, 2, 1, 5, 3, 5, 4] },
+    "n": { "type": "choice", "values": [9, 9, 9, 9, 9, 9, 9, 9] },
+    "ans": {
+      "type": "choice",
+      "values": ["5/9", "5/9", "5/9", "5/9", "7/9", "6/9", "6/9", "8/9"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №8",
+  "question_template": "На складе было \\( \\frac{ {a} }{ {n} } \\) тонны муки. После продажи осталось \\( \\frac{ {b} }{ {n} } \\) тонны. Какую часть тонны муки продали?",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": { "type": "choice", "values": [8, 9, 7, 6, 10, 12, 11, 13] },
+    "b": { "type": "choice", "values": [3, 4, 2, 1, 5, 7, 6, 8] },
+    "n": { "type": "choice", "values": [10, 10, 10, 10, 10, 10, 10, 10] },
+    "ans": {
+      "type": "choice",
+      "values": ["5/10", "5/10", "5/10", "5/10", "5/10", "5/10", "5/10", "5/10"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №9",
+  "question_template": "В классе {A} учеников. \\( \\frac{1}{ {m} } \\) класса ушли на экскурсию, а \\( \\frac{1}{ {n} } \\) класса заболели. Сколько учеников не пришли в школу?",
+  "answer_template": "{absent}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [30, 24, 36, 18, 48, 60, 12, 42] },
+    "m": { "type": "choice", "values": [3, 3, 3, 3, 3, 3, 3, 3] },
+    "n": { "type": "choice", "values": [6, 6, 6, 6, 6, 6, 6, 6] },
+    "absent": {
+      "type": "choice",
+      "values": ["15", "12", "18", "9", "24", "30", "6", "21"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №10",
+  "question_template": "Длина дороги {L} км. Сначала отремонтировали \\( \\frac{ {a} }{ {n} } \\) дороги, а затем ещё \\( \\frac{ {b} }{ {n} } \\). Сколько километров дороги отремонтировали всего?",
+  "answer_template": "{repaired}",
+  "answer_type": "numeric",
+  "parameters": {
+    "L": { "type": "choice", "values": [48, 36, 60, 24, 72, 96, 84, 120] },
+    "a": { "type": "choice", "values": [5, 4, 5, 4, 5, 5, 4, 5] },
+    "b": { "type": "choice", "values": [3, 2, 3, 2, 3, 3, 2, 3] },
+    "n": { "type": "choice", "values": [12, 12, 12, 12, 12, 12, 12, 12] },
+    "repaired": {
+      "type": "choice",
+      "values": ["32", "18", "40", "12", "48", "64", "42", "80"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №11",
+  "question_template": "В спортивном лагере {A} детей. \\( \\frac{ {p} }{ {n} } \\) всех детей занимаются футболом, \\( \\frac{ {q} }{ {n} } \\) — плаванием. Сколько детей занимаются другими видами спорта?",
+  "answer_template": "{other}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [36, 45, 54, 27, 72, 18, 63, 90] },
+    "p": { "type": "choice", "values": [5, 5, 5, 5, 5, 5, 5, 5] },
+    "q": { "type": "choice", "values": [2, 2, 2, 2, 2, 2, 2, 2] },
+    "n": { "type": "choice", "values": [9, 9, 9, 9, 9, 9, 9, 9] },
+    "other": { 
+      "type": "choice",
+      "values": ["8", "10", "12", "6", "16", "4", "14", "20"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №12",
+  "question_template": "В баке было некоторое количество воды. После того как использовали \\( \\frac{ {a} }{ {n} } \\) воды, в баке осталось {R} л. Сколько литров воды было в баке сначала?",
+  "answer_template": "{initial}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [3, 3, 3, 3, 3, 3, 3, 3] },
+    "n": { "type": "choice", "values": [8, 8, 8, 8, 8, 8, 8, 8] },
+    "R": { "type": "choice", "values": [15, 20, 25, 30, 10, 35, 40, 45] },
+    "initial": {
+      "type": "choice",
+      "values": ["24", "32", "40", "48", "16", "56", "64", "72"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №13",
+  "question_template": "В коробке лежит {A} конфет. Петя съел \\( \\frac{1}{ {k} } \\) всех конфет. Сколько конфет съел Петя?",
+  "answer_template": "{eaten}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [25, 30, 40, 45, 50, 35, 60, 20] },
+    "k": { "type": "choice", "values": [5, 5, 5, 5, 5, 5, 5, 5] },
+    "eaten": {
+      "type": "choice",
+      "values": ["5", "6", "8", "9", "10", "7", "12", "4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 8,
+  "name": "Глава 29. Проверь себя №2. №14",
+  "question_template": "В саду растёт {A} яблонь. \\( \\frac{1}{ {k} } \\) всех деревьев — молодые. Сколько молодых яблонь в саду?",
+  "answer_template": "{young}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [24, 32, 40, 28, 36, 20, 48, 16] },
+    "k": { "type": "choice", "values": [4, 4, 4, 4, 4, 4, 4, 4] },
+    "young": {
+      "type": "choice",
+      "values": ["6", "8", "10", "7", "9", "5", "12", "4"]
+    }
+  },
+  "conditions": []
 }
+
+
+
+
+
+
+
 
 
 

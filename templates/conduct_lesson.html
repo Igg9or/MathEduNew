@@ -22,12 +22,16 @@
 
         <main class="conduct-lesson-container">
             <div class="real-time-results">
-                <h2>Результаты класса</h2>
-                <button id="generateClassHomeworkBtn" class="btn btn-primary" style="margin-left: 25px; vertical-align: middle;">
-                    📘 Создать ДЗ для класса
-                </button>
-                <div class="results-table-container">
-                    <table class="results-table">
+
+    <div class="section-header">
+        <h2>Результаты класса</h2>
+        <button id="generateClassHomeworkBtn" class="btn btn-primary">
+            📘 Создать ДЗ для класса
+        </button>
+    </div>
+
+    <div class="table-card">
+        <table class="results-table">
                         <thead>
                             <tr>
                                 <th>Ученик</th>
@@ -56,7 +60,7 @@
                                 {% endfor %}
                                 <td>
                                     <div class="progress-container">
-                                        <div class="progress-bar" style="width: 0%"></div>
+                                        <div class="progress-bar"></div>
                                         <span>0%</span>
                                     </div>
                                 </td>
@@ -72,6 +76,20 @@
                     
                     <div class="lesson-analytics">
                         <h2>📊 Аналитика урока</h2>
+                        <div class="lesson-summary">
+    <div class="summary-card">
+        <div class="label">Освоение темы</div>
+        <div class="value">76%</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Решено примеров</div>
+        <div class="value">312</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Среднее время</div>
+        <div class="value">2 мин 13 сек</div>
+    </div>
+</div>
                         
                         <div class="analytics-grid">
                             <!-- Блок сложных заданий -->
