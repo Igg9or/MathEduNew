@@ -1890,8 +1890,206 @@ body {
     background: linear-gradient(90deg, #3b5cff, #6c8bff);
 }
 
-body {
-    background: linear-gradient(180deg, #f8fafd 0%, #eef1f7 100%);
+
+
+
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 🔥 ВОТ ГЛАВНОЕ */
+    background-image: url("/static/images/intro-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 
+/* Видео с логотипом — ЦЕЛИКОМ */
+#intro-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: transparent; /* 🔥 УБИРАЕТ БЕЛИЗНУ */
+    z-index: 2;
+}
+
+
+/* Плавное затемнение */
+.intro-fade {
+    position: absolute;
+    inset: 0;
+    background: black;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 3;
+}
+
+.auth-container {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.auth-container.visible {
+    opacity: 1;
+}
+
+.video-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(30px) brightness(0.6);
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    background: #f8fafd; /* нормальный фон сайта */
+    color: var(--text-color);
+    overflow-y: auto; /* 🔥 ВОЗВРАЩАЕМ СКРОЛЛ */
+}
+
+/* === INTRO OVERLAY === */
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* 🔥 ФОН, КАК НА ТВОЕЙ ВТОРОЙ КАРТИНКЕ */
+.intro-bg {
+    position: absolute;
+    inset: 0;
+
+    /* 🎯 ТОЧНО ПОДОГНАННЫЙ ФОН */
+    background: radial-gradient(
+        circle at center,
+        #d3bb94 0%,   /* чуть светлее центра */
+        #c9af8a 38%,  /* ТВОЙ ЦВЕТ */
+        #c8ae87 62%,  /* ТВОЙ ЦВЕТ */
+        #bfa377 100%  /* лёгкое затемнение по краям */
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Видео — ТОЛЬКО логотип */
+#intro-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+
+    background: transparent; /* важно */
+    z-index: 2;
+}
+
+/* Плавный уход */
+.intro-fade {
+    position: absolute;
+    inset: 0;
+    background: black;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 3;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+
+    background: linear-gradient(
+        120deg,
+        #6f7ee8,
+        #7b6fc2,
+        #6f7ee8
+    );
+    background-size: 200% 200%;
+    animation: bgMove 12s ease infinite;
+}
+
+@keyframes bgMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.auth-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,0.12),
+        0 1px 0 rgba(255,255,255,0.6) inset;
+
+    padding: 36px;
+    width: 100%;
+    max-width: 460px;
+}
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+
+    border: 1px solid #e2e6f3;
+    background: #f9faff;
+
+    font-size: 16px;
+    transition: all 0.25s ease;
+}
+
+.form-group input:focus {
+    background: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(74,107,255,0.12);
+    outline: none;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #4a6bff, #3f5ee8);
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 20px rgba(74,107,255,0.35);
+
+    transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 14px 26px rgba(74,107,255,0.45);
+}
+.auth-card {
+    animation: cardIn 0.6s ease forwards;
+}
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
