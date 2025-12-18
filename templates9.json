@@ -3452,9 +3452,773 @@
     }
   },
   "conditions": []
-}
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_1",
+  "question_template": "Найдите значение выражения: \\( \\sqrt{ \\frac{ {c} a^{ {m} } }{ a^{ {n} } } } \\) при \\( a = {k} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [64, 36, 16, 25, 9, 49, 100, 4] },
+    "m": { "type": "choice", "values": [10, 8, 6, 6, 4, 8, 6, 10] },
+    "n": { "type": "choice", "values": [6, 4, 2, 2, 0, 4, 2, 6] },
+    "k": { "type": "choice", "values": [5, 3, 4, 2, 5, 2, 3, 6] },
+    "answer": {
+      "type": "choice",
+      "values": ["200", "54", "64", "20", "75", "28", "90", "48"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_2",
+  "question_template": "Найдите значение выражения: \\( \\sqrt{ \\frac{ {c} x^2 }{ y^4 } } \\) при \\( x = {k}, \\, y = {l} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [81, 36, 16, 25, 9, 100, 64, 4] },
+    "k": { "type": "choice", "values": [2, 6, 4, 10, 6, 10, 8, 10] },
+    "l": { "type": "choice", "values": [6, 6, 4, 5, 3, 5, 4, 5] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.5", "1", "1", "2", "2", "4", "4", "0.8"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_3",
+  "question_template": "Найдите значение выражения: \\( \\sqrt{ \\frac{1}{ {c} } x^4 y^6 } \\) при \\( x = {k}, \\, y = {l} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c": { "type": "choice", "values": [100, 25, 4, 16, 9, 100, 25, 4] },
+    "k": { "type": "choice", "values": [5, 2, 3, 2, 3, 4, 2, 4] },
+    "l": { "type": "choice", "values": [2, 2, 1, 2, 2, 5, 4, 2] },
+    "answer": {
+      "type": "choice",
+      "values": ["20", "6.4", "4.5", "8", "24", "200", "51.2", "64"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_4",
+  "question_template": "Вычислите значение выражения: \\( (\\sqrt{ {A} } - \\sqrt{ {B} }) \\cdot \\sqrt{ {B} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [28, 45, 48, 50] },
+    "B": { "type": "choice", "values": [7, 5, 3, 2] },
+    "answer": { "type": "choice", "values": [7, 10, 9, 8] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_5",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {m} \\cdot {n} } \\cdot \\sqrt{ {k} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [7, 5, 3, 8] },
+    "n": { "type": "choice", "values": [12, 20, 12, 2] },
+    "k": { "type": "choice", "values": [21, 4, 4, 9] },
+    "answer": { "type": "choice", "values": [42, 20, 12, 12] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_6",
+  "question_template": "Вычислите значение выражения: \\( \\frac{ ( {p} \\sqrt{ {q} } )^{2} }{ {r} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [6, 4, 8, 10] },
+    "q": { "type": "choice", "values": [5, 10, 3, 2] },
+    "r": { "type": "choice", "values": [30, 20, 48, 50] },
+    "answer": {
+      "type": "choice",
+      "values": ["6", "8", "4", "4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_7",
+  "question_template": "Вычислите значение выражения: \\( \\frac{ {m} }{ ( {a} \\sqrt{ {b} } )^{2} } \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [36, 50, 72, 32] },
+    "a": { "type": "choice", "values": [3, 5, 6, 4] },
+    "b": { "type": "choice", "values": [4, 2, 2, 2] },
+    "answer": {
+      "type": "choice",
+      "values": ["1", "1", "1", "1"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_8",
+  "question_template": "( \\sqrt{ {A} } - \\sqrt{ {B} } ) ( \\sqrt{ {A} } + \\sqrt{ {B} } )",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [15, 20, 18, 25] },
+    "B": { "type": "choice", "values": [7, 11, 2, 9] },
+    "answer": {
+      "type": "choice",
+      "values": ["8", "9", "16", "16"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_9",
+  "question_template": "( \\sqrt{ {A} } - {B} )^2 + 2 {B} \\sqrt{ {A} }",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [14, 10, 21, 5] },
+    "B": { "type": "choice", "values": [3, 2, 4, 1] },
+    "answer": {
+      "type": "choice",
+      "values": ["23", "14", "37", "6"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_10",
+  "question_template": "Найдите значение выражения: \\( \\frac{ a^{ {m} } \\cdot a^{ {n} } }{ a^{ {k} } } \\) при \\( a = {p} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [7, 5, 6, 6] },
+    "n": { "type": "choice", "values": [6, 4, 3, 2] },
+    "k": { "type": "choice", "values": [11, 6, 7, 5] },
+    "p": { "type": "choice", "values": [5, 3, 2, 4] },
+    "answer": {
+      "type": "choice",
+      "values": [25, 27, 4, 64]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_11",
+  "question_template": "Найдите значение выражения: \\( \\frac{ a^{ {m} } \\cdot a^{ {n} } }{ a^{ {k} } } \\) при \\( a = {p} \\).",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [12, 9, 7, 5] },
+    "n": { "type": "choice", "values": [-6, -3, -2, -1] },
+    "k": { "type": "choice", "values": [5, 4, 3, 2] },
+    "p": { "type": "choice", "values": [7, 5, 3, 4] },
+    "answer": {
+      "type": "choice",
+      "values": [7, 25, 9, 16]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_12",
+  "question_template": "Найдите значение выражения: \\( \\frac{ (a^{ {m} })^{ {n} } }{ a^{ {k} } } \\) при \\ a = {p} \\.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [5, 4, 3, 6] },
+    "n": { "type": "choice", "values": [4, 3, 4, 2] },
+    "k": { "type": "choice", "values": [17, 10, 9, 10] },
+    "p": { "type": "choice", "values": [4, 3, 2, 5] },
+    "answer": {
+      "type": "choice",
+      "values": ["4", "9", "8", "25"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_15_12_13",
+  "question_template": "Найдите значение выражения: \\( a^{ {m} } \\ \\cdot \\ a^{ {n} } \\ \\cdot \\ a^{ {k} } \\) при \\\\ a = {p} \\.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 6, 6, 7] },
+    "n": { "type": "choice", "values": [5, 4, 3, 2] },
+    "k": { "type": "choice", "values": [11, 7, 5, 6] },
+    "p": { "type": "choice", "values": [3, 2, 4, 5] },
+    "answer": {
+      "type": "choice",
+      "values": ["81", "8", "256", "25"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_1",
+  "question_template": "В фирме такси в данный момент свободно {a} машин: {b} чёрные, {c} жёлтые и {d} зелёные. По вызову выехала одна из машин, случайно оказавшаяся ближе всего к заказчику. Найдите вероятность того, что к нему приедет жёлтое такси.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [20, 25, 30, 40] },
+    "b": { "type": "choice", "values": [4, 5, 6, 8] },
+    "c": { "type": "choice", "values": [6, 10, 9, 12] },
+    "d": { "type": "choice", "values": [10, 10, 15, 20] },
+    "answer": {
+      "type": "choice",
+      "values": [0.3, 0.4, 0.3, 0.3]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_2",
+  "question_template": "В фирме такси в данный момент свободно {a} машин: {b} чёрные, {c} жёлтые и {d} зелёные. По вызову выехала одна из машин, случайно оказавшаяся ближе всего к заказчику. Найдите вероятность того, что к нему приедет жёлтое такси.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [15, 20, 25, 30] },
+    "b": { "type": "choice", "values": [3, 4, 5, 6] },
+    "c": { "type": "choice", "values": [6, 8, 5, 12] },
+    "d": { "type": "choice", "values": [6, 8, 15, 12] },
+    "answer": {
+      "type": "choice",
+      "values": [0.4, 0.4, 0.2, 0.4]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_3",
+  "question_template": "Родительский комитет закупил {a} пазлов для подарков детям, из них {b} — с машинами и {c} — с видами города. Подарки распределяются случайным образом между {a} детьми. Какова вероятность того, что Мише достанется пазл с машиной?",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [15, 20, 25, 30] },
+    "b": { "type": "choice", "values": [9, 12, 10, 18] },
+    "c": { "type": "choice", "values": [6, 8, 15, 12] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.6", "0.6", "0.4", "0.6"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_4",
+  "question_template": "Родительский комитет закупил {a} пазлов для подарков детям, из них {b} — с машинами и {c} — с видом города. Подарки распределяются случайным образом между a детьми. Какова вероятность того, что Андрюше достанется пазл с машиной?",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [20, 25, 30, 40] },
+    "b": { "type": "choice", "values": [10, 15, 12, 20] },
+    "c": { "type": "choice", "values": [10, 10, 18, 20] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.5", "0.6", "0.4", "0.5"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id":  9,
+  "name": "OGE_16_12_5",
+  "question_template": "В лыжных гонках участвуют {a} спортсменов из России, {b} спортсмена из Норвегии и {c} спортсменов из Швеции. Порядок старта определяется жребием. Найдите вероятность того, что первым будет стартовать спортсмен из Норвегии или Швеции.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [12, 14, 18, 21] },
+    "b": { "type": "choice", "values": [4, 3, 4, 3] },
+    "c": { "type": "choice", "values": [4, 3, 8, 6] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.4", "0.3", "0.4", "0.3"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_6",
+  "question_template": "В лыжных гонках участвуют {a} спортсменов из России, {b} спортсмена из Норвегии и {c} спортсменов из Швеции. Порядок старта определяется жребием. Найдите вероятность того, что первым будет стартовать спортсмен не из Норвегии.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [10, 12, 14, 15] },
+    "b": { "type": "choice", "values": [4, 3, 2, 5] },
+    "c": { "type": "choice", "values": [6, 5, 4, 5] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.8", "0.85", "0.9", "0.8"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_7",
+  "question_template": "У бабушки {a} чашек: {b} с красными цветами, остальные с синими. Бабушка наливает чай в случайно выбранную чашку. Найдите вероятность того, что это будет чашка с синими цветами.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [15, 20, 25, 30] },
+    "b": { "type": "choice", "values": [9, 12, 10, 18] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.4", "0.4", "0.6", "0.4"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_8",
+  "question_template": "У бабушки {a} чашек: {b} с красными цветами, остальные с синими. Бабушка наливает чай в случайно выбранную чашку. Найдите вероятность того, что это будет чашка с синими цветами.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [25, 30, 40, 50] },
+    "b": { "type": "choice", "values": [5, 6, 10, 15] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.8", "0.8", "0.75", "0.7"]
+    }
+  },
+  "conditions": []
+},
+ {
+  "textbook_id": 9,
+  "name": "OGE_16_12_9",
+  "question_template": "В магазине канцтоваров продаётся {a} ручек: {b} красных, {c} зелёных, {d} фиолетовых, остальные синие и чёрные, их поровну. Найдите вероятность того, что случайно выбранная в этом магазине ручка будет красной или синей.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [200, 240, 300, 360] },
+    "b": { "type": "choice", "values": [20, 24, 30, 36] },
+    "c": { "type": "choice", "values": [40, 72, 60, 72] },
+    "d": { "type": "choice", "values": [40, 48, 60, 72] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.35", "0.30", "0.35", "0.30"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_10",
+  "question_template": "В магазине канцтоваров продаётся {a} ручек: {b} красных, {c} зелёных, {d} фиолетовых, остальные синие и чёрные, их поровну. Найдите вероятность того, что случайно выбранная в этом магазине ручка будет зелёной или синей.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [300, 360, 420, 480] },
+    "b": { "type": "choice", "values": [30, 36, 42, 48] },
+    "c": { "type": "choice", "values": [60, 72, 84, 96] },
+    "d": { "type": "choice", "values": [60, 72, 84, 96] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.45", "0.45", "0.45", "0.45"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_11",
+  "question_template": "Игральную кость бросают дважды. Найдите вероятность того, что сумма двух выпавших чисел равна {a} или {b}.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [5, 4, 6, 7] },
+    "b": { "type": "choice", "values": [6, 7, 5, 4] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.25", "0.25", "0.25", "0.25"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_12",
+  "question_template": "Игральную кость бросают дважды. Найдите вероятность того, что сумма двух выпавших чисел равна {a} или {b}.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [6, 7, 5, 4] },
+    "b": { "type": "choice", "values": [5, 4, 6, 7] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.25", "0.25", "0.25", "0.25"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_13",
+  "question_template": "Вероятность того, что новая шариковая ручка пишет плохо (или не пишет), равна {p}. Покупатель в магазине выбирает одну такую ручку. Найдите вероятность того, что эта ручка пишет хорошо.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [0.14, 0.32, 0.05, 0.47] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.86", "0.68", "0.95", "0.53"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_14",
+  "question_template": "Вероятность того, что новая шариковая ручка пишет плохо (или не пишет), равна {p}. Покупатель в магазине выбирает одну такую ручку. Найдите вероятность того, что эта ручка пишет хорошо.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "choice", "values": [0.20, 0.35, 0.08, 0.61] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.80", "0.65", "0.92", "0.39"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_15",
+  "question_template": "В среднем из {n} карманных фонариков, поступивших в продажу, {k} неисправных. Найдите вероятность того, что выбранный наудачу в магазине фонарик окажется исправен.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "n": { "type": "choice", "values": [50, 40, 80, 100] },
+    "k": { "type": "choice", "values": [6, 5, 10, 12] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.88", "0.875", "0.875", "0.88"]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_16",
+  "question_template": "В среднем из {n} карманных фонариков, поступивших в продажу, {k} неисправных. Найдите вероятность того, что выбранный наудачу в магазине фонарик окажется исправен.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "n": { "type": "choice", "values": [200, 100, 250, 400] },
+    "k": { "type": "choice", "values": [4, 3, 5, 8] },
+    "answer": {
+      "type": "choice",
+      "values": ["0.98", "0.97", "0.98", "0.98"]
+    }
+  },
+  "conditions": []
+},
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_17",
+    "question_template": "В амфитеатре {m} рядов. В первом ряду {a} мест, а в каждом следующем на {d} мест больше, чем в предыдущем. Сколько мест в {n}-м ряду амфитеатра?",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "m": { "type": "choice", "values": [13, 15, 12, 20] },
+      "a": { "type": "choice", "values": [22, 18, 25, 16] },
+      "d": { "type": "choice", "values": [3, 4, 2, 3] },
+      "n": { "type": "choice", "values": [11, 9, 10, 14] },
+      "answer": {
+        "type": "choice",
+        "values": ["52", "50", "43", "55"]
+      }
+    },
+    "conditions": []
+  },
 
-
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_18",
+    "question_template": "В амфитеатре {m} рядов. В первом ряду {a} мест, а в каждом следующем на {d} мест больше, чем в предыдущем. Сколько мест в {n}-м ряду амфитеатра?",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "m": { "type": "choice", "values": [14, 16, 18, 25] },
+      "a": { "type": "choice", "values": [20, 15, 12, 10] },
+      "d": { "type": "choice", "values": [3, 5, 4, 2] },
+      "n": { "type": "choice", "values": [10, 8, 11, 15] },
+      "answer": {
+        "type": "choice",
+        "values": ["47", "50", "52", "38"]
+      }
+    },
+    "conditions": []
+  },
+  {
+  "textbook_id": 9,
+  "name": "OGE_16_12_19",
+  "question_template": "При проведении опыта вещество равномерно охлаждали в течение {m} минут. Каждую минуту температура уменьшалась на {k}°C. Найдите температуру вещества через {t} минут после начала опыта, если его начальная температура составляла {T0}°C.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 12, 15, 10] },
+    "k": { "type": "choice", "values": [6, 5, 4, 3] },
+    "t": { "type": "choice", "values": [4, 6, 8, 7] },
+    "T0": { "type": "choice", "values": [-7, -4, -6, -5] },
+    "answer": { "type": "choice", "values": [-31, -34, -38, -26] }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 9,
+  "name": "OGE_16_12_20",
+  "question_template": "При проведении опыта вещество равномерно охлаждали в течение {m} минут. Каждую минуту температура уменьшалась на {k}°C. Найдите температуру вещества через {t} минут после начала опыта, если его начальная температура составляла {T0}°C.",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "m": { "type": "choice", "values": [10, 14, 12, 20] },
+    "k": { "type": "choice", "values": [7, 6, 5, 4] },
+    "t": { "type": "choice", "values": [5, 4, 9, 10] },
+    "T0": { "type": "choice", "values": [-7, -8, -6, -9] },
+    "answer": { "type": "choice", "values": [-42, -32, -51, -49] }
+  },
+  "conditions": []
+},
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_21",
+    "question_template": "Поезд начал движение от станции. За первую секунду он прошёл \\({a}\\) м, а за каждую следующую секунду — на \\({d}\\) м больше, чем за предыдущую. Сколько метров прошёл поезд за первые \\({n}\\) секунд движения? ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [0.5, 0.4, 0.8, 0.3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [0.2, 0.1, 0.05, 0.25]
+      },
+      "n": {
+        "type": "choice",
+        "values": [7, 9, 8, 6]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [7.7, 7.2, 7.8, 5.55]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_22",
+    "question_template": "Поезд начал движение от станции. За первую секунду он прошёл \\({a}\\) м, а за каждую следующую секунду — на \\({d}\\) м больше, чем за предыдущую. Сколько метров прошёл поезд за первые \\({n}\\) секунд движения? ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [0.2, 0.7, 0.35, 0.1]
+      },
+      "d": {
+        "type": "choice",
+        "values": [0.4, 0.3, 0.15, 0.5]
+      },
+      "n": {
+        "type": "choice",
+        "values": [9, 10, 8, 7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [16.2, 20.5, 7, 11.2]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_23",
+    "question_template": "В амфитеатре \\({m}\\) рядов, причём в каждом следующем ряду на одно и то же число мест больше, чем в предыдущем. В \\({k}\\)-м ряду \\({a}\\) мест, а в \\({r}\\)-м ряду \\({b}\\) мест. Сколько мест в последнем ряду амфитеатра?",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "m": {
+        "type": "choice",
+        "values": [14, 14, 14, 14]
+      },
+      "k": {
+        "type": "choice",
+        "values": [5, 5, 5, 5]
+      },
+      "r": {
+        "type": "choice",
+        "values": [8, 8, 8, 8]
+      },
+      "a": {
+        "type": "choice",
+        "values": [25, 28, 23, 30]
+      },
+      "b": {
+        "type": "choice",
+        "values": [34, 40, 32, 45]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [52, 64, 50, 75]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_24",
+    "question_template": "В амфитеатре \\({m}\\) рядов, причём в каждом следующем ряду на одно и то же число мест больше, чем в предыдущем. В \\({k}\\)-м ряду \\({a}\\) мест, а в \\({r}\\)-м ряду \\({b}\\) мест. Сколько мест в последнем ряду амфитеатра? Ответ введите целым числом.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "m": {
+        "type": "choice",
+        "values": [17, 17, 17, 17]
+      },
+      "k": {
+        "type": "choice",
+        "values": [7, 7, 7, 7]
+      },
+      "r": {
+        "type": "choice",
+        "values": [9, 9, 9, 9]
+      },
+      "a": {
+        "type": "choice",
+        "values": [36, 41, 34, 39]
+      },
+      "b": {
+        "type": "choice",
+        "values": [40, 45, 44, 47]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [56, 61, 84, 79]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_27",
+    "question_template": "Каучуковый мячик с силой бросили на асфальт. Отскочив, мячик подпрыгнул на \\({a}\\) м, а при каждом следующем прыжке он поднимался на высоту в два раза меньшую предыдущей. При каком по счёту прыжке мячик в первый раз не достигнет высоты \\({c}\\) см? ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4.8, 3.2, 2.4, 1.6]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 20, 15, 10]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [7, 6, 6, 6]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_28",
+    "question_template": "Каучуковый мячик с силой бросили на асфальт. Отскочив, мячик подпрыгнул на \\({a}\\) м, а при каждом следующем прыжке он поднимался на высоту в два раза меньшую предыдущей. При каком по счёту прыжке мячик в первый раз не достигнет высоты \\({c}\\) см? ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [2.4, 1.6, 3.2, 1.2]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 5, 5, 15]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [6, 7, 8, 5]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_29",
+    "question_template": "В ходе распада радиоактивного изотопа его масса уменьшается вдвое каждые \\({p}\\) минут. В начальный момент масса изотопа составляла \\({m}\\) мг. Найдите массу изотопа через \\({t}\\) минут. Ответ дайте в миллиграммах.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "p": {
+        "type": "choice",
+        "values": [6, 5, 8, 7]
+      },
+      "m": {
+        "type": "choice",
+        "values": [192, 320, 256, 224]
+      },
+      "t": {
+        "type": "choice",
+        "values": [24, 20, 40, 21]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [12, 20, 8, 28]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_16_12_30",
+    "question_template": "В ходе распада радиоактивного изотопа его масса уменьшается вдвое каждые \\({p}\\) минут. В начальный момент масса изотопа составляла \\({m}\\) мг. Найдите массу изотопа через \\({t}\\) минут. Ответ дайте в миллиграммах.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "p": {
+        "type": "choice",
+        "values": [9, 8, 6, 10]
+      },
+      "m": {
+        "type": "choice",
+        "values": [288, 512, 384, 640]
+      },
+      "t": {
+        "type": "choice",
+        "values": [45, 48, 30, 50]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [9, 8, 12, 20]
+      }
+    },
+    "conditions": []
+  }
 
 
 

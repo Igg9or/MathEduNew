@@ -6805,7 +6805,249 @@
     }
   },
   "conditions": []
-}
+},
+{
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №1а",
+    "question_template": "Запишите дробь, у которой числитель равен \\({a}\\), а знаменатель равен \\({b}\\).",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 5, 7, 9, 4, 11, 2, 8]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4, 6, 8, 10, 9, 12, 7, 13]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["3/4", "5/6", "7/8", "9/10", "4/9", "11/12", "2/7", "8/13"]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №1б",
+    "question_template": "Запишите в виде дроби частное чисел \\({a}\\) и \\({b}\\). ",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6, 9, 5, 12, 7, 10, 4, 11]
+      },
+      "b": {
+        "type": "choice",
+        "values": [11, 14, 8, 13, 15, 16, 9, 18]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["6/11", "9/14", "5/8", "12/13", "7/15", "10/16", "4/9", "11/18"]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №1в",
+    "question_template": "Запишите в виде дроби со знаменателем \\({b}\\) число \\({a}\\). ",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 7, 6, 9, 5, 4, 8, 11]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 4, 8, 7, 6, 9, 10, 3]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["15/5", "28/4", "48/8", "63/7", "30/6", "36/9", "80/10", "33/3"]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №1г",
+    "question_template": "Запишите в виде дроби со знаменателем \\({b}\\) число \\({a}\\). ",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [5, 6, 9, 7, 8, 10, 4, 12]
+      },
+      "b": {
+        "type": "choice",
+        "values": [7, 11, 4, 12, 5, 9, 13, 8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["35/7", "66/11", "36/4", "84/12", "40/5", "90/9", "52/13", "96/8"]
+      }
+    },
+    "conditions": []
+  },
+ {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №2а",
+    "question_template": "Запишите наибольшую правильную дробь со знаменателем \\({b}\\). Ответ введите в виде дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "b": {
+        "type": "choice",
+        "values": [5, 6, 7, 8, 9, 10, 11, 12]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["4/5", "5/6", "6/7", "7/8", "8/9", "9/10", "10/11", "11/12"]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №2б",
+    "question_template": "Запишите наименьшую неправильную дробь со знаменателем \\({b}\\). ",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "b": {
+        "type": "choice",
+        "values": [3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["3/3", "4/4", "5/5", "6/6", "7/7", "8/8", "9/9", "10/10"]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №3а",
+    "question_template": "Решите уравнение: \\( \\dfrac{{a}}{x} = {b} \\). ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [48, 56, 72, 45, 64, 81, 36, 54]
+      },
+      "b": {
+        "type": "choice",
+        "values": [6, 7, 9, 5, 8, 9, 4, 6]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [8, 8, 8, 9, 8, 9, 9, 9]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №3б",
+    "question_template": "Решите уравнение: \\( \\dfrac{y}{{a}} = {b} \\). ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [12, 15, 16, 18, 14, 20, 9, 25]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4, 3, 5, 4, 6, 3, 8, 4]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [48, 45, 80, 72, 84, 60, 72, 100]
+      }
+    },
+    "conditions": []
+  },
+   {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №3в",
+    "question_template": "Решите уравнение: \\( \\dfrac{d - {a}}{{b}} = {c} \\). ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 4, 2, 5, 6, 1, 4, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 6, 4, 7, 8, 3, 5, 6]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 5, 9, 6, 4, 12, 8, 5]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [38, 34, 38, 47, 38, 37, 44, 37]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №3г",
+    "question_template": "Решите уравнение: \\( \\dfrac{{a} + t}{{b}} = {c} \\). Ответ введите целым числом.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [10, 8, 12, 9, 14, 6, 15, 4]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 4, 6, 3, 7, 5, 5, 4]
+      },
+      "c": {
+        "type": "choice",
+        "values": [6, 7, 5, 8, 6, 6, 7, 9]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [20, 20, 18, 15, 28, 24, 20, 32]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 8,
+    "name": "Глава 30. Проверь себя. №4",
+    "question_template": "Поле занимает площадь \\({a}\\) га. Оно разбито на \\({b}\\) равных участков. Сколько гектаров занимает каждый участок? ",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [5, 7, 9, 11, 4, 13, 6, 8]
+      },
+      "b": {
+        "type": "choice",
+        "values": [6, 8, 10, 12, 9, 14, 11, 15]
+      },
+      "answer": {
+        "type": "choice",
+        "values": ["5/6", "7/8", "9/10", "11/12", "4/9", "13/14", "6/11", "8/15"]
+      }
+    },
+    "conditions": []
+  }
 
 
 

@@ -2093,3 +2093,39 @@ body {
         transform: translateY(0) scale(1);
     }
 }
+.lesson-card {
+    position: relative;
+}
+
+.lesson-progress {
+    position: absolute;
+    top: 12px;
+    right: 12px;   /* ← ВАЖНО */
+    left: auto;    /* ← сбрасываем */
+
+    padding: 6px 10px;
+    border-radius: 999px;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    z-index: 2;
+}
+
+.progress-red {
+    background: #e63946;
+}
+
+.progress-orange {
+    background: #f4a261;
+}
+
+.progress-blue {
+    background: #3b5cff;
+}
+
+.progress-green {
+    background: #2a9d8f;
+}

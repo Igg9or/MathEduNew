@@ -25,6 +25,18 @@
                 <div class="lessons-container">
                     {% for lesson in lessons %}
                     <div class="lesson-card">
+                        {% if lesson.progress > 0 %}
+<div class="lesson-progress
+    {% if lesson.progress <= 25 %}progress-red
+    {% elif lesson.progress <= 50 %}progress-orange
+    {% elif lesson.progress <= 75 %}progress-blue
+    {% else %}progress-green
+    {% endif %}
+">
+    {{ lesson.progress }}%
+</div>
+{% endif %}
+
                         <div class="lesson-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6H8v6H6v-9l6-7.2z"/>

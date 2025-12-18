@@ -680,12 +680,34 @@ def student_lessons():
         
         # Получаем уроки для этого класса
         cursor.execute('''
-            SELECT l.id, l.title, l.date, u.full_name as teacher_name 
+            SELECT
+                l.id,
+                l.title,
+                l.date,
+                u.full_name AS teacher_name,
+
+                COALESCE(
+                    ROUND(
+                        (COUNT(sa.task_id) FILTER (WHERE sa.is_correct = TRUE)::numeric /
+                        NULLIF(COUNT(lt.id), 0)) * 100
+                    ),
+                    0
+                ) AS progress
+
             FROM lessons l
             JOIN users u ON l.teacher_id = u.id
+
+            LEFT JOIN lesson_tasks lt
+                ON lt.lesson_id = l.id
+
+            LEFT JOIN student_answers sa
+                ON sa.task_id = lt.id
+            AND sa.user_id = %s
+
             WHERE l.class_id = %s
+            GROUP BY l.id, u.full_name
             ORDER BY l.date DESC
-        ''', (class_id,))
+        ''', (session['user_id'], class_id))
         lessons = cursor.fetchall()
         
         return render_template('student_lessons.html', 
