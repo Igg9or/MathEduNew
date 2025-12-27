@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Template Playground</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .col {
+      flex: 1;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+    }
+    .col:last-child {
+      border-right: none;
+    }
+    .header {
+      padding: 8px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+    .content {
+      flex: 1;
+      overflow: auto;
+    }
+    .result {
+      border-bottom: 1px solid #ddd;
+      padding: 8px;
+    }
+    .ok { background: #e8f7e8; }
+    .error { background: #ffecec; }
+    .warn { background: #fff3cd; }
+    .small {
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+
+  <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$','$$']]
+    }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="col">
+  <div class="header">JSON шаблоны</div>
+  <div class="content">
+    <textarea id="jsonInput">
+{
+  "templates": [
+    {
+      "question_template": "Найдите {A} / {B}",
+      "answer_template": "{A}/{B}",
+      "parameters": {
+        "A": { "type": "int", "min": 3, "max": 3 },
+        "B": { "type": "int", "min": 4, "max": 4 }
+      },
+      "answer_type": "numeric"
+    },
+    {
+      "question_template": "Найдите {A} * {B}",
+      "answer_template": "{A}*{B}",
+      "parameters": {
+        "A": { "type": "int", "min": 2, "max": 2 },
+        "B": { "type": "int", "min": 5, "max": 5 }
+      },
+      "answer_type": "numeric"
+    }
+  ],
+  "student_answer": "0.75",
+  "student_grade": 6
+}
+    </textarea>
+  </div>
+</div>
+
+<!-- CENTER -->
+<div class="col">
+  <div class="header">
+    Превью ученика
+    <button onclick="runCheck()" style="float:right">Проверить</button>
+  </div>
+  <div class="content" id="preview"></div>
+</div>
+
+<!-- RIGHT -->
+<div class="col">
+  <div class="header">Диагностика шаблонов</div>
+  <div class="content" id="diagnostics"></div>
+</div>
+
+<script>
+async function runCheck() {
+  const preview = document.getElementById("preview");
+  const diagnostics = document.getElementById("diagnostics");
+
+  preview.innerHTML = "";
+  diagnostics.innerHTML = "";
+
+  let data;
+  try {
+    data = JSON.parse(document.getElementById("jsonInput").value);
+  } catch (e) {
+    diagnostics.innerHTML = "<div class='result error'>❌ Ошибка JSON</div>";
+    return;
+  }
+
+  // 🔥 БЫСТРЫЙ запрос
+  const res = await fetch("/api/dev/preview_templates", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  const json = await res.json();
+
+  if (!json.preview) {
+    diagnostics.innerHTML = "<div class='result error'>❌ Ошибка ответа сервера</div>";
+    return;
+  }
+
+  // ✅ МГНОВЕННЫЙ ПРЕВЬЮ
+  json.preview.forEach(r => {
+    const p = document.createElement("div");
+    p.className = "result";
+    p.innerHTML = `<b>Задание ${r.index}</b><br>${r.question}`;
+    preview.appendChild(p);
+  });
+
+  // MathJax после вставки
+  if (window.MathJax) {
+    MathJax.typesetPromise([preview]);
+  }
+}
+</script>
+
+
+
+</body>
+</html>

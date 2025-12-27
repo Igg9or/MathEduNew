@@ -28,10 +28,13 @@ import requests
 
 
 
+
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+from devtools.playground_routes import playground_bp
+app.register_blueprint(playground_bp, url_prefix="/api/dev")
 
 @app.after_request
 def add_header(response):
@@ -2753,6 +2756,12 @@ def ai_tutor_dialog():
     except Exception as e:
         print("Ошибка в ai_tutor_dialog:", e)
         return jsonify({"reply": "Ошибка при получении ответа от ИИ."}), 500
+
+
+@app.route("/dev/playground")
+def dev_playground():
+    return render_template("dev_playground.html")
+
 
 
 
