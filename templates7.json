@@ -7149,7 +7149,46 @@
     }
   },
   "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №4. Свойство степеней. Вариант 1",
+  "question_template": "Вариант 1. https://imgfoto.host/i/pp9kxV",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.6, 0.4, 0.5, 0.2, 0.8, 0.3, 0.25, 0.1] },
+    "m": { "type": "choice", "values": [12, 9, 8, 7, 6, 6, 6, 7] },
+    "n": { "type": "choice", "values": [4, 3, 3, 2, 2, 2, 2, 3] },
+    "k": { "type": "choice", "values": [5, 4, 4, 4, 3, 3, 3, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [0.216, 0.16, 0.5, 0.2, 0.8, 0.3, 0.25, 0.1]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 5,
+  "name": "Контрольная работа №4. Свойство степеней. Вариант 2",
+  "question_template": "Вариант 2. https://imgfoto.host/i/ppCC45",
+  "answer_template": "{answer}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a": { "type": "choice", "values": [0.6, 0.4, 0.5, 0.2, 0.8, 0.3, 0.25, 0.1] },
+    "m": { "type": "choice", "values": [12, 9, 8, 7, 6, 6, 6, 7] },
+    "n": { "type": "choice", "values": [4, 3, 3, 2, 2, 2, 2, 3] },
+    "k": { "type": "choice", "values": [5, 4, 4, 4, 3, 3, 3, 3] },
+    "answer": {
+      "type": "choice",
+      "values": [0.216, 0.16, 0.5, 0.2, 0.8, 0.3, 0.25, 0.1]
+    }
+  },
+  "conditions": []
 }
+
+
+
 
 
 

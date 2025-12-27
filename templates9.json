@@ -4218,16 +4218,1079 @@
       }
     },
     "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_1",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\cdot \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 3, 9, 6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [8, 5, 20, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [4, 1, 10, 5]
+      },
+      "d": {
+        "type": "choice",
+        "values": [5, 8, 9, 12]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.3, 0.075, 0.5, 0.1]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_2",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\cdot \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [16, 12, 9, 18]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 25, 10, 20]
+      },
+      "c": {
+        "type": "choice",
+        "values": [5, 5, 4, 5]
+      },
+      "d": {
+        "type": "choice",
+        "values": [8, 6, 9, 9]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [2, 0.4, 0.4, 0.5]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_3",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\cdot \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4, 7, 9, 6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 20, 25, 8]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 40, 5, 10]
+      },
+      "d": {
+        "type": "choice",
+        "values": [8, 7, 6, 15]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [1.5, 2, 0.3, 0.5]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_4",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [9, 7, 11, 8]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 4, 10, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [2, 6, 3, 15]
+      },
+      "d": {
+        "type": "choice",
+        "values": [8, 5, 4, 16]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.45, 2.1, 0.825, 0.3]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_5",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4, 7, 9, 11]
+      },
+      "b": {
+        "type": "choice",
+        "values": [3, 5, 4, 6]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 10, 8, 12]
+      },
+      "d": {
+        "type": "choice",
+        "values": [2, 7, 9, 11]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [10, 2, 2, 2]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_6",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [9, 6, 12, 18]
+      },
+      "b": {
+        "type": "choice",
+        "values": [10, 7, 25, 35]
+      },
+      "c": {
+        "type": "choice",
+        "values": [8, 14, 5, 7]
+      },
+      "d": {
+        "type": "choice",
+        "values": [45, 15, 6, 8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.16, 0.8, 0.4, 0.45]
+      }
+    },
+    "conditions": []
+  },
+   {
+    "textbook_id": 9,
+    "name": "OGE_№6_7",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [12, 9, 7, 16]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 4, 8, 5]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 3, 14, 8]
+      },
+      "d": {
+        "type": "choice",
+        "values": [2, 5, 5, 25]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.32, 3.75, 0.3125, 10]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_8",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6, 9, 7, 5]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 8, 10, 12]
+      },
+      "c": {
+        "type": "choice",
+        "values": [4, 3, 14, 1]
+      },
+      "d": {
+        "type": "choice",
+        "values": [11, 16, 25, 3]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [3.3, 6, 1.25, 1.25]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_9",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 6, 8, 5]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 7, 9, 12]
+      },
+      "c": {
+        "type": "choice",
+        "values": [4, 3, 4, 10]
+      },
+      "d": {
+        "type": "choice",
+        "values": [35, 14, 9, 3]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5.25, 4, 2, 0.125]
+      }
+    },
+    "conditions": []
+  },
+   {
+    "textbook_id": 9,
+    "name": "OGE_№6_10",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [15, 9, 7, 12]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4, 10, 8, 5]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 3, 14, 6]
+      },
+      "d": {
+        "type": "choice",
+        "values": [8, 25, 5, 25]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [10, 7.5, 0.3125, 10]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_11",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [21, 16, 9, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [2, 5, 4, 2]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 8, 3, 14]
+      },
+      "d": {
+        "type": "choice",
+        "values": [5, 25, 8, 5]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [17.5, 10, 6, 1.25]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_12",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} : \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [21, 16, 9, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [2, 5, 4, 2]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 8, 3, 14]
+      },
+      "d": {
+        "type": "choice",
+        "values": [5, 25, 8, 5]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [17.5, 10, 6, 1.25]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_13",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 2, 7, 1]
+      },
+      "b": {
+        "type": "choice",
+        "values": [8, 5, 20, 2]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 9, 3, 11]
+      },
+      "d": {
+        "type": "choice",
+        "values": [100, 50, 25, 40]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.305, 0.22, 0.23, 0.225]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_14",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 2, 7, 9]
+      },
+      "b": {
+        "type": "choice",
+        "values": [10, 5, 20, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 9, 3, 1]
+      },
+      "d": {
+        "type": "choice",
+        "values": [50, 25, 50, 8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.16, 0.04, 0.29, 0.235]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_15",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4, 3, 5, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 4, 8, 10]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 7, 11, 9]
+      },
+      "d": {
+        "type": "choice",
+        "values": [10, 20, 50, 40]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.5, 0.4, 0.405, 0.475]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_16",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [1, 3, 9, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 10, 20, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 7, 5, 3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [4, 8, 4, 10]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [-0.55, -0.575, -0.8, -0.02]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_17",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [1, 3, 9, 2]
+      },
+      "b": {
+        "type": "choice",
+        "values": [2, 4, 10, 5]
+      },
+      "c": {
+        "type": "choice",
+        "values": [13, 7, 11, 3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [50, 25, 40, 20]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.24, 0.47, 0.625, 0.25]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_18",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} - \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [1, 3, 7, 1]
+      },
+      "b": {
+        "type": "choice",
+        "values": [10, 20, 50, 8]
+      },
+      "c": {
+        "type": "choice",
+        "values": [23, 7, 9, 3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [20, 4, 10, 25]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [-1.05, -1.6, -0.76, 0.005]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_19",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [9, 13, 7, 21]
+      },
+      "b": {
+        "type": "choice",
+        "values": [25, 20, 50, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 9, 11, 3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [2, 5, 4, 10]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [3.86, 2.45, 2.89, 1.14]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_20",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [7, 11, 13, 19]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4, 20, 5, 8]
+      },
+      "c": {
+        "type": "choice",
+        "values": [3, 9, 3, 7]
+      },
+      "d": {
+        "type": "choice",
+        "values": [5, 4, 10, 20]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [2.35, 2.8, 2.9, 2.725]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_21",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [9, 3, 17, 23]
+      },
+      "b": {
+        "type": "choice",
+        "values": [5, 10, 20, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 15, 8, 9]
+      },
+      "d": {
+        "type": "choice",
+        "values": [4, 4, 5, 2]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [3.55, 4.05, 2.45, 5.42]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_22",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 1, 11, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [20, 8, 100, 50]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 9, 3, 13]
+      },
+      "d": {
+        "type": "choice",
+        "values": [50, 40, 4, 25]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.29, 0.35, 0.86, 0.66]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_23",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [3, 9, 11, 7]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4, 20, 20, 10]
+      },
+      "c": {
+        "type": "choice",
+        "values": [7, 3, 1, 9]
+      },
+      "d": {
+        "type": "choice",
+        "values": [25, 25, 8, 50]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [0.95, 0.57, 0.675, 0.88]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_24",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} + \\dfrac{{c}}{{d}} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4, 7, 11, 13]
+      },
+      "b": {
+        "type": "choice",
+        "values": [25, 20, 50, 25]
+      },
+      "c": {
+        "type": "choice",
+        "values": [15, 9, 7, 3]
+      },
+      "d": {
+        "type": "choice",
+        "values": [4, 2, 4, 8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [3.91, 4.85, 1.97, 0.895]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_25",
+    "question_template": "Найдите значение выражения: \\( {a} + {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [9.3, 8.6, 6.9, 7.2]
+      },
+      "b": {
+        "type": "choice",
+        "values": [7.8, 5.7, 4.5, 8.1]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [17.1, 14.3, 11.4, 15.3]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_26",
+    "question_template": "Найдите значение выражения: \\( {a} + {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [8.7, 5.8, 7.9, 9.1]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4.6, 6.4, 3.5, 2.8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [13.3, 12.2, 11.4, 11.9]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_27",
+    "question_template": "Найдите значение выражения: \\( {a} + {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.9, 5.6, 7.5, 9.8]
+      },
+      "b": {
+        "type": "choice",
+        "values": [7.4, 8.2, 4.9, 2.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [14.3, 13.8, 12.4, 12.5]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_28",
+    "question_template": "Найдите значение выражения: \\( {a} - {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [5.7, 4.8, 6.2, 3.5]
+      },
+      "b": {
+        "type": "choice",
+        "values": [7.6, 9.3, 8.9, 7.4]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [-1.9, -4.5, -2.7, -3.9]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_29",
+    "question_template": "Найдите значение выражения: \\( {a} - {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [4.9, 6.3, 5.8, 7.2]
+      },
+      "b": {
+        "type": "choice",
+        "values": [9.4, 8.7, 6.9, 9.5]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [-4.5, -2.4, -1.1, -2.3]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_30",
+    "question_template": "Найдите значение выражения: \\( {a} - {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.1, 4.7, 5.9, 3.8]
+      },
+      "b": {
+        "type": "choice",
+        "values": [8.5, 9.2, 7.6, 6.4]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [-2.4, -4.5, -1.7, -2.6]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_31",
+    "question_template": "Найдите значение выражения: \\( {a} \\cdot {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [5.2, 4.6, 7.8, 6.4]
+      },
+      "b": {
+        "type": "choice",
+        "values": [3.1, 2.5, 1.2, 0.5]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [16.12, 11.5, 9.36, 3.2]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_32",
+    "question_template": "Найдите значение выражения: \\( {a} \\cdot {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [2.1, 3.5, 4.2, 7.5]
+      },
+      "b": {
+        "type": "choice",
+        "values": [9.6, 1.8, 2.5, 0.4]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [20.16, 6.3, 10.5, 3]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_33",
+    "question_template": "Найдите значение выражения: \\( {a} \\cdot {b} \\). Ответ введите в виде десятичной дроби.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [8.9, 6.5, 7.4, 9.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4.3, 1.2, 2.5, 0.3]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [38.27, 7.8, 18.5, 2.88]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_34",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\). Ответ введите целым числом.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [8.2, 7.5, 9.6, 6.4]
+      },
+      "b": {
+        "type": "choice",
+        "values": [4.1, 2.5, 1.2, 0.8]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [2, 3, 8, 8]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_35",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\). Ответ введите целым числом.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [13.2, 7.2, 9.9, 6.3]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.2, 0.8, 1.1, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [11, 9, 9, 9]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "OGE_№6_36",
+    "question_template": "Найдите значение выражения: \\( \\dfrac{{a}}{{b}} \\). Ответ введите целым числом.",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.5, 8.4, 7.2, 5.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.3, 1.2, 0.9, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5, 7, 8, 8]
+      }
+    },
+    "conditions": []
+  },
+   {
+    "textbook_id": 9,
+    "name": "Пробный ОГЭ.№1. Вариант 1. ",
+    "question_template": "Вариант 1. https://yapx.ru/album/cZajR ",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.5, 8.4, 7.2, 5.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.3, 1.2, 0.9, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5, 7, 8, 8]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "Пробный ОГЭ.№2. Вариант 1.  ",
+    "question_template": "Вариант 2. https://yapx.ru/album/cZakN",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.5, 8.4, 7.2, 5.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.3, 1.2, 0.9, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5, 7, 8, 8]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "Пробный ОГЭ.№3. Вариант 1. ",
+    "question_template": "Вариант 3. https://yapx.ru/album/cZak1",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.5, 8.4, 7.2, 5.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.3, 1.2, 0.9, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5, 7, 8, 8]
+      }
+    },
+    "conditions": []
+  },
+  {
+    "textbook_id": 9,
+    "name": "Пробный ОГЭ.№4. Вариант 1. ",
+    "question_template": "Вариант 4. https://yapx.ru/album/cZana",
+    "answer_template": "{answer}",
+    "answer_type": "numeric",
+    "parameters": {
+      "a": {
+        "type": "choice",
+        "values": [6.5, 8.4, 7.2, 5.6]
+      },
+      "b": {
+        "type": "choice",
+        "values": [1.3, 1.2, 0.9, 0.7]
+      },
+      "answer": {
+        "type": "choice",
+        "values": [5, 7, 8, 8]
+      }
+    },
+    "conditions": []
   }
-
-
-
-
-
-
-
-
-
 
 
 

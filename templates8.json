@@ -5571,7 +5571,7 @@
 {
   "textbook_id": 6,
   "name": "363а",
-  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {a}/{b} } \\). Ответ введите дробью.",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ \\dfrac{{a}}{{b}} } \\). Ответ введите дробью.",
   "answer_template": "{answer}",
   "answer_type": "numeric",
   "parameters": {
@@ -5587,7 +5587,7 @@
 {
   "textbook_id": 6,
   "name": "363б",
-  "question_template": "Вычислите значение выражения: \\( \\sqrt{ {c}/{d} } \\). Ответ введите дробью.",
+  "question_template": "Вычислите значение выражения: \\( \\sqrt{ \\dfrac{{c}}{{d}} } \\). Ответ введите дробью.",
   "answer_template": "{answer}",
   "answer_type": "numeric",
   "parameters": {
@@ -7013,12 +7013,191 @@
     }
   },
   "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №4. Вариант 1",
+  "question_template": "Вариант 1. https://imgfoto.host/i/pO0NT5",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [5, 4, 6, 7, 3, 5, 8]
+    },
+    "A": {
+      "type": "choice",
+      "values": [27, 75, 12, 48, 108, 48, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 3, 5, 6, 4, 7, 3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 48, 27, 75, 27, 27, 75]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 2, 3, 2, 3, 2, 3]
+    },
+    "C": {
+      "type": "choice",
+      "values": [12, 108, 48, 12, 12, 108, 48]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-5sqrt{3m}",
+        "-4sqrt{3m}",
+        "-15sqrt{3m}",
+        "-6sqrt{3m}",
+        "0",
+        "-13sqrt{3m}",
+        "-11sqrt{3m}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №4. Вариант 2",
+  "question_template": "Вариант 2. https://imgfoto.host/i/pO0lWS",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [5, 4, 6, 7, 3, 5, 8]
+    },
+    "A": {
+      "type": "choice",
+      "values": [27, 75, 12, 48, 108, 48, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 3, 5, 6, 4, 7, 3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 48, 27, 75, 27, 27, 75]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 2, 3, 2, 3, 2, 3]
+    },
+    "C": {
+      "type": "choice",
+      "values": [12, 108, 48, 12, 12, 108, 48]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-5sqrt{3m}",
+        "-4sqrt{3m}",
+        "-15sqrt{3m}",
+        "-6sqrt{3m}",
+        "0",
+        "-13sqrt{3m}",
+        "-11sqrt{3m}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №4. Вариант 3",
+  "question_template": "Вариант 3. https://imgfoto.host/i/pO29fu",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [5, 4, 6, 7, 3, 5, 8]
+    },
+    "A": {
+      "type": "choice",
+      "values": [27, 75, 12, 48, 108, 48, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 3, 5, 6, 4, 7, 3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 48, 27, 75, 27, 27, 75]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 2, 3, 2, 3, 2, 3]
+    },
+    "C": {
+      "type": "choice",
+      "values": [12, 108, 48, 12, 12, 108, 48]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-5sqrt{3m}",
+        "-4sqrt{3m}",
+        "-15sqrt{3m}",
+        "-6sqrt{3m}",
+        "0",
+        "-13sqrt{3m}",
+        "-11sqrt{3m}"
+      ]
+    }
+  },
+  "conditions": []
+},
+{
+  "textbook_id": 6,
+  "name": "Контрольная работа №4. Вариант 4",
+  "question_template": "Вариант 4. https://imgfoto.host/i/pO2cZe",
+  "answer_template": "{ans}",
+  "answer_type": "string",
+  "parameters": {
+    "a": {
+      "type": "choice",
+      "values": [5, 4, 6, 7, 3, 5, 8]
+    },
+    "A": {
+      "type": "choice",
+      "values": [27, 75, 12, 48, 108, 48, 12]
+    },
+    "b": {
+      "type": "choice",
+      "values": [4, 3, 5, 6, 4, 7, 3]
+    },
+    "B": {
+      "type": "choice",
+      "values": [48, 48, 27, 75, 27, 27, 75]
+    },
+    "c": {
+      "type": "choice",
+      "values": [2, 2, 3, 2, 3, 2, 3]
+    },
+    "C": {
+      "type": "choice",
+      "values": [12, 108, 48, 12, 12, 108, 48]
+    },
+    "ans": {
+      "type": "choice",
+      "values": [
+        "-5sqrt{3m}",
+        "-4sqrt{3m}",
+        "-15sqrt{3m}",
+        "-6sqrt{3m}",
+        "0",
+        "-13sqrt{3m}",
+        "-11sqrt{3m}"
+      ]
+    }
+  },
+  "conditions": []
 }
-
-
-
-
-
 
 
 ]
