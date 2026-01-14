@@ -2762,6 +2762,23 @@ def ai_tutor_dialog():
 def dev_playground():
     return render_template("dev_playground.html")
 
+from services.template_importer import import_templates_from_json
+
+@app.route("/dev/import-templates", methods=["GET", "POST"])
+def dev_import_templates():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for("login"))
+
+    result = None
+
+    if request.method == "POST":
+        json_text = request.form.get("json")
+        conn = get_db()
+        ok, msg = import_templates_from_json(conn, json_text)
+        conn.close()
+        result = {"ok": ok, "msg": msg}
+
+    return render_template("dev_import_templates.html", result=result)
 
 
 

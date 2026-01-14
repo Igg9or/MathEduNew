@@ -1,0 +1,16 @@
+<h1>Импорт шаблонов (JSON)</h1>
+
+<form method="post">
+    <textarea name="json"
+              rows="25"
+              style="width:100%; font-family: monospace;"
+              placeholder="Вставь массив JSON с шаблонами"></textarea>
+
+    <button type="submit">Импортировать</button>
+</form>
+
+{% if result %}
+  <p class="{{ 'success' if result.ok else 'error' }}">
+      {{ result.msg }}
+  </p>
+{% endif %}
