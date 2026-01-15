@@ -421,3 +421,13 @@
     background: #dfe4f2;
     border-radius: 999px;
 }
+.task-question-preview {
+    padding: 12px;
+    background: #f8f9fb;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    min-height: 60px;
+}
+.hidden {
+    display: none;
+}

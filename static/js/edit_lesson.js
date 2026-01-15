@@ -165,7 +165,7 @@ if (!teaser) {
     }
 
     function processTemplate(template) {
-  addTask(template.question_template, template.answer_template);
+  addTask('', '');
 
   const taskCard = tasksContainer.lastElementChild;
   taskCard.dataset.templateId = template.id;
@@ -175,27 +175,34 @@ if (!teaser) {
   generateStudentPreview(taskCard);
 }
 
-    function generateStudentPreview(taskCard) {
+function generateStudentPreview(taskCard) {
     const templateId = taskCard.dataset.templateId;
     if (!templateId) return;
 
-    // Делаем AJAX-запрос к backend
     fetch(`/api/generate_from_template/${templateId}`)
         .then(response => response.json())
         .then(variant => {
-            // Пример для ученика:
             const previewQuestion = taskCard.querySelector('.student-preview-question');
             const previewAnswer = taskCard.querySelector('.student-preview-answer');
+            const hiddenQuestion = taskCard.querySelector('.task-question');
 
-            if (variant && previewQuestion && previewAnswer) {
-                previewQuestion.textContent = variant.question;
-                previewAnswer.textContent = variant.correct_answer;
-            } else {
-                if (previewQuestion) previewQuestion.textContent = "Ошибка генерации";
-                if (previewAnswer) previewAnswer.textContent = "Ошибка генерации";
+            if (!variant || !previewQuestion || !previewAnswer || !hiddenQuestion) {
+                return;
+            }
+
+            // 🔥 ГЛАВНОЕ
+            previewQuestion.innerHTML = variant.question;
+            previewAnswer.textContent = variant.correct_answer;
+
+            // 🔐 СОХРАНЯЕМ ТЕКСТ В ЗАДАНИЕ (ДЛЯ БД)
+            hiddenQuestion.value = variant.question;
+
+            // 🧮 MathJax
+            if (window.MathJax?.typesetPromise) {
+                MathJax.typesetPromise([previewQuestion]);
             }
         })
-        .catch(e => {
+        .catch(() => {
             const previewQuestion = taskCard.querySelector('.student-preview-question');
             const previewAnswer = taskCard.querySelector('.student-preview-answer');
             if (previewQuestion) previewQuestion.textContent = "Ошибка связи с сервером";
