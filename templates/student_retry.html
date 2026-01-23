@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перерешивание ошибок | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          displayMath: [['\\[', '\\]'], ['$$','$$']]
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="lesson-container">
+        <header class="lesson-header">
+            <div class="header-content">
+                <h1>Перерешивание ошибок</h1>
+                <div class="lesson-meta">
+                    <span>Урок: {{ lesson_title }}</span>
+                    <a href="{{ url_for('student_profile') }}" class="btn btn-back">← Назад в кабинет</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="lesson-content">
+            {% if tasks|length == 0 %}
+                <div class="no-tasks">
+                    🎉 Все задания решены! Ошибок нет.
+                </div>
+            {% else %}
+                <div class="tasks-container">
+                    {% for task in tasks %}
+                    <div class="task-card"
+                        data-task-id="{{ task.id }}"
+                        data-user-id="{{ user_id }}"
+                        data-correct-answer="{{ task.answer }}"
+                        data-template-id="{{ task.template_id }}">
+                        
+                        <div class="task-header">
+                            <div class="task-number">Задание {{ loop.index }}</div>
+                        </div>
+                        <div class="task-body">
+                            <div class="task-question">
+                                {{ task.question|safe }}
+                            </div>
+                            <div class="task-answer">
+                                <input type="text" class="answer-input" placeholder="Введите ваш ответ">
+                                <button class="btn btn-check">Проверить</button>
+                            </div>
+                            <div class="task-feedback hidden">
+                                <div class="feedback-correct hidden">
+                                    <span class="icon">✓</span>
+                                    <span>Правильно!</span>
+                                </div>
+                                <div class="feedback-incorrect hidden">
+                                    <span class="icon">✗</span>
+                                    <span class="error-message">Ошибка! Правильный ответ: 
+                                        <span class="correct-answer">{{ task.answer }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-check').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const card = e.target.closest('.task-card');
+            const input = card.querySelector('.answer-input');
+            const answer = input.value.trim();
+            const correct = card.dataset.correctAnswer;
+            const taskId = card.dataset.taskId;
+            const userId = card.dataset.userId;
+
+            if (!answer) {
+                alert("Введите ответ!");
+                return;
+            }
+
+            const isCorrect = answer == correct;
+            card.querySelector('.feedback-correct').classList.toggle('hidden', !isCorrect);
+            card.querySelector('.feedback-incorrect').classList.toggle('hidden', isCorrect);
+            card.querySelector('.task-feedback').classList.remove('hidden');
+
+            // Сохраняем результат
+            await fetch("/save_answer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: userId,
+                    task_id: taskId,
+                    answer: answer,
+                    is_correct: isCorrect,
+                    retry_used: true
+                })
+            });
+
+            // ❗ После ответа — блокируем возможность повторного ввода
+            input.disabled = true;
+            button.disabled = true;
+        });
+    });
+});
+</script>
+
+
+<style>
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f7f9;
+    margin: 0;
+    padding: 0;
+}
+.lesson-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+.lesson-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-back {
+    background: #2196F3;
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+.task-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.task-card.solved {
+    border-left: 6px solid #4CAF50;
+    opacity: 0.8;
+}
+.task-question {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.answer-input {
+    padding: 8px;
+    width: 150px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+.btn-check {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.feedback-correct {
+    color: #4CAF50;
+    font-weight: bold;
+    margin-top: 8px;
+}
+.feedback-incorrect {
+    color: #F44336;
+    font-weight: bold;
+    margin-top: 8px;
+}
+.no-tasks {
+    text-align: center;
+    font-size: 20px;
+    color: #4CAF50;
+    padding: 40px 0;
+}
+</style>
+
+</body>
+</html>

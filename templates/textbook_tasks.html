@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ textbook.title }} - Управление заданиями</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>{{ textbook.title }} ({{ textbook.grade }} класс)</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('manage_tasks') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="textbook-tasks-container" data-textbook-id="{{ textbook.id }}">
+            <div class="section-header">
+                <h2>Шаблоны заданий</h2>
+                <button id="showFormBtn" class="btn btn-primary">+ Добавить шаблон</button>
+            </div>
+            <div class="bulk-actions">
+                <button id="deleteSelectedBtn" class="btn btn-danger" disabled>Удалить выбранные</button>
+                <button id="selectAllBtn" class="btn btn-secondary">Выбрать все</button>
+            </div>
+
+            <!-- Форма добавления -->
+            <div id="taskForm" class="task-form hidden">
+                <h3>Новый шаблон задания</h3>
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" id="templateName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Шаблон вопроса:</label>
+                    <textarea id="questionTemplate" class="form-control" required></textarea>
+                    <small class="form-hint">Используйте {A}, {B} для параметров</small>
+                </div>
+                <div class="form-group">
+                    <label>Формула ответа:</label>
+                    <textarea id="answerTemplate" class="form-control" required></textarea>
+                    <small class="form-hint">Пример: {A} + {B}</small>
+                </div>
+                <div id="paramsContainer" class="params-container"></div>
+                <div class="form-actions">
+                    <button id="saveTemplateBtn" class="btn btn-primary">Сохранить</button>
+                    <button id="cancelBtn" class="btn btn-secondary">Отмена</button>
+                </div>
+            </div>
+
+            <!-- Список шаблонов -->
+            <div id="templatesList" class="templates-list">
+                {% for template in templates %}
+                <div class="template-card" data-id="{{ template.id }}">
+                    <div class="template-header">
+                        <h3>№{{ loop.index }}: {{ template.name }}</h3>
+                        <div class="template-actions">
+                            <input type="checkbox" class="template-checkbox" data-id="{{ template.id }}">
+                            <button class="btn-icon edit-btn">✏️</button>
+                            <button class="btn-icon delete-btn">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="template-content">
+                        <p><strong>Вопрос:</strong> {{ template.question_template }}</p>
+                        <p><strong>Ответ:</strong> {{ template.answer_template }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <p class="no-templates">Нет созданных шаблонов</p>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/textbook_tasks.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bulk_actions.js') }}"></script>
+</body>
+</html>

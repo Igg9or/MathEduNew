@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование урока | {{ lesson.title }}</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/edit_lesson.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Редактирование урока: {{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="edit-lesson-layout">
+            <!-- Боковая панель с учебниками -->
+            <aside class="textbook-sidebar-collapsible">
+                <div class="sidebar-header">
+                    <h3><i class="icon-book"></i> Задания из учебников</h3>
+                    <div class="sidebar-controls">
+                        <select id="textbookSelect" class="form-select">
+                            <option value="">Выберите учебник...</option>
+                            {% for textbook in textbooks %}
+                            <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                            {% endfor %}
+                        </select>
+                        <div class="search-box with-icon">
+                            <i class="icon-search"></i>
+                            <input type="text" id="templateSearch" placeholder="Поиск заданий...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="templates-list-container">
+                    <div id="templatesList" class="templates-list">
+                        <div class="empty-state">
+                            <i class="icon-book-open"></i>
+                            <p>Выберите учебник для просмотра заданий</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Основная область с заданиями -->
+            <div class="lesson-main-area">
+                <div class="lesson-header">
+                    <div>
+                        <h1>{{ lesson.title }}</h1>
+                        <div class="lesson-meta">
+                            <span><i class="icon-class"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
+                            <span><i class="icon-calendar"></i> {{ lesson.date }}</span>
+                        </div>
+                    </div>
+                    <button id="toggleSidebar" class="btn btn-icon">
+                        <i class="icon-menu"></i>
+                    </button>
+                </div>
+
+                <div class="tasks-fullwidth-section">
+                    <div class="section-toolbar">
+                        <h2><i class="icon-tasks"></i> Задания урока</h2>
+                        <div class="toolbar-actions">
+                            <button id="addTaskBtn" class="btn btn-primary">
+                                <i class="icon-plus"></i> Новое задание
+                            </button>
+                            <button id="saveLessonBtn" class="btn btn-save">
+                                <i class="icon-save"></i> Сохранить
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tasksContainer" class="tasks-container">
+                        {% for task in tasks %}
+                        <div class="task-card"
+     data-task-id="{{ task.id }}"
+     data-template-id="{{ task.template_id or '' }}"
+     data-template-name="{{ task.name or '' }}">
+                            <div class="task-header">
+                                <h3>Задание <span class="task-number">{{ loop.index }}</span></h3>
+                                <button class="btn btn-danger btn-remove-task">Удалить</button>
+                            </div>
+                            <!-- Красивое отображение для учителя -->
+<div class="task-question-preview"></div>
+
+<!-- Скрытое поле для сохранения -->
+<textarea class="task-question hidden"></textarea>
+                            <div class="answer-section">
+                                <label>Формула ответа:</label>
+                                <textarea class="task-answer">{{ task.answer }}</textarea>
+                            </div>
+                            <div class="teacher-preview hidden">
+                                <h4>Пример для учителя:</h4>
+                                <div class="preview-content">
+                                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
+                                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
+                                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
+                                </div>
+                                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
+                            </div>
+                            <button class="btn btn-small btn-show-preview">Показать пример</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Правый сайдбар со списком заданий -->
+<aside class="task-index-sidebar">
+    <div class="task-index-card">
+        <div class="task-index-header">
+            <h3><i class="icon-list"></i> Задания</h3>
+            <span class="task-index-count" id="taskIndexCount">0</span>
+        </div>
+        <ol class="task-index-list" id="taskIndexList">
+            <!-- сюда JS будет рендерить пункты -->
+        </ol>
+    </div>
+</aside>
+
+
+        </main>
+    </div>
+
+    <!-- Добавьте этот скрипт перед закрывающим тегом body -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Управление боковой панелью
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebar = document.querySelector('.textbook-sidebar-collapsible');
+        const mainArea = document.querySelector('.lesson-main-area');
+
+        if (toggleBtn && sidebar && mainArea) {
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                mainArea.classList.toggle('sidebar-hidden');
+            });
+        }
+
+        // Здесь можно добавить остальной JavaScript из edit_lesson.js
+        // Или оставить как есть, если он подключается отдельно
+    });
+    </script>
+
+    <!-- Подключение основного скрипта -->
+    <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+</body>
+</html>

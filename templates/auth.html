@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платформа урока. СОШ №62 - Авторизация</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ================= VIDEO INTRO ================= -->
+   <div id="intro-overlay">
+    <div class="intro-bg">
+        <video
+            id="intro-video"
+            src="{{ url_for('static', filename='video/intro.mp4') }}"
+            autoplay
+            muted
+            playsinline
+        ></video>
+    </div>
+
+    <div class="intro-fade"></div>
+</div>
+    <!-- ================================================= -->
+
+    <!-- ================= AUTH ================= -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Платформа урока. СОШ №62</h1>
+                <p>Система интерактивного обучения математике</p>
+            </div>
+
+            <form id="loginForm" method="POST" action="{{ url_for('login') }}">
+                {% if error %}
+                <div class="alert alert-error">{{ error }}</div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="username">Имя пользователя</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Нет аккаунта? Обратитесь к администратору</p>
+            </div>
+        </div>
+    </div>
+    <!-- ======================================== -->
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

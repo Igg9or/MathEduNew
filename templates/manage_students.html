@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление учениками</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <!-- ===== HEADER ===== -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="header-logo">
+            <h1>Управление учениками</h1>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">
+                ← Назад
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== CONTENT ===== -->
+    <main class="manage-students-container">
+
+        <!-- Выбор класса -->
+        <section class="class-selection">
+            <h3>Выберите класс</h3>
+
+            <select id="classSelect">
+                {% for class in classes %}
+                <option value="{{ class.id }}">
+                    {{ class.grade }}{{ class.letter }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button id="showStudentsBtn" class="btn btn-primary btn-wide">
+                Показать учеников
+            </button>
+        </section>
+
+        <!-- Ученики -->
+        <section class="students-list">
+            <h3>Ученики класса <span id="currentClass"></span></h3>
+
+            <table id="studentsTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ФИО</th>
+                    <th>Логин</th>
+                    <th>Оценка</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- JS -->
+                </tbody>
+            </table>
+
+            <!-- Добавление ученика -->
+            <div class="add-student-form">
+                <h4>Добавить нового ученика</h4>
+
+                <input type="text" id="newStudentName"
+                       class="form-control"
+                       placeholder="ФИО">
+
+                <input type="text" id="newStudentLogin"
+                       class="form-control"
+                       placeholder="Логин">
+
+                <input type="password" id="newStudentPassword"
+                       class="form-control"
+                       placeholder="Пароль">
+
+                <button id="addStudentBtn"
+                        class="btn btn-success btn-wide">
+                    Добавить ученика
+                </button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/manage_students.js') }}"></script>
+</body>
+</html>

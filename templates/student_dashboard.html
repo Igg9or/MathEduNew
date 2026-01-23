@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель ученика - Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                
+                <h1>EduMath</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">Здравствуйте, {{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-main">
+            <div class="welcome-section premium">
+                <h2>Выберите предмет для работы</h2>
+                <p>Решайте задачи вместе с классом, анализируйте решения у доски и применяйте к своим примерам</p>
+            </div>
+            
+            <div class="subjects-grid">
+                <div class="subject-card">
+                    <div class="subject-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6H8v6H6v-9l6-7.2z"/>
+                        </svg>
+                    </div>
+                    <h3>Мои уроки</h3>
+                    <p>Все доступные уроки вашего класса</p>
+                    <a href="{{ url_for('student_lessons') }}" class="btn btn-subject">Открыть</a>
+                </div>
+                
+                {% for subject in subjects %}
+                <div class="subject-card">
+                    <div class="subject-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6H8v6H6v-9l6-7.2z"/>
+                        </svg>
+                    </div>
+                    <h3>{{ subject['name'] }}</h3>
+                    <p>{{ subject['description'] }}</p>
+                    <a href="#" class="btn btn-subject">Выбрать</a>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

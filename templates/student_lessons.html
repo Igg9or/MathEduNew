@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои уроки | Math Teaching System</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                
+                <h1>Мои уроки</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">{{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <div class="lessons-list">
+                <h2>Доступные уроки</h2>
+                <div class="lessons-container">
+                    {% for lesson in lessons %}
+                    <div class="lesson-card">
+                        {% if lesson.progress > 0 %}
+<div class="lesson-progress
+    {% if lesson.progress <= 25 %}progress-red
+    {% elif lesson.progress <= 50 %}progress-orange
+    {% elif lesson.progress <= 75 %}progress-blue
+    {% else %}progress-green
+    {% endif %}
+">
+    {{ lesson.progress }}%
+</div>
+{% endif %}
+
+                        <div class="lesson-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6H8v6H6v-9l6-7.2z"/>
+                            </svg>
+                        </div>
+                        <div class="lesson-info">
+                            <h3>{{ lesson.title }}</h3>
+                            <p>Дата: {{ lesson.date }}</p>
+                            <p>Учитель: {{ lesson.teacher_name }}</p>
+                        </div>
+                        <div class="lesson-actions">
+                            <a href="{{ url_for('start_lesson', lesson_id=lesson.id) }}" class="btn btn-primary">Начать урок</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

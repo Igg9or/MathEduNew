@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель учителя - Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Math Teaching System</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">Здравствуйте, {{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-main teacher-dashboard">
+            <div class="welcome-section">
+                <h2>Панель управления учителя</h2>
+                <p>Здесь вы можете создавать задания и управлять уроками</p>
+            </div>
+            
+            <div class="teacher-actions">
+                <div class="action-card">
+                    <h3>Управление учениками</h3>
+                    <p>Добавляйте и удаляйте учеников, назначайте классы</p>
+                    <a href="{{ url_for('manage_students') }}" class="btn btn-action">Управление учениками</a>
+                </div>
+
+                <div class="action-card">
+                    <h3>Управление заданиями</h3>
+                    <p>Создавайте и редактируйте задания из учебников</p>
+                    <a href="{{ url_for('manage_tasks') }}" class="btn btn-action">Управление заданиями</a>
+                </div>
+            </div>
+            
+            <div class="class-selection">
+                <h3>Выберите класс для работы:</h3>
+                
+                <div class="grade-buttons">
+                    {% for grade in range(5, 12) %}
+                        <button class="btn-grade" data-grade="{{ grade }}">{{ grade }} класс</button>
+                    {% endfor %}
+                </div>
+                
+                <div class="letter-buttons hidden">
+                    <h4>Выберите букву класса:</h4>
+                    {% for letter in ['А', 'Б', 'В', 'Г', 'Д'] %}
+                        <button class="btn-letter" data-letter="{{ letter }}">{{ letter }}</button>
+                    {% endfor %}
+                </div>
+                
+                <button id="createNewLesson" class="btn btn-primary hidden">Создать новый урок</button>
+            </div>
+
+                
+            <div class="lessons-list hidden">
+                <h3>Созданные уроки</h3>
+                <div class="lessons-container">
+                    <!-- Уроки будут добавляться динамически -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Модальное окно создания урока -->
+    <div id="lessonModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Создание нового урока</h2>
+            
+            <div class="form-group">
+                <label for="lessonTitle">Название урока:</label>
+                <input type="text" id="lessonTitle" placeholder="Введите название урока">
+            </div>
+            
+            <div class="form-group">
+                <label for="lessonDate">Дата урока:</label>
+                <input type="date" id="lessonDate" value="{{ today_date }}">
+            </div>
+            
+            <button id="saveLesson" class="btn btn-primary">Создать урок</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/teacher.js') }}"></script>
+</body>
+</html>

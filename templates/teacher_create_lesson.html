@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание урока | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Создание урока для {{ class_name }}</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="create-lesson-container">
+            <!-- Блок ручного создания -->
+            <div class="manual-creation">
+                <h2>Добавить задания</h2>
+                <div id="tasksContainer">
+                    <!-- Задания будут добавляться здесь -->
+                </div>
+                <button id="addTaskBtn" class="btn btn-primary">+ Добавить задание</button>
+            </div>
+
+            <!-- Блок генерации через ИИ -->
+            <div class="ai-generation">
+                <h2>Генерация через DeepSeek</h2>
+                <textarea id="aiPrompt" placeholder="Опишите задание (например: '5 задач на дроби для 5 класса')"></textarea>
+                <button id="generateWithAI" class="btn btn-ai">Сгенерировать задания</button>
+                <div id="aiResults" class="hidden">
+                    <h3>Результаты:</h3>
+                    <div id="aiTasksList"></div>
+                    <button id="addAiTasks" class="btn btn-primary">Добавить выбранные</button>
+                </div>
+            </div>
+
+            <!-- Кнопки сохранения -->
+            <div class="save-actions">
+                <button id="saveLessonBtn" class="btn btn-save">Сохранить урок</button>
+                <button id="previewLessonBtn" class="btn btn-secondary">Предпросмотр</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Шаблон задания -->
+    <template id="taskTemplate">
+        <div class="task-card">
+            <div class="task-header">
+                <h3>Задание <span class="task-number">1</span></h3>
+                <button class="btn-remove-task">×</button>
+            </div>
+            <textarea class="task-text" placeholder="Введите текст задания (используйте {A}, {B}...):"></textarea>
+            <div class="task-preview hidden">
+                <h4>Примеры для учеников:</h4>
+                <div class="preview-examples"></div>
+            </div>
+            <button class="btn-preview-task">Показать примеры</button>
+        </div>
+    </template>
+
+    <script src="{{ url_for('static', filename='js/teacher_create_lesson.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+/* =====================================================
+   EDIT LESSON — CLEAN & PROPORTIONAL LAYOUT
+===================================================== */
+
+.edit-lesson-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(900px, 1fr) 220px;
+    gap: 32px;
+    padding: 24px 32px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* =====================================================
+   LEFT SIDEBAR — TEMPLATES
+===================================================== */
+
+.textbook-sidebar-collapsible {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    position: sticky;
+    top: 20px;
+}
+
+.sidebar-header h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.textbook-sidebar-collapsible .form-control {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.templates-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* =====================================================
+   CENTER — MAIN EDITOR
+===================================================== */
+
+.lesson-main-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* HEADER CARD */
+.lesson-header {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lesson-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.lesson-meta {
+    font-size: 14px;
+    color: var(--light-text);
+    margin-top: 4px;
+}
+
+/* =====================================================
+   TASKS SECTION
+===================================================== */
+
+.tasks-section {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-toolbar h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* TASK LIST */
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* =====================================================
+   TASK CARD
+===================================================== */
+
+.task-card {
+    border: 1px solid #e6e9f4;
+    border-radius: 14px;
+    padding: 20px;
+    background: #ffffff;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.task-header h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.task-question,
+.task-answer {
+    width: 100%;
+    min-height: 90px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #dfe4f2;
+    background: #fafbff;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.task-question:focus,
+.task-answer:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #ffffff;
+}
+
+/* PREVIEW */
+.teacher-preview {
+    margin-top: 12px;
+    padding: 14px;
+    background: #f4f7ff;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* =====================================================
+   RIGHT SIDEBAR — TASK INDEX
+===================================================== */
+
+.task-index-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.task-index-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: var(--shadow-soft);
+}
+
+.task-index-card h4 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
+.task-index-card ol {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.task-index-card li {
+    margin: 6px 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* =====================================================
+   BUTTON FIXES
+===================================================== */
+
+.btn-danger {
+    background: #e63946;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 6px 12px;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #38b000, #2a9d8f);
+    border-radius: 10px;
+    padding: 10px 18px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1200px) {
+    .edit-lesson-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .textbook-sidebar-collapsible,
+    .task-index-sidebar {
+        position: static;
+        height: auto;
+    }
+}
+/* ================================
+   TEMPLATE SIDEBAR — CLEAN VIEW
+================================ */
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Карточка задания из учебника */
+.template-item {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    border: 1px solid #e6e9f4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.template-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+/* Заголовок */
+.template-item h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--primary-color);
+    line-height: 1.3;
+}
+
+/* Краткое описание */
+.template-item p {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--light-text);
+    margin: 0 0 10px;
+
+    /* Ограничиваем высоту */
+    max-height: 3.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Кнопка */
+.template-item button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.template-item button:hover {
+    background: #e6ebff;
+}
+
+/* ================================
+   SIDEBAR HEADER FIX
+================================ */
+
+.sidebar-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    z-index: 2;
+    border-bottom: 1px solid #eef1f6;
+}
+
+.sidebar-header select,
+.sidebar-header input {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+/* ================================
+   SCROLL FIX
+================================ */
+
+.textbook-sidebar-collapsible {
+    scrollbar-width: thin;
+}
+
+.textbook-sidebar-collapsible::-webkit-scrollbar {
+    width: 6px;
+}
+
+.textbook-sidebar-collapsible::-webkit-scrollbar-thumb {
+    background: #dfe4f2;
+    border-radius: 999px;
+}
+/* ================================
+   RIGHT SIDEBAR — TASK NAVIGATION
+================================ */
+
+.task-index-sidebar {
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 120px);
+}
+
+.task-index-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid #eef1f6;
+}
+
+/* Header */
+.task-index-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-index-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.task-index-count {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #f3f5ff;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* List */
+.task-index-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Item */
+.task-index-list li {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #eef1f6;
+    background: #fafbff;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, transform .05s ease;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Hover */
+.task-index-list li:hover {
+    background: #eef4ff;
+    border-color: #d6e0ff;
+}
+
+/* Active */
+.task-index-list li.active {
+    background: #e8efff;
+    border-color: #c4d3ff;
+    font-weight: 600;
+}
+
+/* Text wrapping */
+.task-index-list li span,
+.task-index-list li div {
+    display: block;
+}
+
+/* Scroll */
+.task-index-card {
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+}
+
+.task-index-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.task-index-card::-webkit-scrollbar-thumb {
+    background: #dfe4f2;
+    border-radius: 999px;
+}
+.task-question-preview {
+    padding: 12px;
+    background: #f8f9fb;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    min-height: 60px;
+}
+.hidden {
+    display: none;
+}

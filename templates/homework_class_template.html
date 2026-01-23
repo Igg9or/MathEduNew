@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; margin: 40px; }
+        h1 { color: #2c3e50; }
+        h2 { color: #2980b9; margin-top: 30px; }
+        h3, h4 { color: #2d84a2; margin-top: 18px; }
+        ul, ol { margin-left: 22px; margin-bottom: 16px; }
+        p { margin: 12px 0; }
+        li { margin-bottom: 4px; }
+        .block { margin-bottom: 38px; page-break-after: always; }
+        .footer { margin-top: 40px; font-style: italic; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>📚 Индивидуальные домашние задания класса</h1>
+    {% for block in blocks %}
+        <div class="block">{{ block|safe }}</div>
+    {% endfor %}
+</body>
+</html>

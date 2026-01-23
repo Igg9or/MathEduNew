@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 { color: #2c3e50; }
+        h2 { color: #2980b9; margin-top: 30px; }
+        .block { margin-bottom: 20px; }
+        .footer { margin-top: 40px; font-style: italic; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>📘 Индивидуальное Домашнее Задание</h1>
+
+    {% for section in content.split('\n\n') %}
+    <div class="block">
+        <p>{{ section | safe }}</p>
+    </div>
+    {% endfor %}
+
+    <div class="footer">
+        Удачи в решении! Ты молодец, что стараешься.
+    </div>
+</body>
+</html>

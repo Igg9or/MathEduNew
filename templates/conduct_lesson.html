@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проведение урока | {{ lesson.title }}</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/teacher_dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Проведение урока: {{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <span class="class-info">{{ lesson.grade }}{{ lesson.letter }} класс</span>
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="conduct-lesson-container">
+            <div class="real-time-results">
+
+    <div class="section-header">
+        <h2>Результаты класса</h2>
+        <button id="generateClassHomeworkBtn" class="btn btn-primary">
+            📘 Создать ДЗ для класса
+        </button>
+    </div>
+
+    <div class="table-card">
+        <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Ученик</th>
+                                {% for task in tasks %}
+                                <th>
+    Задание {{ loop.index }}
+    <br>
+    <label>
+        <input type="checkbox" class="exclude-task" value="{{ task.id }}">
+        Исключить
+    </label>
+</th>
+                                {% endfor %}
+                                <th>Прогресс</th>
+                                <th>Домашка</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsResults">
+                            {% for student in students %}
+                            <tr data-student-id="{{ student.id }}">
+                                <td>{{ student.full_name }}</td>
+                                {% for task in tasks %}
+                                <td data-task-id="{{ task.id }}">
+                                    <span class="pending">—</span>
+                                </td>
+                                {% endfor %}
+                                <td>
+                                    <div class="progress-container">
+                                        <div class="progress-bar"></div>
+                                        <span>0%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn-generate-homework" data-student-id="{{ student.id }}">
+                                        📘 ДЗ
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <div class="lesson-analytics">
+                        <h2>📊 Аналитика урока</h2>
+                        <div class="lesson-summary">
+    <div class="summary-card">
+        <div class="label">Освоение темы</div>
+        <div class="value">76%</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Решено примеров</div>
+        <div class="value">312</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Среднее время</div>
+        <div class="value">2 мин 13 сек</div>
+    </div>
+</div>
+                        
+                        <div class="analytics-grid">
+                            <!-- Блок сложных заданий -->
+                            <div class="analytics-card difficult-tasks">
+                                <h3>Самые сложные задания</h3>
+                                <div class="progress-bars">
+                                    <!-- Динамически будет заполняться через JS -->
+                                </div>
+                            </div>
+                            
+                            <!-- Блок ошибок -->
+                            <div class="analytics-card common-errors">
+                                <h3>Типичные ошибки</h3>
+                                <ul class="errors-list">
+                                    <!-- Динамически будет заполняться через JS -->
+                                </ul>
+                            </div>
+                            
+                            <!-- График успеваемости -->
+                            <div class="analytics-card performance-chart">
+                                <h3>Прогресс класса</h3>
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <button id="generateReportBtn" class="btn btn-primary">
+                            📄 Сгенерировать полный отчет (PDF)
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="lesson-controls">
+                <button id="refreshResults" class="btn btn-primary">Обновить результаты</button>
+                <button id="endLesson" class="btn btn-danger">Завершить урок</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/conduct_lesson.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</body>
+</html>
