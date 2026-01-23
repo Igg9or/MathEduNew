@@ -25,6 +25,7 @@ import psycopg2.extras
 import subprocess, sys, socket, atexit, time
 from dotenv import load_dotenv
 import requests
+import hashlib
 
 
 
@@ -2245,10 +2246,48 @@ def ai_step_dialog():
 @app.route('/api/ai_full_solution', methods=['POST'])
 def ai_full_solution():
     data = request.get_json() or {}
-    question = data.get("question", "")
+
+    # --- данные запроса ---
+    task_id = data.get("task_id")
+    user_id = data.get("user_id") or session.get("user_id")
+    question = data.get("question", "") or ""
     student_grade = data.get("student_grade", data.get("grade", 5))
     student_answer = (data.get("student_answer") or "").strip()
 
+    # --- хеш вопроса (важно для "перерешать ещё раз") ---
+    question_hash = hashlib.sha256(question.strip().encode("utf-8")).hexdigest()
+
+    # =====================================================
+    # 🔹 1. ПРОВЕРКА КЕША (не старше 4 дней)
+    # =====================================================
+    if user_id and task_id:
+        conn = get_db()
+        try:
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute("""
+                SELECT solution_text, ai_verdict
+                FROM ai_solution_cache
+                WHERE user_id = %s
+                  AND task_id = %s
+                  AND question_hash = %s
+                  AND created_at >= NOW() - INTERVAL '4 days'
+                ORDER BY created_at DESC
+                LIMIT 1
+            """, (user_id, task_id, question_hash))
+            row = cursor.fetchone()
+
+            if row:
+                return jsonify({
+                    "solution": row["solution_text"],
+                    "ai_verdict": row["ai_verdict"],
+                    "cached": True
+                })
+        finally:
+            conn.close()
+
+    # =====================================================
+    # 🔹 2. ФОРМИРОВАНИЕ ПРОМПТА (ТВОЙ ИСХОДНЫЙ)
+    # =====================================================
     prompt = f"""
 Ты — преподаватель математики в российской школе. Учитывай пожалуйста русский ход решения, а не американский и т.д. 
 Дай пошаговое объяснение решения задачи для ученика {student_grade} класса.
@@ -2262,10 +2301,6 @@ def ai_full_solution():
 — только математические действия  
 — без слов и комментариев  
 — как запись в тетради  
-— в зависимости от типа задачи:
-   • вычисление — в одну или несколько строк
-   • уравнение — пошаговые преобразования
-   • задача — нумерованные действия и т.д.
 
 2️⃣ ПОТОМ выведи раздел "ПОЯСНЕНИЕ:"  
 
@@ -2283,6 +2318,9 @@ def ai_full_solution():
 Сравнение делай по смыслу (эквивалентность выражений, степени, дроби), а не только по точному совпадению строк.
 """
 
+    # =====================================================
+    # 🔹 3. ЗАПРОС К OPENAI
+    # =====================================================
     try:
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
@@ -2296,13 +2334,7 @@ def ai_full_solution():
         ai_verdict = None
         solution_text = content
 
-        # Ищем последний JSON-блок вида {"final_answer":"...","is_student_correct":...}
-        matches = re.findall(
-            r'\{[^{}]*"final_answer"\s*:\s*".*?"[^{}]*"is_student_correct"\s*:\s*(true|false)[^{}]*\}',
-            content,
-            flags=re.DOTALL | re.IGNORECASE
-        )
-        # ^ тут matches вернёт только true/false из-за группы — поэтому ниже другой подход:
+        # --- ищем JSON в конце ---
         json_blocks = re.findall(
             r'\{[^{}]*"final_answer"\s*:\s*".*?"[^{}]*"is_student_correct"\s*:\s*(?:true|false)[^{}]*\}',
             content,
@@ -2317,9 +2349,37 @@ def ai_full_solution():
             except Exception:
                 ai_verdict = None
 
+        # =====================================================
+        # 🔹 4. СОХРАНЕНИЕ В КЕШ
+        # =====================================================
+        if user_id and task_id:
+            conn = get_db()
+            try:
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                cursor.execute("""
+                    INSERT INTO ai_solution_cache
+                        (user_id, task_id, question_hash, solution_text, ai_verdict)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (user_id, task_id, question_hash)
+                    DO UPDATE SET
+                        solution_text = EXCLUDED.solution_text,
+                        ai_verdict = EXCLUDED.ai_verdict,
+                        created_at = CURRENT_TIMESTAMP
+                """, (
+                    user_id,
+                    task_id,
+                    question_hash,
+                    solution_text,
+                    json.dumps(ai_verdict) if ai_verdict else None
+                ))
+                conn.commit()
+            finally:
+                conn.close()
+
         return jsonify({
             "solution": solution_text,
-            "ai_verdict": ai_verdict
+            "ai_verdict": ai_verdict,
+            "cached": False
         })
 
     except Exception as e:
@@ -2329,6 +2389,7 @@ def ai_full_solution():
             "ai_verdict": None,
             "error": str(e)
         }), 500
+
 
 
 
@@ -2772,13 +2833,22 @@ def dev_import_templates():
     result = None
 
     if request.method == "POST":
-        json_text = request.form.get("json")
-        conn = get_db()
-        ok, msg = import_templates_from_json(conn, json_text)
-        conn.close()
-        result = {"ok": ok, "msg": msg}
+        json_text = request.form.get("json", "")
+
+        try:
+            conn = get_db()
+            ok, msg = import_templates_from_json(conn, json_text)
+            result = {"ok": ok, "msg": msg}
+        except Exception as e:
+            result = {
+                "ok": False,
+                "msg": f"Критическая ошибка сервера: {e}"
+            }
+        finally:
+            conn.close()
 
     return render_template("dev_import_templates.html", result=result)
+
 
 
 
