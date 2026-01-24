@@ -1012,7 +1012,7 @@ async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
   const studentGrade = taskCard.dataset.grade || 5;
   const userId = taskCard.dataset.userId;
 
-  // ⚠️ Берём ВОПРОС именно из retry-модалки
+  // ⚠️ Берём вопрос ИМЕННО из retry-модалки
   const retryQuestionNode = document.querySelector('#retryModal .task-question');
   const questionText = retryQuestionNode ? retryQuestionNode.innerHTML.trim() : '';
 
@@ -1020,9 +1020,38 @@ async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
   const correctAnswer =
     document.querySelector('#retryModal .retry-correct-answer')?.value || '';
 
+  // --- нормализация для сравнения ---
+  const normalize = (s) =>
+    String(s || '')
+      .replace(/\s+/g, '')
+      .replace(',', '.')
+      .toLowerCase();
+
+  feedbackNode.classList.remove('hidden');
+
+  // -------------------------------------------------
+  // 🔥 0) СНАЧАЛА сравниваем с зашитым ответом
+  // -------------------------------------------------
+  if (normalize(studentAnswer) === normalize(correctAnswer)) {
+    feedbackNode.innerHTML = `
+      <div class="success" style="margin-bottom:10px;">
+        ✅ Ответ верный. Задание засчитано.
+      </div>
+    `;
+
+    await saveAnswerToServer(taskId, studentAnswer, true, true);
+
+    taskCard.dataset.retryCompleted = "true";
+    showResult(taskCard, true, studentAnswer);
+
+    return; // ⛔ ИИ НЕ ВЫЗЫВАЕМ
+  }
+
+  // -------------------------------------------------
+  // 🤖 1) Ответ не совпал → подключаем ИИ
+  // -------------------------------------------------
   feedbackNode.innerHTML =
     `<div class="ai-solution-block">ИИ анализирует решение…</div>`;
-  feedbackNode.classList.remove('hidden');
 
   try {
     const resp = await fetch('/api/ai_full_solution', {
@@ -1038,12 +1067,25 @@ async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
       })
     });
 
-    // ❗ НЕ проверяем resp.ok — сервер может вернуть 500 с текстом
+    // ❗ НЕ проверяем resp.ok
     const data = await resp.json();
 
-    // ✅ 1) ВСЕГДА показываем решение, если оно есть
+    // -------------------------------------------------
+    // ✅ 2) ВСЕГДА показываем статус + решение ИИ
+    // -------------------------------------------------
     if (data && data.solution) {
+      const isCorrect = data?.ai_verdict?.is_student_correct === true;
+
       feedbackNode.innerHTML = `
+        ${isCorrect
+          ? `<div class="success" style="margin-bottom:10px;">
+               ✅ Ответ верный. Задание засчитано.
+             </div>`
+          : `<div class="error" style="margin-bottom:10px;">
+               ❌ Ответ неверный. Посмотри решение ниже.
+             </div>`
+        }
+
         <div class="ai-solution-block">
           <h4>Пошаговое решение от ИИ</h4>
           ${window.marked ? marked.parse(data.solution) : data.solution}
@@ -1055,18 +1097,21 @@ async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
       }
     }
 
-    // ✅ 2) Если ИИ подтвердил — засчитываем
+    // -------------------------------------------------
+    // 🟢 3) Если ИИ подтвердил — засчитываем
+    // -------------------------------------------------
     if (data?.ai_verdict?.is_student_correct === true) {
       await saveAnswerToServer(taskId, studentAnswer, true, true);
 
       taskCard.dataset.retryCompleted = "true";
       showResult(taskCard, true, studentAnswer);
 
-      
-      return;
+      return; // ❗ модалку НЕ закрываем
     }
 
-    // ❌ 3) Если не подтвердил — просто фиксируем retry, БЕЗ ошибки
+    // -------------------------------------------------
+    // 🔴 4) Иначе — просто фиксируем retry
+    // -------------------------------------------------
     await saveAnswerToServer(taskId, studentAnswer, false, true);
 
   } catch (e) {
@@ -1075,6 +1120,7 @@ async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
       `<div class="error">Ошибка сети или сервера</div>`;
   }
 }
+
 
 document.querySelectorAll('.btn-dispute').forEach(button => {
     button.addEventListener('click', async function () {

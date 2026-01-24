@@ -2849,6 +2849,62 @@ def dev_import_templates():
 
     return render_template("dev_import_templates.html", result=result)
 
+@app.route('/teacher/get_seating')
+def get_seating():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    class_id = request.args.get('class_id')
+    if not class_id:
+        return jsonify({'seats': []})
+
+    conn = get_db()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("""
+            SELECT student_id, seat_row, seat_col
+            FROM public.student_seats
+            WHERE class_id = %s
+        """, (class_id,))
+        rows = cur.fetchall()
+        return jsonify({'seats': [dict(r) for r in rows]})
+    finally:
+        conn.close()
+
+@app.route('/teacher/save_seating', methods=['POST'])
+def save_seating():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    class_id = data.get('class_id')
+    seats = data.get('seats', [])
+
+    if not class_id or not isinstance(seats, list):
+        return jsonify({'success': False, 'error': 'Invalid payload'}), 400
+
+    conn = get_db()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # удаляем старую рассадку класса и записываем новую
+        cur.execute("DELETE FROM public.student_seats WHERE class_id = %s", (class_id,))
+
+        # вставляем новую
+        for s in seats:
+            cur.execute("""
+                INSERT INTO public.student_seats (class_id, student_id, seat_row, seat_col)
+                VALUES (%s, %s, %s, %s)
+            """, (class_id, int(s['student_id']), int(s['seat_row']), int(s['seat_col'])))
+
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
 
 
 

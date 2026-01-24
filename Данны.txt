@@ -114,3 +114,8 @@ VALUES (
     NULL,
     NULL
 );
+
+
+ cd /root/urok-clean
+
+# sudo -u postgres psql mathdbnew

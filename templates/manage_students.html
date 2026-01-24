@@ -42,6 +42,48 @@
             </button>
         </section>
 
+
+        <!-- Рассадка -->
+<section class="classroom-section">
+    <div class="classroom-header">
+        <h3>Рассадка (перетащи ученика на парту)</h3>
+
+        <div class="classroom-controls">
+            <label>
+                Рядов:
+                <input id="rowsCount" type="number" min="1" max="10" value="5">
+            </label>
+
+            <button id="autoSeatBtn" class="btn btn-secondary btn-sm">
+                🔄 Рассадить автоматически
+            </button>
+
+            <button id="clearSeatingBtn" class="btn btn-secondary btn-sm">
+                🧹 Сбросить рассадку
+            </button>
+        </div>
+    </div>
+
+    <div id="classroom" class="classroom-grid classroom-3cols">
+  <div class="classroom-column" data-col="0">
+    <div class="column-title">Левый ряд</div>
+  </div>
+  <div class="classroom-column" data-col="1">
+    <div class="column-title">Центральный ряд</div>
+  </div>
+  <div class="classroom-column" data-col="2">
+    <div class="column-title">Правый ряд</div>
+  </div>
+</div>
+
+
+    <div class="classroom-hint">
+        Оценка (2–5) выставляется автоматически по месту: 1 ряд → 2/3, 2 ряд → 4/5, 3 ряд → 2/3…
+    </div>
+</section>
+
+
+
         <!-- Ученики -->
         <section class="students-list">
             <h3>Ученики класса <span id="currentClass"></span></h3>
