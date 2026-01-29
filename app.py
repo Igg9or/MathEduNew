@@ -2906,6 +2906,50 @@ def save_seating():
         conn.close()
 
 
+@app.route('/teacher/update_student', methods=['POST'])
+def update_student():
+    if 'user_id' not in session or session.get('role') != 'teacher':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+
+    student_id = data.get('student_id')
+    full_name = (data.get('full_name') or '').strip()
+    username = (data.get('username') or '').strip()
+    password = (data.get('password') or '').strip()
+
+    if not student_id or not full_name or not username:
+        return jsonify({'success': False, 'error': 'Invalid data'}), 400
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+
+        if password:
+            cur.execute("""
+                UPDATE users
+                SET full_name = %s,
+                    username = %s,
+                    password = crypt(%s, gen_salt('bf'))
+                WHERE id = %s
+            """, (full_name, username, password, student_id))
+        else:
+            cur.execute("""
+                UPDATE users
+                SET full_name = %s,
+                    username = %s
+                WHERE id = %s
+            """, (full_name, username, student_id))
+
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
 
 
 

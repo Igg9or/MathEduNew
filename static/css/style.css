@@ -2445,3 +2445,173 @@ body {
   outline: 2px solid #6c7ae0;
   background: #eef1ff;
 }
+
+/* ===== Нерассаженные ученики ===== */
+
+.unseated-section {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f6f7fb;
+  border: 1px dashed #cfd8dc;
+}
+
+.unseated-section h4 {
+  margin-bottom: 10px;
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+.unseated-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.unseated-list .student-chip {
+  cursor: grab;
+}
+
+/* ===============================
+   ТАБЛИЦА УЧЕНИКОВ — UI UPGRADE
+   =============================== */
+
+#studentsTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+#studentsTable thead th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5f6b7a;
+  padding: 10px 12px;
+  text-transform: uppercase;
+}
+
+#studentsTable tbody tr {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+#studentsTable tbody tr:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+#studentsTable td {
+  padding: 12px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+/* ID — менее заметный */
+#studentsTable td:first-child {
+  color: #9aa4b2;
+  font-size: 12px;
+}
+
+/* ФИО */
+#studentsTable td:nth-child(2) {
+  font-weight: 600;
+}
+
+/* Логин */
+#studentsTable td:nth-child(3) {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ===============================
+   ОЦЕНКА
+   =============================== */
+
+.grade-select {
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.grade-select option {
+  font-weight: 600;
+}
+
+/* ===============================
+   КНОПКИ ДЕЙСТВИЙ
+   =============================== */
+
+#studentsTable .btn {
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.edit-student {
+  background: #eef2ff;
+  border: none;
+  color: #4338ca;
+}
+
+.edit-student:hover {
+  background: #e0e7ff;
+}
+
+.save-student {
+  background: #dcfce7;
+  border: none;
+  color: #166534;
+}
+
+.save-student:hover {
+  background: #bbf7d0;
+}
+
+.delete-student {
+  background: #fee2e2;
+  border: none;
+  color: #991b1b;
+}
+
+.delete-student:hover {
+  background: #fecaca;
+}
+
+/* ===============================
+   РЕЖИМ РЕДАКТИРОВАНИЯ
+   =============================== */
+
+#studentsTable tr:has(.edit-full-name) {
+  background: #fefce8;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+}
+
+#studentsTable input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+#studentsTable input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+/* ===============================
+   МОБИЛЬНОСТЬ
+   =============================== */
+
+@media (max-width: 900px) {
+  #studentsTable td:nth-child(3),
+  #studentsTable th:nth-child(3) {
+    display: none;
+  }
+}
