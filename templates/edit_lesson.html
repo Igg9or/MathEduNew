@@ -5,6 +5,18 @@
     <title>Редактирование урока | {{ lesson.title }}</title>
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/edit_lesson.css') }}" rel="stylesheet">
+    <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$','$$']]
+    }
+  };
+</script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
 </head>
 <body>
     <div class="dashboard-container">
@@ -80,16 +92,25 @@
                         <div class="task-card"
      data-task-id="{{ task.id }}"
      data-template-id="{{ task.template_id or '' }}"
-     data-template-name="{{ task.name or '' }}">
+     data-template-name="{{ task.template_name or '' }}">
                             <div class="task-header">
-                                <h3>Задание <span class="task-number">{{ loop.index }}</span></h3>
+                                <h3>
+  Задание <span class="task-number">{{ loop.index }}</span>
+  {% if task.template_name %}
+    <span class="task-template-name">
+      — {{ task.template_name }}
+    </span>
+  {% endif %}
+</h3>
+
                                 <button class="btn btn-danger btn-remove-task">Удалить</button>
                             </div>
                             <!-- Красивое отображение для учителя -->
 <div class="task-question-preview"></div>
 
 <!-- Скрытое поле для сохранения -->
-<textarea class="task-question hidden"></textarea>
+<textarea class="task-question hidden">{{ task.question|safe }}</textarea>
+
                             <div class="answer-section">
                                 <label>Формула ответа:</label>
                                 <textarea class="task-answer">{{ task.answer }}</textarea>

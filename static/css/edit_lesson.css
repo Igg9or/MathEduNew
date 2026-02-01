@@ -431,3 +431,101 @@
 .hidden {
     display: none;
 }
+
+.task-question-preview {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.task-question-preview .task-question {
+  line-height: 1.5;
+}
+
+/* ❌ скрываем ученические элементы */
+.task-question-preview .task-answer,
+.task-question-preview .btn-check,
+.task-question-preview .task-feedback {
+  display: none;
+}
+
+/* ❌ Скрываем редактор вопроса */
+.task-card > textarea.task-question,
+.task-card > .task-question,
+.task-card > .task-question-editor {
+  display: none !important;
+}
+
+/* ❌ Скрываем блок "Формула ответа" */
+.task-card .answer-section {
+  display: none !important;
+}
+
+.teacher-preview {
+  display: block !important;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+
+.teacher-preview h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: #374151;
+}
+
+.teacher-preview .preview-content p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.teacher-preview .preview-question {
+  display: block;
+  margin-top: 4px;
+}
+
+.teacher-preview .preview-answer {
+  font-weight: 600;
+  color: #05943b;
+}
+/* ❌ Полностью скрываем блок "Пример для учителя" */
+.teacher-preview {
+  display: none !important;
+}
+.btn-show-preview {
+  display: none !important;
+}
+
+.task-template-name {
+  font-weight: 400;
+  font-size: 0.9em;
+  margin-left: 8px;
+  color: #6b7280; /* серо-синий */
+}
+.task-index-item {
+  margin-bottom: 8px;
+}
+
+.task-index-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-order-input {
+  width: 50px;
+  padding: 4px;
+}
+
+.task-index-label {
+  cursor: pointer;
+  color: #374151;
+}
+.task-index-label:hover {
+  text-decoration: underline;
+}

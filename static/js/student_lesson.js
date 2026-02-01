@@ -1007,6 +1007,31 @@ const questionText = extractQuestionForAI(taskCard);
 }
 }
 
+function renderStudentLikePreview(taskCard) {
+  const textarea = taskCard.querySelector('.task-question');
+  const preview = taskCard.querySelector('.task-question-preview');
+
+  if (!textarea || !preview) return;
+
+  let html = textarea.value || '';
+
+  // 🔹 поддержка <br> из текста
+  html = html.replace(/\n/g, '<br>');
+
+  preview.innerHTML = `
+    <div class="task-question">
+      ${html}
+    </div>
+  `;
+
+  // 🔹 MathJax — как у ученика
+  if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+    MathJax.typesetPromise([preview]);
+  }
+}
+
+
+
 async function fetchRetryAISolution(taskCard, studentAnswer, feedbackNode) {
   const taskId = taskCard.dataset.taskId;
   const studentGrade = taskCard.dataset.grade || 5;
@@ -1155,6 +1180,10 @@ document.querySelectorAll('.btn-dispute').forEach(button => {
             alert("Ошибка при оспаривании: " + e.message);
         }
     });
+});
+
+document.querySelectorAll('.task-card').forEach(taskCard => {
+  renderStudentLikePreview(taskCard);
 });
 
 });

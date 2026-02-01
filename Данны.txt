@@ -12,3 +12,32 @@ ON DELETE CASCADE;
 
 # sudo -u postgres psql mathdbnew
 systemctl restart urok
+
+
+ALTER TABLE lesson_tasks ADD COLUMN position INTEGER;
+
+UPDATE lesson_tasks
+SET position = id;
+
+WITH ordered AS (
+  SELECT id,
+         ROW_NUMBER() OVER (
+           PARTITION BY lesson_id
+           ORDER BY id
+         ) AS rn
+  FROM lesson_tasks
+  WHERE position IS NULL
+)
+UPDATE lesson_tasks
+SET position = ordered.rn
+FROM ordered
+WHERE lesson_tasks.id = ordered.id;
+
+ALTER TABLE lesson_tasks
+ALTER COLUMN position SET DEFAULT 1;
+
+ALTER TABLE lesson_tasks
+ALTER COLUMN position SET NOT NULL;
+
+CREATE INDEX idx_lesson_tasks_lesson_position
+ON lesson_tasks (lesson_id, position);

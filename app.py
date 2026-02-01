@@ -378,49 +378,82 @@ def get_lessons():
 
 @app.route('/teacher/edit_lesson/<int:lesson_id>')
 def edit_lesson(lesson_id):
+    # 🔒 Проверка доступа
     if 'user_id' not in session or session['role'] != 'teacher':
         return redirect(url_for('login'))
 
-    conn = get_db()  # Получаем соединение
+    conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        
-        # Получаем информацию об уроке
+
+        # --------------------------------------------------
+        # 1️⃣ Информация об уроке
+        # --------------------------------------------------
         cursor.execute('''
-            SELECT l.id, l.title, l.date, c.grade, c.letter 
+            SELECT 
+                l.id,
+                l.title,
+                l.date,
+                c.grade,
+                c.letter
             FROM lessons l
             JOIN classes c ON l.class_id = c.id
-            WHERE l.id = %s AND l.teacher_id = %s
+            WHERE l.id = %s
+              AND l.teacher_id = %s
         ''', (lesson_id, session['user_id']))
+
         lesson = cursor.fetchone()
-        
         if not lesson:
-            cursor.close()
             return redirect(url_for('teacher_dashboard'))
 
-        # Получаем задания урока
+        # --------------------------------------------------
+        # 2️⃣ ЗАДАНИЯ УРОКА (ВАЖНО!)
+        # 👉 берём question и answer из lesson_tasks
+        # 👉 LEFT JOIN — чтобы кастомные задания не пропали
+        # 👉 ORDER BY — чтобы порядок был стабильный
+        # --------------------------------------------------
         cursor.execute('''
-            SELECT lt.id, lt.template_id, lt.variant_number, tt.name, tt.question_template
+            SELECT
+                lt.id,
+                lt.question,
+                lt.answer,
+                lt.template_id,
+                tt.name AS template_name
             FROM lesson_tasks lt
-            JOIN task_templates tt ON lt.template_id = tt.id
+            LEFT JOIN task_templates tt ON lt.template_id = tt.id
             WHERE lt.lesson_id = %s
+            ORDER BY lt.position ASC, lt.id ASC
         ''', (lesson_id,))
+
         tasks = cursor.fetchall()
-        
-        # Получаем все учебники и шаблоны уроков
-        cursor.execute('SELECT * FROM textbooks ORDER BY id, title')
+
+        # --------------------------------------------------
+        # 3️⃣ Учебники
+        # --------------------------------------------------
+        cursor.execute('''
+            SELECT *
+            FROM textbooks
+            ORDER BY id, title
+        ''')
         textbooks = cursor.fetchall()
+
+        # --------------------------------------------------
+        # 4️⃣ Шаблоны уроков (если используются)
+        # --------------------------------------------------
         cursor.execute('SELECT * FROM lesson_templates')
         lesson_templates = cursor.fetchall()
-        
-        cursor.close()
+
+        # --------------------------------------------------
+        # 5️⃣ Рендер страницы
+        # --------------------------------------------------
         return render_template(
             'edit_lesson.html',
             lesson=dict(lesson),
-            tasks=[dict(task) for task in tasks],
+            tasks=[dict(t) for t in tasks],
             textbooks=[dict(tb) for tb in textbooks],
             lesson_templates=[dict(tpl) for tpl in lesson_templates]
         )
+
     finally:
         conn.close()
 
@@ -530,64 +563,81 @@ def update_lesson(lesson_id):
     data = request.get_json()
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    
+
     try:
         for task in data['tasks']:
-            if task['id']:
-                cursor.execute('''
-                    UPDATE lesson_tasks 
-                    SET question = %s, answer = %s, template_id = %s
-                    WHERE id = %s AND lesson_id = %s
-                ''', (
-                    task['question'], 
+            if task.get('id'):
+                cursor.execute("""
+                    UPDATE lesson_tasks
+                    SET
+                        question = %s,
+                        answer = %s,
+                        template_id = %s,
+                        position = %s
+                    WHERE id = %s
+                """, (
+                    task['question'],
                     task['answer'],
-                    task.get('template_id'),  # Новое поле
-                    task['id'], 
-                    lesson_id
+                    task.get('template_id'),
+                    task['position'],
+                    task['id']
                 ))
             else:
-                cursor.execute('''
-                    INSERT INTO lesson_tasks 
-                    (lesson_id, question, answer, template_id)
-                    VALUES (%s, %s, %s, %s)
-                ''', (
-                    lesson_id, 
-                    task['question'], 
+                cursor.execute("""
+                    INSERT INTO lesson_tasks
+                    (lesson_id, question, answer, template_id, position)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    lesson_id,
+                    task['question'],
                     task['answer'],
-                    task.get('template_id')  # Новое поле
+                    task.get('template_id'),
+                    task['position']
                 ))
-                task['id'] = cursor.lastrowid
-        
+
         conn.commit()
-        return jsonify({'success': True, 'tasks': data['tasks']})
+        return jsonify({'success': True})
+
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'error': str(e)})
 
+    finally:
+        conn.close()
+
+
+
 @app.route('/teacher/delete_task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     conn = get_db()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    
     try:
-        # Проверяем, что задание принадлежит учителю
-        cursor.execute('''
-            DELETE FROM lesson_tasks 
-            WHERE id = %s AND lesson_id IN (
+        cursor = conn.cursor()
+
+        # Удаляем ТОЛЬКО задания уроков этого учителя
+        cursor.execute("""
+            DELETE FROM lesson_tasks
+            WHERE id = %s
+              AND lesson_id IN (
                 SELECT id FROM lessons WHERE teacher_id = %s
-            )
-        ''', (task_id, session['user_id']))
-        
+              )
+        """, (task_id, session['user_id']))
+
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({'success': False, 'error': 'Not found'}), 404
+
         conn.commit()
         return jsonify({'success': True})
+
     except Exception as e:
         conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
+
 
 @app.route('/teacher/manage_students')
 def manage_students():
