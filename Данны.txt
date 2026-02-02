@@ -13,11 +13,16 @@ ON DELETE CASCADE;
 # sudo -u postgres psql mathdbnew
 systemctl restart urok
 
+ALTER TABLE lessons
+ADD COLUMN is_self_work BOOLEAN NOT NULL DEFAULT false;
 
-ALTER TABLE lesson_tasks ADD COLUMN position INTEGER;
 
-UPDATE lesson_tasks
-SET position = id;
+
+
+
+
+
+
 
 WITH ordered AS (
   SELECT id,

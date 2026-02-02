@@ -1,6 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3, math
+import  math
 import sympy
 import os, re, json, random
 import datetime
@@ -26,6 +26,9 @@ import subprocess, sys, socket, atexit, time
 from dotenv import load_dotenv
 import requests
 import hashlib
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify, g
+
+
 
 
 
@@ -36,6 +39,14 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 from devtools.playground_routes import playground_bp
 app.register_blueprint(playground_bp, url_prefix="/api/dev")
+
+
+def verify_password(conn, stored_hash: str, plain_password: str) -> bool:
+    print("DEBUG verify_password")
+    print("stored_hash =", stored_hash[:30])
+    print("plain_password =", plain_password)
+
+
 
 @app.after_request
 def add_header(response):
@@ -48,228 +59,43 @@ def add_header(response):
     response.headers['Expires'] = '0'
     return response
 
+from flask import has_request_context
+
+@app.before_request
+def load_context():
+    g.user_id = session.get('user_id')
+    g.role = session.get('role')
+    g.school_id = session.get('school_id')
+    g.is_platform_admin = (g.role == 'platform_admin')
+
+
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def init_db():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    
-    # Создаем таблицу классов
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS classes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            grade INTEGER NOT NULL,
-            letter TEXT NOT NULL,
-            UNIQUE(grade, letter))
-    ''')
-
-    # Создаем таблицу пользователей
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT NOT NULL,
-            full_name TEXT,
-            class_id INTEGER REFERENCES classes(id),
-            UNIQUE(username, class_id))
-    ''')
-
-    # Создаем таблицу уроков
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lessons (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            teacher_id INTEGER REFERENCES users(id),
-            class_id INTEGER REFERENCES classes(id),
-            title TEXT NOT NULL,
-            date TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
-    ''')
-
-    # Создаем таблицу заданий
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lesson_tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            lesson_id INTEGER REFERENCES lessons(id),
-            question TEXT NOT NULL,
-            answer TEXT NOT NULL,
-            template_id INTEGER REFERENCES task_templates(id)
-        )
-    ''')
-
-    # Создаем таблицу предметов
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS subjects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            description TEXT)
-    ''')
-
-    # Создаем таблицу вариантов заданий
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS student_task_variants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            lesson_id INTEGER REFERENCES lessons(id),
-            user_id INTEGER REFERENCES users(id),
-            task_id INTEGER REFERENCES lesson_tasks(id),
-            variant_data TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(lesson_id, user_id, task_id))
-    ''')
-
-    # Создаем таблицу ответов учеников
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS student_answers (
-            task_id INTEGER REFERENCES lesson_tasks(id),
-            user_id INTEGER REFERENCES users(id),
-            answer TEXT NOT NULL,
-            is_correct BOOLEAN NOT NULL,
-            answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (task_id, user_id))
-    ''')
-
-    # Создаем таблицу учебников
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS textbooks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            grade INTEGER NOT NULL,
-            UNIQUE(title, grade))
-    ''')
-
-    # Создаем таблицу шаблонов заданий
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS task_templates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            textbook_id INTEGER REFERENCES textbooks(id),
-            name TEXT NOT NULL,
-            question_template TEXT NOT NULL,
-            answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
-            UNIQUE(textbook_id, name))
-    ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS lesson_templates (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        question_template TEXT NOT NULL,
-        answer_template TEXT NOT NULL,
-        parameters TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-''')
 
 
-    # В функции init_db(), после создания таблиц:
-    cursor.execute("SELECT COUNT(*) FROM textbooks")
-    if cursor.fetchone()[0] == 0:
-        # Добавляем тестовые учебники
-        textbooks = [
-            ('Макарычев', 'Алгебра для 5 класса', 5),
-            ('Мордкович', 'Алгебра для 7-9 классов', 7),
-            ('Атанасян', 'Геометрия 7-9 классы', 7)
-        ]
-        
-        for title, description, grade in textbooks:
-            cursor.execute(
-                "INSERT INTO textbooks (title, description, grade) VALUES (%s, %s, %s)",
-                (title, description, grade)
-            )
-        
-        conn.commit()
-    # Добавляем тестовые данные
-    try:
-        cursor.execute("SELECT COUNT(*) FROM users")
-        if cursor.fetchone()[0] == 0:
-            # Тестовые классы
-            for grade in [5, 6, 7, 8, 9, 10, 11]:
-                for letter in ['А', 'Б', 'В', 'Г']:
-                    cursor.execute(
-                        "INSERT OR IGNORE INTO classes (grade, letter) VALUES (%s, %s)",
-                        (grade, letter)
-                    )
-            
-            # Тестовый учитель
-            cursor.execute(
-                "INSERT INTO users (username, password, role, full_name) VALUES (%s, %s, %s, %s)",
-                ('teacher1', generate_password_hash('teacher123'), 'teacher', 'Иванова Мария Сергеевна')
-            )
-            
-            # Тестовые ученики
-            test_students = [
-                ('student1', 'student123', '6В', 'Петров Петр'),
-                ('student2', 'student123', '6В', 'Сидорова Анна'),
-                ('student3', 'student123', '6Г', 'Кузнецов Алексей')
-            ]
-            
-            for username, password, class_name, full_name in test_students:
-                grade = int(class_name[:-1])
-                letter = class_name[-1]
-                
-                # Получаем class_id перед использованием
-                cursor.execute(
-                    "SELECT id FROM classes WHERE grade = %s AND letter = %s",
-                    (grade, letter)
-                )
-                class_row = cursor.fetchone()
-                if class_row:
-                    class_id = class_row[0]
-                    
-                    cursor.execute(
-                        "INSERT INTO users (username, password, role, full_name, class_id) VALUES (%s, %s, %s, %s, %s)",
-                        (username, generate_password_hash(password), 'student', full_name, class_id)
-                    )
-            
-            # Тестовый предмет
-            cursor.execute(
-                "INSERT INTO subjects (name, description) VALUES (%s, %s)",
-                ('Математика', 'Алгебра и геометрия 6 класс')
-            )
-            
-            # Тестовый учебник
-            cursor.execute(
-                "INSERT INTO textbooks (title, description, grade) VALUES (%s, %s, %s)",
-                ('Макарычев', 'Алгебра для 5 класса', 5)
-            )
-            
-            # Базовые шаблоны для учебника
-            templates = [
-                ('Сложение', '{A} + {B} = %s', '{A} + {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Вычитание', '{A} - {B} = %s', '{A} - {B}', '{"A": {"min": 1, "max": 20}, "B": {"min": 1, "max": 10}}'),
-                ('Умножение', '{A} × {B} = %s', '{A} * {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Деление', '{A} ÷ {B} = %s', '{A} / {B}', '{"A": {"min": 1, "max": 50}, "B": {"min": 1, "max": 10}}'),
-                ('Уравнение', 'Решите: {A}x + {B} = {C}', '({C} - {B}) / {A}', '{"A": {"min": 1, "max": 5}, "B": {"min": 1, "max": 20}, "C": {"min": 10, "max": 50}}')
-            ]
-            
-            for name, question, answer, params in templates:
-                cursor.execute(
-                    "INSERT INTO task_templates (textbook_id, name, question_template, answer_template, parameters) VALUES (1, %s, %s, %s, %s)",
-                    (name, question, answer, params)
-                )
-            
-            conn.commit()
-    except Exception as e:
-        conn.rollback()
-        print(f"Ошибка при инициализации БД: {e}")
-    finally:
-        conn.close()
-
-
+from flask import session
 
 def get_db():
     conn = psycopg2.connect(
         dbname=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST", "localhost")
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
     )
-    conn.autocommit = True
+    conn.autocommit = False  # Важно!
+
+    cur = conn.cursor()
+    is_admin = session.get('role') == 'platform_admin'
+    cur.execute("SELECT set_config('app.is_platform_admin', %s, true)", ('true' if is_admin else 'false',))
+    school_id = session.get('school_id')
+    cur.execute("SELECT set_config('app.school_id', %s, true)", (str(school_id) if school_id else '-1',))
+    cur.close()
     return conn
+
+
 
 @app.route('/')
 def home():
@@ -283,29 +109,84 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        print("RAW FORM:", request.form)
+        username = request.form['username'].strip()
         password = request.form['password']
-        
+
+        print("LOGIN ATTEMPT:", repr(username), repr(password))
+
         conn = get_db()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+
+        cursor.execute(
+            "SELECT id, username, password, role, full_name, school_id FROM users WHERE username = %s",
+            (username,)
+        )
         user = cursor.fetchone()
+
+        print("USER FOUND:", bool(user))
+        if user:
+            print("STORED HASH:", user['password'])
+            try:
+                result = check_password_hash(user['password'], password)
+                print("PASSWORD CHECK RESULT:", result)
+            except Exception as e:
+                print("PASSWORD CHECK ERROR:", e)
+                result = False
+        else:
+            result = False
+
         conn.close()
-        
-        if user and check_password_hash(user['password'], password):
+
+        if user and result:
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role']
             session['full_name'] = user['full_name']
-            
-            if user['role'] == 'student':
-                return redirect(url_for('student_dashboard'))
-            else:
-                return redirect(url_for('teacher_dashboard'))
-        else:
-            return render_template('auth.html', error="Неверное имя пользователя или пароль")
-    
+            session['school_id'] = user['school_id']
+
+            print("LOGIN SUCCESS")
+
+            return redirect(
+                url_for('student_dashboard')
+                if user['role'] == 'student'
+                else url_for('teacher_dashboard')
+            )
+
+        print("LOGIN FAILED")
+        return render_template('auth.html', error="Неверное имя пользователя или пароль")
+
     return render_template('auth.html')
+
+
+def verify_password(conn, stored_hash: str, plain_password: str) -> bool:
+    """
+    Поддерживает:
+    - werkzeug pbkdf2:sha256
+    - PostgreSQL scrypt / crypt
+    """
+    # 1️⃣ Werkzeug (pbkdf2)
+    if stored_hash.startswith("pbkdf2:"):
+        return check_password_hash(stored_hash, plain_password)
+
+    # 2️⃣ PostgreSQL crypt / scrypt
+    cur = conn.cursor()
+    cur.execute("SELECT crypt(%s, %s) = %s", (plain_password, stored_hash, stored_hash))
+    ok = cur.fetchone()[0]
+    cur.close()
+    return bool(ok)
+
+
+@app.route("/debug/session")
+def debug_session():
+    return jsonify({
+        "user_id": session.get("user_id"),
+        "role": session.get("role"),
+        "school_id": session.get("school_id"),
+        "g_school_id": getattr(g, "school_id", None)
+    })
+
+
 
 @app.route('/logout')
 def logout():
@@ -319,7 +200,7 @@ def student_dashboard():
     
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute("SELECT * FROM subjects")
+    cursor.execute("SELECT * FROM subjects WHERE school_id = %s ORDER BY id", (g.school_id,))
     subjects = cursor.fetchall()
     conn.close()
     
@@ -350,7 +231,12 @@ def get_lessons():
     
     try:
         # Находим ID класса
-        cursor.execute("SELECT id FROM classes WHERE grade = %s AND letter = %s", (grade, letter))
+        cursor.execute("""
+    SELECT id
+    FROM classes
+    WHERE grade = %s AND letter = %s AND school_id = %s
+""", (grade, letter, g.school_id))
+
         class_id = cursor.fetchone()
         
         if not class_id:
@@ -358,11 +244,14 @@ def get_lessons():
         
         # Получаем уроки для этого класса
         cursor.execute('''
-            SELECT l.id, l.title, l.date 
-            FROM lessons l
-            WHERE l.class_id = %s AND l.teacher_id = %s
-            ORDER BY l.date DESC
-        ''', (class_id[0], session['user_id']))
+    SELECT l.id, l.title, l.date 
+    FROM lessons l
+    WHERE l.class_id = %s
+      AND l.teacher_id = %s
+      AND l.school_id = %s
+    ORDER BY l.date DESC
+''', (class_id[0], session['user_id'], g.school_id))
+
         
         lessons = cursor.fetchall()
         return jsonify({
@@ -390,17 +279,20 @@ def edit_lesson(lesson_id):
         # 1️⃣ Информация об уроке
         # --------------------------------------------------
         cursor.execute('''
-            SELECT 
-                l.id,
-                l.title,
-                l.date,
-                c.grade,
-                c.letter
-            FROM lessons l
-            JOIN classes c ON l.class_id = c.id
-            WHERE l.id = %s
-              AND l.teacher_id = %s
-        ''', (lesson_id, session['user_id']))
+    SELECT 
+        l.id,
+        l.title,
+        l.date,
+        c.grade,
+        c.letter
+    FROM lessons l
+    JOIN classes c ON l.class_id = c.id
+    WHERE l.id = %s
+      AND l.teacher_id = %s
+      AND l.school_id = %s
+      AND c.school_id = %s
+''', (lesson_id, session['user_id'], g.school_id, g.school_id))
+
 
         lesson = cursor.fetchone()
         if not lesson:
@@ -413,17 +305,19 @@ def edit_lesson(lesson_id):
         # 👉 ORDER BY — чтобы порядок был стабильный
         # --------------------------------------------------
         cursor.execute('''
-            SELECT
-                lt.id,
-                lt.question,
-                lt.answer,
-                lt.template_id,
-                tt.name AS template_name
-            FROM lesson_tasks lt
-            LEFT JOIN task_templates tt ON lt.template_id = tt.id
-            WHERE lt.lesson_id = %s
-            ORDER BY lt.position ASC, lt.id ASC
-        ''', (lesson_id,))
+    SELECT
+        lt.id,
+        lt.question,
+        lt.answer,
+        lt.template_id,
+        tt.name AS template_name
+    FROM lesson_tasks lt
+    LEFT JOIN task_templates tt ON lt.template_id = tt.id
+    WHERE lt.lesson_id = %s
+      AND lt.school_id = %s
+    ORDER BY lt.position ASC, lt.id ASC
+''', (lesson_id, g.school_id))
+
 
         tasks = cursor.fetchall()
 
@@ -431,16 +325,19 @@ def edit_lesson(lesson_id):
         # 3️⃣ Учебники
         # --------------------------------------------------
         cursor.execute('''
-            SELECT *
-            FROM textbooks
-            ORDER BY id, title
-        ''')
+    SELECT *
+    FROM textbooks
+    WHERE school_id = %s
+    ORDER BY id, title
+''', (g.school_id,))
+
         textbooks = cursor.fetchall()
 
         # --------------------------------------------------
         # 4️⃣ Шаблоны уроков (если используются)
         # --------------------------------------------------
-        cursor.execute('SELECT * FROM lesson_templates')
+        cursor.execute('SELECT * FROM lesson_templates WHERE school_id = %s ORDER BY id', (g.school_id,))
+
         lesson_templates = cursor.fetchall()
 
         # --------------------------------------------------
@@ -469,11 +366,15 @@ def conduct_lesson(lesson_id):
     try:
         # Получаем информацию об уроке
         cursor.execute('''
-            SELECT l.id, l.title, l.date, c.grade, c.letter 
-            FROM lessons l
-            JOIN classes c ON l.class_id = c.id
-            WHERE l.id = %s AND l.teacher_id = %s
-        ''', (lesson_id, session['user_id']))
+    SELECT l.id, l.title, l.date, c.grade, c.letter 
+    FROM lessons l
+    JOIN classes c ON l.class_id = c.id
+    WHERE l.id = %s
+      AND l.teacher_id = %s
+      AND l.school_id = %s
+      AND c.school_id = %s
+''', (lesson_id, session['user_id'], g.school_id, g.school_id))
+
         
         lesson = cursor.fetchone()
         if not lesson:
@@ -481,21 +382,27 @@ def conduct_lesson(lesson_id):
         
         # Получаем список учеников класса
         cursor.execute('''
-            SELECT u.id, u.full_name
-            FROM users u
-            JOIN classes c ON u.class_id = c.id
-            JOIN lessons l ON l.class_id = c.id
-            WHERE l.id = %s AND u.role = 'student'
-            ORDER BY u.full_name
-        ''', (lesson_id,))
+    SELECT u.id, u.full_name
+    FROM users u
+    JOIN lessons l ON l.class_id = u.class_id
+    WHERE l.id = %s
+      AND u.role = 'student'
+      AND u.school_id = %s
+      AND l.school_id = %s
+    ORDER BY u.full_name
+''', (lesson_id, g.school_id, g.school_id))
+
         students = cursor.fetchall()
         
         # Получаем задания урока
         cursor.execute('''
-            SELECT id, question FROM lesson_tasks
-            WHERE lesson_id = %s
-            ORDER BY id
-        ''', (lesson_id,))
+    SELECT id, question
+    FROM lesson_tasks
+    WHERE lesson_id = %s
+      AND school_id = %s
+    ORDER BY id
+''', (lesson_id, g.school_id))
+
         tasks = cursor.fetchall()
         
         return render_template('conduct_lesson.html',
@@ -514,12 +421,16 @@ def create_lesson():
         return jsonify({'error': 'Unauthorized'}), 401
     
     data = request.get_json()
+
+    # 🔹 НОВОЕ: режим самостоятельной
+    is_self_work = data.get('is_self_work', False)
+
     class_full = data['grade']  # Формат "6В"
     
     try:
         grade = int(class_full[:-1])  # "6"
         letter = class_full[-1]       # "В"
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid class format'}), 400
     
     conn = get_db()
@@ -527,36 +438,48 @@ def create_lesson():
     
     try:
         # Находим ID класса
-        cursor.execute("SELECT id FROM classes WHERE grade = %s AND letter = %s", (grade, letter))
-        class_id = cursor.fetchone()
+        cursor.execute(
+    "SELECT id FROM classes WHERE grade = %s AND letter = %s AND school_id = %s",
+    (grade, letter, g.school_id)
+)
+
+        class_row = cursor.fetchone()
         
-        if not class_id:
+        if not class_row:
             return jsonify({'error': 'Class not found'}), 404
         
-        # Создаем урок
+        class_id = class_row['id']
+
+        # 🔹 СОЗДАЁМ УРОК (добавили is_self_work)
         cursor.execute('''
-            INSERT INTO lessons (teacher_id, class_id, title, date)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id
-        ''', (
-            session['user_id'],
-            class_id[0],
-            data['title'],
-            data['date']
-        ))
-        lesson_id = cursor.fetchone()[0]
+    INSERT INTO lessons (teacher_id, class_id, title, date, is_self_work, school_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id
+''', (
+    session['user_id'],
+    class_id,
+    data['title'],
+    data['date'],
+    is_self_work,
+    g.school_id
+))
+
+
+        lesson_id = cursor.fetchone()['id']
         conn.commit()
         
         return jsonify({
             'success': True,
             'lesson_id': lesson_id
         })
+
     except Exception as e:
         conn.rollback()
         print(f"Error creating lesson: {e}")
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+
 
 @app.route('/teacher/update_lesson/<int:lesson_id>', methods=['POST'])
 def update_lesson(lesson_id):
@@ -568,32 +491,37 @@ def update_lesson(lesson_id):
         for task in data['tasks']:
             if task.get('id'):
                 cursor.execute("""
-                    UPDATE lesson_tasks
-                    SET
-                        question = %s,
-                        answer = %s,
-                        template_id = %s,
-                        position = %s
-                    WHERE id = %s
-                """, (
-                    task['question'],
-                    task['answer'],
-                    task.get('template_id'),
-                    task['position'],
-                    task['id']
-                ))
+    UPDATE lesson_tasks
+    SET
+        question = %s,
+        answer = %s,
+        template_id = %s,
+        position = %s
+    WHERE id = %s
+      AND school_id = %s
+""", (
+    task['question'],
+    task['answer'],
+    task.get('template_id'),
+    task['position'],
+    task['id'],
+    g.school_id
+))
+
             else:
                 cursor.execute("""
-                    INSERT INTO lesson_tasks
-                    (lesson_id, question, answer, template_id, position)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (
-                    lesson_id,
-                    task['question'],
-                    task['answer'],
-                    task.get('template_id'),
-                    task['position']
-                ))
+    INSERT INTO lesson_tasks
+    (lesson_id, question, answer, template_id, position, school_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+""", (
+    lesson_id,
+    task['question'],
+    task['answer'],
+    task.get('template_id'),
+    task['position'],
+    g.school_id
+))
+
 
         conn.commit()
         return jsonify({'success': True})
@@ -618,12 +546,15 @@ def delete_task(task_id):
 
         # Удаляем ТОЛЬКО задания уроков этого учителя
         cursor.execute("""
-            DELETE FROM lesson_tasks
-            WHERE id = %s
-              AND lesson_id IN (
-                SELECT id FROM lessons WHERE teacher_id = %s
-              )
-        """, (task_id, session['user_id']))
+    DELETE FROM lesson_tasks lt
+    USING lessons l
+    WHERE lt.id = %s
+      AND lt.lesson_id = l.id
+      AND l.teacher_id = %s
+      AND lt.school_id = %s
+      AND l.school_id = %s
+""", (task_id, session['user_id'], g.school_id, g.school_id))
+
 
         if cursor.rowcount == 0:
             conn.rollback()
@@ -646,7 +577,13 @@ def manage_students():
     
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute("SELECT * FROM classes ORDER BY grade, letter")
+    cursor.execute("""
+        SELECT *
+        FROM classes
+        WHERE school_id = %s
+        ORDER BY grade, letter
+    """, (g.school_id,))
+
     classes = cursor.fetchall()
     conn.close()
     
@@ -662,10 +599,16 @@ def get_students():
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cursor.execute('''
-        SELECT id, username, full_name, grade FROM users 
-        WHERE role = 'student' AND class_id = %s
-        ORDER BY full_name
-    ''', (class_id,))
+    SELECT u.id, u.username, u.full_name, u.grade
+    FROM users u
+    JOIN classes c ON c.id = u.class_id
+    WHERE u.role = 'student'
+      AND u.class_id = %s
+      AND u.school_id = %s
+      AND c.school_id = %s
+    ORDER BY u.full_name
+''', (class_id, g.school_id, g.school_id))
+
     students = cursor.fetchall()
     conn.close()
     
@@ -677,27 +620,50 @@ def get_students():
 def add_student():
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    
+
+    data = request.get_json() or {}
+    username = (data.get('username') or '').strip()
+    password = (data.get('password') or '').strip()
+    full_name = (data.get('full_name') or '').strip()
+    class_id = data.get('class_id')
+
+    if not username or not password or not full_name or not class_id:
+        return jsonify({'success': False, 'error': 'Invalid payload'}), 400
+
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
+        # 1) убеждаемся, что класс принадлежит школе учителя
+        cursor.execute("""
+            SELECT 1
+            FROM classes
+            WHERE id = %s AND school_id = %s
+        """, (class_id, g.school_id))
+        if not cursor.fetchone():
+            return jsonify({'success': False, 'error': 'Class not found in your school'}), 403
+
+        # 2) создаём ученика
         cursor.execute('''
-            INSERT INTO users (username, password, role, full_name, class_id)
-            VALUES (%s, %s, 'student', %s, %s)
+            INSERT INTO users (username, password, role, full_name, class_id, school_id)
+            VALUES (%s, %s, 'student', %s, %s, %s)
         ''', (
-            data['username'],
-            generate_password_hash(data['password']),
-            data['full_name'],
-            data['class_id']
+            username,
+            generate_password_hash(password),
+            full_name,
+            class_id,
+            g.school_id
         ))
         conn.commit()
         return jsonify({'success': True})
-    except sqlite3.IntegrityError as e:
-        return jsonify({'success': False, 'error': 'Логин уже существует'})
+    except psycopg2.IntegrityError:
+        conn.rollback()
+        return jsonify({'success': False, 'error': 'Логин уже существует'}), 400
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
+
 
 @app.route('/teacher/delete_student/<int:student_id>', methods=['DELETE'])
 def delete_student(student_id):
@@ -707,7 +673,13 @@ def delete_student(student_id):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        cursor.execute("DELETE FROM users WHERE id = %s AND role = 'student'", (student_id,))
+        cursor.execute("""
+    DELETE FROM users
+    WHERE id = %s
+      AND role = 'student'
+      AND school_id = %s
+""", (student_id, g.school_id))
+
         conn.commit()
         return jsonify({'success': cursor.rowcount > 0})
     finally:
@@ -724,7 +696,12 @@ def student_lessons():
     
     try:
         # Получаем класс ученика
-        cursor.execute("SELECT class_id FROM users WHERE id = %s", (session['user_id'],))
+        cursor.execute("""
+    SELECT class_id
+    FROM users
+    WHERE id = %s AND school_id = %s
+""", (session['user_id'], g.school_id))
+
         class_id = cursor.fetchone()
         
         if not class_id:
@@ -734,34 +711,35 @@ def student_lessons():
         
         # Получаем уроки для этого класса
         cursor.execute('''
-            SELECT
-                l.id,
-                l.title,
-                l.date,
-                u.full_name AS teacher_name,
+    SELECT
+        l.id,
+        l.title,
+        l.date,
+        u.full_name AS teacher_name,
+        COALESCE(
+            ROUND(
+                (COUNT(sa.task_id) FILTER (WHERE sa.is_correct = TRUE)::numeric /
+                NULLIF(COUNT(lt.id), 0)) * 100
+            ),
+            0
+        ) AS progress
+    FROM lessons l
+    JOIN users u ON l.teacher_id = u.id
 
-                COALESCE(
-                    ROUND(
-                        (COUNT(sa.task_id) FILTER (WHERE sa.is_correct = TRUE)::numeric /
-                        NULLIF(COUNT(lt.id), 0)) * 100
-                    ),
-                    0
-                ) AS progress
+    LEFT JOIN lesson_tasks lt
+        ON lt.lesson_id = l.id AND lt.school_id = %s
 
-            FROM lessons l
-            JOIN users u ON l.teacher_id = u.id
+    LEFT JOIN student_answers sa
+        ON sa.task_id = lt.id
+       AND sa.user_id = %s
+       AND sa.school_id = %s
 
-            LEFT JOIN lesson_tasks lt
-                ON lt.lesson_id = l.id
+    WHERE l.class_id = %s
+      AND l.school_id = %s
+    GROUP BY l.id, u.full_name
+    ORDER BY l.date DESC
+''', (g.school_id, session['user_id'], g.school_id, class_id, g.school_id))
 
-            LEFT JOIN student_answers sa
-                ON sa.task_id = lt.id
-            AND sa.user_id = %s
-
-            WHERE l.class_id = %s
-            GROUP BY l.id, u.full_name
-            ORDER BY l.date DESC
-        ''', (session['user_id'], class_id))
         lessons = cursor.fetchall()
         
         return render_template('student_lessons.html', 
@@ -779,181 +757,183 @@ def start_lesson(lesson_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-
-    
     user_id = session['user_id']
     student_mark = infer_student_mark(user_id)
-    print("⚡ student_mark для user_id", user_id, "=", student_mark)
+
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    print("Запрос урока:", lesson_id, "Текущий пользователь:", user_id, "Роль:", session.get("role"))
 
-    
     try:
-        # Проверка доступа для ученика
+        # 🔐 Проверка доступа ученика
         if session['role'] == 'student':
             cursor.execute('''
-                SELECT 1 FROM lessons l
-                JOIN users u ON l.class_id = u.class_id
-                WHERE u.id = %s AND l.id = %s
-            ''', (user_id, lesson_id))
+    SELECT 1
+    FROM lessons l
+    JOIN users u ON l.class_id = u.class_id
+    WHERE u.id = %s
+      AND u.school_id = %s
+      AND l.id = %s
+      AND l.school_id = %s
+''', (user_id, g.school_id, lesson_id, g.school_id))
+
             if not cursor.fetchone():
                 return redirect(url_for('student_lessons'))
-        
-        # Получаем информацию об уроке
+
+        # 📘 Информация об уроке (+ is_self_work)
         cursor.execute('''
-            SELECT l.title, l.date, u.full_name as teacher_name
-            FROM lessons l
-            JOIN users u ON l.teacher_id = u.id
-            WHERE l.id = %s
-        ''', (lesson_id,))
+    SELECT 
+        l.title,
+        l.date,
+        l.is_self_work,
+        u.full_name AS teacher_name
+    FROM lessons l
+    JOIN users u ON l.teacher_id = u.id
+    WHERE l.id = %s
+      AND l.school_id = %s
+''', (lesson_id, g.school_id))
+
         lesson = cursor.fetchone()
-        
+
         if not lesson:
             return redirect(url_for('student_lessons'))
-        
-        # Получаем задания урока
+
+        # 📋 Задания урока (ВАЖНО: position!)
         cursor.execute('''
-            SELECT id, question, answer, template_id
-            FROM lesson_tasks
-            WHERE lesson_id = %s
-            ORDER BY id
-        ''', (lesson_id,))
+    SELECT id, question, answer, template_id
+    FROM lesson_tasks
+    WHERE lesson_id = %s
+      AND school_id = %s
+    ORDER BY position ASC, id ASC
+''', (lesson_id, g.school_id))
+
         base_tasks = cursor.fetchall()
 
-        print("Задания урока base_tasks:", base_tasks)
-
-        
         tasks = []
-        
-        for task in base_tasks:
-            print("Обрабатываю задание:", dict(task))
 
-            # Проверяем сохраненный вариант
+        for task in base_tasks:
+            # --- проверяем сохранённый вариант ---
             cursor.execute('''
-                SELECT variant_data FROM student_task_variants
-                WHERE lesson_id = %s AND user_id = %s AND task_id = %s
-            ''', (lesson_id, user_id, task['id']))
-            variant = cursor.fetchone()
-            print('Fetched variant:', variant)
-            if variant:
-                print('variant_data:', variant['variant_data'], type(variant['variant_data']))
-                data = variant['variant_data']
-                # Обработка variant_data в зависимости от типа (str, dict, bytes)
-                if isinstance(data, str):
-                    try:
-                        variant_data = json.loads(data)
-                    except Exception:
-                        variant_data = {}
-                elif isinstance(data, dict):
-                    variant_data = data
-                elif isinstance(data, bytes):
-                    try:
-                        variant_data = json.loads(data.decode('utf-8'))
-                    except Exception:
-                        variant_data = {}
+    SELECT variant_data
+    FROM student_task_variants
+    WHERE lesson_id = %s
+      AND user_id = %s
+      AND task_id = %s
+      AND school_id = %s
+''', (lesson_id, user_id, task['id'], g.school_id))
+
+            variant_row = cursor.fetchone()
+
+            if variant_row:
+                raw = variant_row['variant_data']
+                if isinstance(raw, str):
+                    variant_data = json.loads(raw)
                 else:
-                    variant_data = {}
+                    variant_data = raw or {}
 
                 question = variant_data.get('generated_question', task['question'])
                 computed_answer = variant_data.get('computed_answer', '')
                 params = variant_data.get('params', {})
-                # Получаем answer_type из шаблона!
+
                 if task['template_id']:
-                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = %s', (task['template_id'],))
-                    answer_type_row = cursor.fetchone()
-                    answer_type = answer_type_row['answer_type'] if answer_type_row and answer_type_row['answer_type'] else 'numeric'
+                    cursor.execute(
+                        'SELECT answer_type FROM task_templates WHERE id = %s',
+                        (task['template_id'],)
+                    )
+                    r = cursor.fetchone()
+                    answer_type = r['answer_type'] if r else 'numeric'
                 else:
-                    answer_type = 'numeric'
-                tasks.append({
-                    'id': task['id'],
-                    'question': question,
-                    'correct_answer': computed_answer,
-                    'params': params,
-                    'answer_type': answer_type
-                })
-            else:
-                # Генерация нового варианта через TaskGenerator
-                if task['template_id']:
-                    # Получаем только answer_type из task_templates
-                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = %s', (task['template_id'],))
-                    answer_type_row = cursor.fetchone()
-                    answer_type = answer_type_row['answer_type'] if answer_type_row and answer_type_row['answer_type'] else 'numeric'
-                    
-                    # Теперь тянем остальные параметры для генерации задания
-                    cursor.execute('SELECT * FROM task_templates WHERE id = %s', (task['template_id'],))
-                    template_row = cursor.fetchone()
-                    if template_row:
-                        template_dict = dict(template_row)
-                        params = template_row['parameters']
-                        if isinstance(params, str):
-                            params = json.loads(params)
-                        template_dict['parameters'] = params
-                        variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
-                        print('Сгенерированный вариант:', variant, type(variant))
-                        generated_question = variant['question']
-                        computed_answer = variant['correct_answer']
-                        params = variant['params']
-                    else:
-                        generated_question = task['question']
-                        computed_answer = task['answer']
-                        params = {}
-                else:
-                    # Старые задания без шаблона
-                    params = {}
-                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
-                    for param in param_matches:
-                        params[param] = random.randint(1, 10)
-                    generated_question = task['question']
-                    for param, value in params.items():
-                        generated_question = generated_question.replace(f'{{{param}}}', str(value))
-                    computed_answer = "%s"
                     answer_type = 'numeric'
 
-                # Сохраняем вариант для этого ученика
-                variant_data = {
-                    'params': params,
-                    'generated_question': generated_question,
-                    'computed_answer': computed_answer
-                }
-                print('Перед вставкой:', variant_data, type(variant_data))
+            else:
+                # --- генерация нового варианта ---
+                if task['template_id']:
+                    cursor.execute(
+                        'SELECT * FROM task_templates WHERE id = %s',
+                        (task['template_id'],)
+                    )
+                    template = cursor.fetchone()
+                    template_dict = dict(template)
+                    params = template_dict['parameters']
+                    if isinstance(params, str):
+                        params = json.loads(params)
+                    template_dict['parameters'] = params
+
+                    variant = TaskGenerator.generate_task_variant(
+                        template_dict,
+                        band=student_mark
+                    )
+
+                    question = variant['question']
+                    computed_answer = variant['correct_answer']
+                    params = variant['params']
+
+                    answer_type = template_dict.get('answer_type', 'numeric')
+                else:
+                    # старые задания
+                    params = {}
+                    question = task['question']
+                    computed_answer = task['answer']
+                    answer_type = 'numeric'
+
                 cursor.execute('''
-                    INSERT INTO student_task_variants
-                    (lesson_id, user_id, task_id, variant_data)
-                    VALUES (%s, %s, %s, %s)
-                ''', (lesson_id, user_id, task['id'], json.dumps(variant_data)))
-                tasks.append({
-                    'id': task['id'],
-                    'question': generated_question,
-                    'correct_answer': computed_answer,
-                    'params': params,
-                    'answer_type': answer_type
-                })
-        
+    INSERT INTO student_task_variants
+        (lesson_id, user_id, task_id, variant_data, school_id)
+    VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (lesson_id, user_id, task_id)
+    DO UPDATE SET variant_data = EXCLUDED.variant_data,
+                  created_at = CURRENT_TIMESTAMP
+''', (
+    lesson_id,
+    user_id,
+    task['id'],
+    json.dumps({
+        'params': params,
+        'generated_question': question,
+        'computed_answer': computed_answer
+    }),
+    g.school_id
+))
+
+
+            tasks.append({
+                'id': task['id'],
+                'question': question,
+                'correct_answer': computed_answer,
+                'params': params,
+                'answer_type': answer_type
+            })
+
         conn.commit()
 
-        cursor.execute("""
-            SELECT c.grade
-            FROM users u
-            JOIN classes c ON u.class_id = c.id
-            WHERE u.id = %s
-        """, (user_id,))
+        # 🎓 Класс ученика
+        cursor.execute('''
+    SELECT c.grade
+    FROM users u
+    JOIN classes c ON u.class_id = c.id
+    WHERE u.id = %s
+      AND u.school_id = %s
+      AND c.school_id = %s
+''', (user_id, g.school_id, g.school_id))
+
         grade_row = cursor.fetchone()
         student_grade = grade_row['grade'] if grade_row else None
 
-        return render_template('student_lesson.html',
-                            lesson=dict(lesson),
-                            tasks=tasks,
-                            user_id=user_id,
-                            student_grade=student_grade
-                            )
-        
+        return render_template(
+            'student_lesson.html',
+            lesson=dict(lesson),
+            tasks=tasks,
+            user_id=user_id,
+            student_grade=student_grade,
+            is_self_work=lesson['is_self_work']  # 🔹 ВАЖНО
+        )
+
     except Exception as e:
         conn.rollback()
-        print(f"Error in start_lesson: {str(e)}")  # Логируем ошибку
+        print(f"Error in start_lesson: {e}")
         return "Произошла ошибка при загрузке урока", 500
     finally:
         conn.close()
+
 
 
 @app.route('/save_answer', methods=['POST'])
@@ -990,10 +970,11 @@ def save_answer():
 
     # Проверяем, есть ли уже ответ
     cursor.execute('''
-        SELECT answer, is_correct, retry_used 
-        FROM student_answers 
-        WHERE task_id = %s AND user_id = %s
-    ''', (task_id, user_id))
+    SELECT answer, is_correct, retry_used 
+    FROM student_answers 
+    WHERE task_id = %s AND user_id = %s AND school_id = %s
+''', (task_id, user_id, g.school_id))
+
     existing = cursor.fetchone()
 
     if existing:
@@ -1035,36 +1016,47 @@ def save_answer():
 
     # 🔹 Если записи ещё нет — создаём новую
     cursor.execute('''
-        INSERT INTO student_answers (task_id, user_id, answer, is_correct, retry_used, answered_at)
-        VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-        ON CONFLICT (task_id, user_id) DO UPDATE SET
-            answer = EXCLUDED.answer,
-            is_correct = EXCLUDED.is_correct,
-            retry_used = EXCLUDED.retry_used,
-            answered_at = CURRENT_TIMESTAMP
-    ''', (task_id, user_id, data['answer'], is_correct_val, retry_used))
+    INSERT INTO student_answers (task_id, user_id, answer, is_correct, retry_used, answered_at, school_id)
+    VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)
+    ON CONFLICT (task_id, user_id) DO UPDATE SET
+        answer = EXCLUDED.answer,
+        is_correct = EXCLUDED.is_correct,
+        retry_used = EXCLUDED.retry_used,
+        answered_at = CURRENT_TIMESTAMP,
+        school_id = EXCLUDED.school_id
+''', (task_id, user_id, data['answer'], is_correct_val, retry_used, g.school_id))
+
 
     conn.commit()
 
         # После conn.commit()
     cursor.execute('''
-        INSERT INTO student_progress (user_id, lesson_id, total_tasks, solved_tasks, correct_tasks)
-        VALUES (
-            %s,
-            (SELECT lesson_id FROM lesson_tasks WHERE id = %s),
-            (SELECT COUNT(*) FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)),
-            (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND task_id IN (
-                SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)
-            )),
-            (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND is_correct = TRUE AND task_id IN (
-                SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s)
-            ))
-        )
-        ON CONFLICT (user_id, lesson_id) DO UPDATE SET
-            solved_tasks = EXCLUDED.solved_tasks,
-            correct_tasks = EXCLUDED.correct_tasks,
-            last_updated = CURRENT_TIMESTAMP
-    ''', (user_id, task_id, task_id, user_id, task_id, user_id, task_id))
+    INSERT INTO student_progress (user_id, lesson_id, total_tasks, solved_tasks, correct_tasks, school_id)
+    VALUES (
+        %s,
+        (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s),
+        (SELECT COUNT(*) FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s) AND school_id = %s),
+        (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND school_id = %s AND task_id IN (
+            SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s) AND school_id = %s
+        )),
+        (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND school_id = %s AND is_correct = TRUE AND task_id IN (
+            SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s) AND school_id = %s
+        )),
+        %s
+    )
+    ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+        solved_tasks = EXCLUDED.solved_tasks,
+        correct_tasks = EXCLUDED.correct_tasks,
+        last_updated = CURRENT_TIMESTAMP,
+        school_id = EXCLUDED.school_id
+''', (
+    user_id, task_id, g.school_id,
+    task_id, g.school_id, g.school_id,
+    user_id, g.school_id, task_id, g.school_id, g.school_id,
+    user_id, g.school_id, task_id, g.school_id, g.school_id,
+    g.school_id
+))
+
     conn.commit()
 
     return jsonify({'success': True, 'already_exists': False})
@@ -1082,19 +1074,23 @@ def get_lesson_results(lesson_id):
     try:
         # Получаем список учеников и их ответов
         cursor.execute('''
-            SELECT 
-                u.id as user_id, 
-                u.full_name,
-                t.id as task_id,
-                sa.answer,
-                sa.is_correct
-            FROM users u
-            JOIN lessons l ON u.class_id = l.class_id
-            JOIN lesson_tasks t ON t.lesson_id = l.id
-            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = u.id
-            WHERE l.id = %s AND u.role = 'student'
-            ORDER BY u.full_name, t.id
-        ''', (lesson_id,))
+    SELECT 
+        u.id as user_id, 
+        u.full_name,
+        t.id as task_id,
+        sa.answer,
+        sa.is_correct
+    FROM lessons l
+    JOIN users u ON u.class_id = l.class_id AND u.role='student'
+    JOIN lesson_tasks t ON t.lesson_id = l.id AND t.school_id = %s
+    LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = u.id AND sa.school_id = %s
+    WHERE l.id = %s
+      AND l.teacher_id = %s
+      AND l.school_id = %s
+      AND u.school_id = %s
+    ORDER BY u.full_name, t.id
+''', (g.school_id, g.school_id, lesson_id, session['user_id'], g.school_id, g.school_id))
+
         
         # Формируем структуру результатов
         results = {}
@@ -1128,12 +1124,15 @@ def get_student_answers(lesson_id, user_id):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     
     cursor.execute('''
-        SELECT task_id, answer, is_correct, COALESCE(retry_used, FALSE) AS retry_used
-        FROM student_answers
-        WHERE user_id = %s AND task_id IN (
-            SELECT id FROM lesson_tasks WHERE lesson_id = %s
-        )
-    ''', (user_id, lesson_id))
+    SELECT task_id, answer, is_correct, COALESCE(retry_used, FALSE) AS retry_used
+    FROM student_answers
+    WHERE user_id = %s
+      AND school_id = %s
+      AND task_id IN (
+        SELECT id FROM lesson_tasks WHERE lesson_id = %s AND school_id = %s
+      )
+''', (user_id, g.school_id, lesson_id, g.school_id))
+
     
     answers = cursor.fetchall()
     conn.close()
@@ -1224,7 +1223,8 @@ def manage_tasks():
     conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM textbooks ORDER BY grade, title')
+        cursor.execute('SELECT * FROM textbooks WHERE school_id = %s ORDER BY grade, title', (g.school_id,))
+
         textbooks = cursor.fetchall()
         cursor.close()
         return render_template('manage_tasks.html', 
@@ -1247,7 +1247,8 @@ def textbook_tasks(textbook_id):
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # Получаем учебник
-        cursor.execute('SELECT * FROM textbooks WHERE id = %s', (textbook_id,))
+        cursor.execute('SELECT * FROM textbooks WHERE id = %s AND school_id = %s', (textbook_id, g.school_id))
+
         textbook = cursor.fetchone()
         if not textbook:
             cursor.close()
@@ -1256,12 +1257,12 @@ def textbook_tasks(textbook_id):
         
         # Получаем шаблоны заданий с нумерацией
         cursor.execute('''
-            SELECT *, 
-                   ROW_NUMBER() OVER (ORDER BY id) as task_number 
-            FROM task_templates 
-            WHERE textbook_id = %s 
-            ORDER BY id
-        ''', (textbook_id,))
+    SELECT *, ROW_NUMBER() OVER (ORDER BY id) as task_number
+    FROM task_templates
+    WHERE textbook_id = %s AND school_id = %s
+    ORDER BY id
+''', (textbook_id, g.school_id))
+
         templates = cursor.fetchall()
         
         cursor.close()
@@ -1291,15 +1292,19 @@ def add_task_template():
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
             INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters)
-            VALUES (%s, %s, %s, %s, %s)
+            (textbook_id, name, question_template, answer_template, parameters, school_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
         ''', (
             data['textbook_id'],
             data['name'],
             data['question_template'],
             data['answer_template'],
-            json.dumps(data['parameters'])
+            json.dumps(data['parameters']),
+            g.school_id
         ))
+        template_id = cursor.fetchone()[0]
+
         
         conn.commit()
         return jsonify({
@@ -1323,19 +1328,22 @@ def update_task_template(template_id):
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
-            UPDATE task_templates SET
-                name = %s,
-                question_template = %s,
-                answer_template = %s,
-                parameters = %s
-            WHERE id = %s
-        ''', (
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters']),
-            template_id
-        ))
+    UPDATE task_templates SET
+        name = %s,
+        question_template = %s,
+        answer_template = %s,
+        parameters = %s
+    WHERE id = %s
+      AND school_id = %s
+''', (
+    data['name'],
+    data['question_template'],
+    data['answer_template'],
+    json.dumps(data['parameters']),
+    template_id,
+    g.school_id
+))
+
         
         conn.commit()
         return jsonify({'success': True})
@@ -1353,7 +1361,8 @@ def delete_task_template(template_id):
     conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('DELETE FROM task_templates WHERE id = %s', (template_id,))
+        cursor.execute('DELETE FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+
         conn.commit()
         return jsonify({'success': True})
     except Exception as e:
@@ -1380,9 +1389,12 @@ def add_textbook():
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
-            INSERT INTO textbooks (title, description, grade)
-            VALUES (%s, %s, %s)
-        ''', (title, description, grade))
+            INSERT INTO textbooks (title, description, grade, school_id)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id
+        ''', (title, description, grade, g.school_id))
+        textbook_id = cursor.fetchone()[0]
+
         
         conn.commit()
         return jsonify({
@@ -1425,17 +1437,19 @@ def save_template():
 
         # Сохраняем шаблон (используем RETURNING для получения id)
         cursor.execute('''
-            INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id
-        ''', (
-            data['textbook_id'],
-            data['name'],
-            data['question'],
-            data['answer'],
-            json.dumps(data['parameters'])
-        ))
+    INSERT INTO task_templates
+    (textbook_id, name, question_template, answer_template, parameters, school_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING id
+''', (
+    data['textbook_id'],
+    data['name'],
+    data['question'],
+    data['answer'],
+    json.dumps(data['parameters']),
+    g.school_id
+))
+
         template_id = cursor.fetchone()[0]
         conn.commit()
         cursor.close()
@@ -1484,10 +1498,11 @@ def get_templates(textbook_id):
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
-            SELECT id, name, question_template, answer_template, parameters
-            FROM task_templates
-            WHERE textbook_id = %s
-        ''', (textbook_id,))
+    SELECT id, name, question_template, answer_template, parameters
+    FROM task_templates
+    WHERE textbook_id = %s AND school_id = %s
+''', (textbook_id, g.school_id))
+
         templates = [dict(t) for t in cursor.fetchall()]
         cursor.close()
 
@@ -1530,11 +1545,12 @@ def delete_templates(template_id):
 
     conn = get_db()
     try:
-        result = conn.execute(
-            'DELETE FROM task_templates WHERE id = %s', 
-            (template_id,)
-        )
+        cur = conn.cursor()
+        cur.execute('DELETE FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+        deleted = cur.rowcount
         conn.commit()
+        cur.close()
+
         
         if result.rowcount == 0:
             return jsonify({'success': False, 'error': 'Template not found'}), 404
@@ -1559,10 +1575,11 @@ def get_template(template_id):
         # ОТКРЫВАЕМ КУРСОР
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
-            SELECT id, textbook_id, name, question_template, answer_template, parameters
-            FROM task_templates
-            WHERE id = %s
-        ''', (template_id,))
+    SELECT id, textbook_id, name, question_template, answer_template, parameters
+    FROM task_templates
+    WHERE id = %s AND school_id = %s
+''', (template_id, g.school_id))
+
         template = cursor.fetchone()
         cursor.close()
 
@@ -1607,8 +1624,10 @@ def generate_task():
     data = request.get_json()
     template_id = data.get('template_id')
     
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = %s', [template_id]).fetchone()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT * FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+    template = cur.fetchone()
+
     if not template:
         return jsonify({"error": "Template not found"}), 404
 
@@ -2011,8 +2030,8 @@ def generate_homework(lesson_id, student_id):
         JOIN classes c ON l.class_id = c.id
         WHERE l.id = %s
     """, (lesson_id,))
-    g = cursor.fetchone()
-    grade = g['grade'] if g else "неизвестный"
+    row_grade = cursor.fetchone()
+    grade = row_grade['grade'] if row_grade else "неизвестный"
 
     wrong_data = ""
     for row in rows:
@@ -2315,15 +2334,17 @@ def ai_full_solution():
         try:
             cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cursor.execute("""
-                SELECT solution_text, ai_verdict
-                FROM ai_solution_cache
-                WHERE user_id = %s
-                  AND task_id = %s
-                  AND question_hash = %s
-                  AND created_at >= NOW() - INTERVAL '4 days'
-                ORDER BY created_at DESC
-                LIMIT 1
-            """, (user_id, task_id, question_hash))
+    SELECT solution_text, ai_verdict
+    FROM ai_solution_cache
+    WHERE user_id = %s
+      AND task_id = %s
+      AND question_hash = %s
+      AND school_id = %s
+      AND created_at >= NOW() - INTERVAL '4 days'
+    ORDER BY created_at DESC
+    LIMIT 1
+""", (user_id, task_id, question_hash, g.school_id))
+
             row = cursor.fetchone()
 
             if row:
@@ -2407,21 +2428,24 @@ def ai_full_solution():
             try:
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 cursor.execute("""
-                    INSERT INTO ai_solution_cache
-                        (user_id, task_id, question_hash, solution_text, ai_verdict)
-                    VALUES (%s, %s, %s, %s, %s)
-                    ON CONFLICT (user_id, task_id, question_hash)
-                    DO UPDATE SET
-                        solution_text = EXCLUDED.solution_text,
-                        ai_verdict = EXCLUDED.ai_verdict,
-                        created_at = CURRENT_TIMESTAMP
-                """, (
-                    user_id,
-                    task_id,
-                    question_hash,
-                    solution_text,
-                    json.dumps(ai_verdict) if ai_verdict else None
-                ))
+    INSERT INTO ai_solution_cache
+        (user_id, task_id, question_hash, solution_text, ai_verdict, school_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    ON CONFLICT (user_id, task_id, question_hash)
+    DO UPDATE SET
+        solution_text = EXCLUDED.solution_text,
+        ai_verdict = EXCLUDED.ai_verdict,
+        school_id = EXCLUDED.school_id,
+        created_at = CURRENT_TIMESTAMP
+""", (
+    user_id,
+    task_id,
+    question_hash,
+    solution_text,
+    json.dumps(ai_verdict) if ai_verdict else None,
+    g.school_id
+))
+
                 conn.commit()
             finally:
                 conn.close()
@@ -2912,10 +2936,11 @@ def get_seating():
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("""
-            SELECT student_id, seat_row, seat_col
-            FROM public.student_seats
-            WHERE class_id = %s
-        """, (class_id,))
+    SELECT student_id, seat_row, seat_col
+    FROM public.student_seats
+    WHERE class_id = %s AND school_id = %s
+""", (class_id, g.school_id))
+
         rows = cur.fetchall()
         return jsonify({'seats': [dict(r) for r in rows]})
     finally:
@@ -2938,14 +2963,16 @@ def save_seating():
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # удаляем старую рассадку класса и записываем новую
-        cur.execute("DELETE FROM public.student_seats WHERE class_id = %s", (class_id,))
+        cur.execute("DELETE FROM public.student_seats WHERE class_id = %s AND school_id = %s", (class_id, g.school_id))
+
 
         # вставляем новую
         for s in seats:
             cur.execute("""
-                INSERT INTO public.student_seats (class_id, student_id, seat_row, seat_col)
-                VALUES (%s, %s, %s, %s)
-            """, (class_id, int(s['student_id']), int(s['seat_row']), int(s['seat_col'])))
+    INSERT INTO public.student_seats (class_id, student_id, seat_row, seat_col, school_id)
+    VALUES (%s, %s, %s, %s, %s)
+""", (class_id, int(s['student_id']), int(s['seat_row']), int(s['seat_col']), g.school_id))
+
 
         conn.commit()
         return jsonify({'success': True})
@@ -2980,7 +3007,7 @@ def update_student():
                 UPDATE users
                 SET full_name = %s,
                     username = %s,
-                    password = crypt(%s, gen_salt('bf'))
+                    
                 WHERE id = %s
             """, (full_name, username, password, student_id))
         else:

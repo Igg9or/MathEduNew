@@ -1,5 +1,10 @@
 console.log('student_lesson.js v5 loaded');
 
+const IS_SELF_WORK =
+  document.querySelector('.lesson-container')?.dataset.selfWork === 'true';
+
+
+
 // Глобальные переменные для модального окна перерешивания
 let currentRetryTaskCard = null;
 let currentRetryTaskId = null;
@@ -8,6 +13,14 @@ let currentRetryTaskId = null;
 const retryTaskCache = {};
 
 document.addEventListener('DOMContentLoaded', async function() {
+
+    if (IS_SELF_WORK) {
+  document.querySelectorAll(
+    '.btn-retry, .btn-ai-chat, .btn-hint'
+  ).forEach(btn => btn.remove());
+}
+
+
     // 1️⃣ Загружаем сохраненные ответы (дождёмся выполнения)
     await loadSavedAnswers();
 
@@ -432,6 +445,34 @@ await fetchRetryAISolution(
     // Функция проверки ответа (основная логика без изменений)
     // --- ОБНОВЛЁННАЯ ФУНКЦИЯ БЕЗ ПОТЕРИ ФУНКЦИОНАЛА ---
 async function checkAnswer(taskCard) {
+
+    if (IS_SELF_WORK) {
+  const taskId = taskCard.dataset.taskId;
+  const userAnswer = taskCard.querySelector('.answer-input').value.trim();
+
+  if (!userAnswer) {
+    alert("Введите ответ!");
+    return;
+  }
+
+  // 1️⃣ сохраняем ответ (без оценки)
+  await saveAnswerToServer(taskId, userAnswer, null);
+
+  // 2️⃣ скрытая проверка (ИИ, но без UI)
+  checkAnswerSilently(taskCard, userAnswer);
+
+  // 3️⃣ блокируем ввод
+  taskCard.querySelector('.answer-input').disabled = true;
+  taskCard.querySelector('.btn-check').disabled = true;
+
+  // 4️⃣ нейтральный статус
+  const status = taskCard.querySelector('.task-status');
+  if (status) status.textContent = 'Ответ сохранён';
+
+  return; // ⛔ дальше код НЕ идёт
+}
+
+
     const taskId = taskCard.dataset.taskId;
     let userAnswer = taskCard.querySelector('.answer-input').value.trim();
 
@@ -531,6 +572,11 @@ async function checkAnswer(taskCard) {
 
     // Функция показа результата
     function showResult(taskCard, isCorrect, userAnswer) {
+         if (IS_SELF_WORK) {
+    // В самостоятельной работе НИЧЕГО не показываем
+    return;
+  }
+
     const feedback = taskCard.querySelector('.task-feedback');
     const correctFeedback = taskCard.querySelector('.feedback-correct');
     const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
@@ -864,6 +910,11 @@ function removeTypingIndicator(node) {
 
     // === НОВАЯ ВЕРСИЯ ===
     async function fetchAISolution(taskCard, studentAnswer = '') {
+
+        if (IS_SELF_WORK) {
+    return; // ❌ ИИ-решение НИКОГДА не показываем
+  }
+  
   // Контейнер решения внутри карточки
   const feedbackBlock = taskCard.querySelector('.task-feedback') || taskCard;
   let solutionNode = feedbackBlock.querySelector('.ai-solution');
@@ -1181,6 +1232,42 @@ document.querySelectorAll('.btn-dispute').forEach(button => {
         }
     });
 });
+
+async function checkAnswerSilently(taskCard, studentAnswer) {
+  const taskId = taskCard.dataset.taskId;
+
+  const questionText = extractQuestionForAI(taskCard);
+  const correctAnswer = taskCard.dataset.correctAnswer;
+  const studentGrade = taskCard.dataset.grade;
+  const userId = taskCard.dataset.userId;
+
+  try {
+    const resp = await fetch('/api/ai_full_solution', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        task_id: taskId,
+        question: questionText,
+        correct_answer: correctAnswer,
+        student_answer: studentAnswer,
+        student_grade: studentGrade,
+        user_id: userId,
+        silent: true
+      })
+    });
+
+    const data = await resp.json();
+
+    if (data?.ai_verdict?.is_student_correct === true) {
+      await saveAnswerToServer(taskId, studentAnswer, true);
+    } else {
+      await saveAnswerToServer(taskId, studentAnswer, false);
+    }
+  } catch (e) {
+    console.error('Silent check error:', e);
+  }
+}
+
 
 document.querySelectorAll('.task-card').forEach(taskCard => {
   renderStudentLikePreview(taskCard);

@@ -71,24 +71,34 @@
     </div>
 
     <!-- Модальное окно создания урока -->
-    <div id="lessonModal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Создание нового урока</h2>
-            
-            <div class="form-group">
-                <label for="lessonTitle">Название урока:</label>
-                <input type="text" id="lessonTitle" placeholder="Введите название урока">
-            </div>
-            
-            <div class="form-group">
-                <label for="lessonDate">Дата урока:</label>
-                <input type="date" id="lessonDate" value="{{ today_date }}">
-            </div>
-            
-            <button id="saveLesson" class="btn btn-primary">Создать урок</button>
-        </div>
+    <!-- Модальное окно создания урока -->
+<div id="lessonModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Создание нового урока</h2>
+
+    <div class="form-group">
+      <label for="lessonTitle">Название урока:</label>
+      <input type="text" id="lessonTitle" placeholder="Введите название урока">
     </div>
+
+    <div class="form-group">
+      <label for="lessonDate">Дата урока:</label>
+      <input type="date" id="lessonDate" value="{{ today_date }}">
+    </div>
+
+    <!-- ✅ ВОТ ЗДЕСЬ чекбокс -->
+    <div class="form-group self-work-toggle">
+      <label class="self-work-label">
+        <input type="checkbox" id="isSelfWork">
+        <span>Самостоятельная работа (без подсказок)</span>
+      </label>
+    </div>
+
+    <button id="saveLesson" class="btn btn-primary">Создать урок</button>
+  </div>
+</div>
+
 
     <script src="{{ url_for('static', filename='js/teacher.js') }}"></script>
 </body>
