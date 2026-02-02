@@ -53,6 +53,8 @@ class TaskGenerator:
         for param, value in params.items():
             question = re.sub(rf"\{{{param}\}}", str(value), question)
 
+        question = re.sub(r'(?<!\d)1([a-zA-Z])', r'\1', question)
+
         # -------------------------
         # 3. Подстановка в ответ
         # -------------------------

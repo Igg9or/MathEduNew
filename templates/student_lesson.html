@@ -18,7 +18,8 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    <div class="lesson-container">
+    <div class="lesson-container" data-self-work="{{ 'true' if is_self_work else 'false' }}">
+
         <header class="lesson-header">
             <div class="header-content">
                 <h1>{{ lesson.title }}</h1>

@@ -54,45 +54,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 5. Сохранение урока
-    saveLessonBtn.addEventListener('click', async function() {
-        const title = document.getElementById('lessonTitle').value.trim();
-        const date = document.getElementById('lessonDate').value;
-        
-        if (!title) {
-            alert('Введите название урока');
-            return;
+    saveLessonBtn.addEventListener('click', async function () {
+    const title = document.getElementById('lessonTitle').value.trim();
+    const date = document.getElementById('lessonDate').value;
+    const isSelfWork = document.getElementById('isSelfWork')?.checked || false;
+
+    if (!title) {
+        alert('Введите название урока');
+        return;
+    }
+
+    try {
+        const response = await fetch('/teacher/create_lesson', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                grade: `${selectedGrade}${selectedLetter}`,
+                title: title,
+                date: date,
+                is_self_work: isSelfWork
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Ошибка сервера');
         }
 
-        try {
-            const response = await fetch('/teacher/create_lesson', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    grade: `${selectedGrade}${selectedLetter}`,
-                    title: title,
-                    date: date
-                })
-            });
-
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Ошибка сервера');
-            }
-
-            if (data.success && data.lesson_id) {
-                // Перенаправляем на страницу редактирования
-                window.location.href = `/teacher/edit_lesson/${data.lesson_id}`;
-            } else {
-                throw new Error('Не удалось создать урок');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert(`Ошибка создания урока: ${error.message}`);
+        if (data.success && data.lesson_id) {
+            window.location.href = `/teacher/edit_lesson/${data.lesson_id}`;
+        } else {
+            throw new Error('Не удалось создать урок');
         }
-    });
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Ошибка создания урока: ${error.message}`);
+    }
+});
 
     // Функция для загрузки уроков класса
     async function loadLessons(grade, letter) {
