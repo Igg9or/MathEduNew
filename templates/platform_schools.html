@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Школы</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#4f46e5;
+      --primaryHover:#4338ca;
+      --shadow:0 8px 24px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:36px 18px;
+    }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h1{
+      margin:0 0 18px;
+      font-size: 28px;
+      letter-spacing: .2px;
+    }
+    h2{
+      margin:0 0 14px;
+      font-size: 18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+    }
+    @media (min-width: 900px){
+      .grid{
+        grid-template-columns: 420px 1fr;
+        align-items:start;
+      }
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid var(--line);
+      padding:18px;
+    }
+
+    .flash{
+      margin: 0 0 16px;
+      padding:12px 14px;
+      border-radius: 10px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .flash ul{ margin:0; padding-left:18px; }
+    .flash li{ margin:6px 0; }
+    .flash b{ text-transform: uppercase; font-size: 12px; color: var(--muted); }
+
+    form .row{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:12px;
+    }
+    label{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus{
+      border-color: rgba(79,70,229,.6);
+      box-shadow: 0 0 0 4px rgba(79,70,229,.12);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:10px;
+      border:0;
+      background:var(--primary);
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      width:100%;
+    }
+    .btn:hover{ background:var(--primaryHover); }
+
+    ul.schools{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .school-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fafafa;
+    }
+    .school-left{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .school-title{
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 520px;
+    }
+    .school-sub{
+      font-size:13px;
+      color:var(--muted);
+    }
+    a.link{
+      text-decoration:none;
+      color:var(--primary);
+      font-weight:800;
+      white-space:nowrap;
+    }
+    a.link:hover{ text-decoration:underline; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>🏫 Школы (platform_admin)</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          <ul>
+            {% for cat,msg in messages %}
+              <li><b>{{cat}}:</b> {{msg}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+      <div class="card">
+        <h2>➕ Создать школу</h2>
+
+        <form method="post">
+          <input type="hidden" name="action" value="create_school">
+
+          <div class="row">
+            <label>Название</label>
+            <input name="name" placeholder="Например: Школа №17" required>
+          </div>
+
+          <div class="row">
+            <label>Город</label>
+            <input name="city" placeholder="Например: Москва">
+          </div>
+
+          <button class="btn" type="submit">Создать</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>📋 Список школ</h2>
+
+        <ul class="schools">
+          {% for s in schools %}
+            <li class="school-item">
+              <div class="school-left">
+                <div class="school-title">#{{s.id}} — {{s.name}}</div>
+                <div class="school-sub">{{ s.city if s.city else "—" }}</div>
+              </div>
+
+              <!-- ВАЖНО: endpoint как у тебя, НЕ меняем -->
+              <a class="link" href="{{ url_for('platform_admin.school_detail', school_id=s.id) }}">
+                Открыть →
+              </a>
+            </li>
+          {% else %}
+            <li class="school-item">
+              <div class="school-left">
+                <div class="school-title">Пока нет школ</div>
+                <div class="school-sub">Создай первую слева</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -39,6 +39,9 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 from devtools.playground_routes import playground_bp
 app.register_blueprint(playground_bp, url_prefix="/api/dev")
+from platform_admin_routes import platform_admin_bp
+app.register_blueprint(platform_admin_bp, url_prefix="/platform")
+
 
 
 def verify_password(conn, stored_hash: str, plain_password: str) -> bool:
@@ -128,11 +131,12 @@ def login():
         if user:
             print("STORED HASH:", user['password'])
             try:
-                result = check_password_hash(user['password'], password)
+                result = verify_password(conn, user['password'], password)
                 print("PASSWORD CHECK RESULT:", result)
             except Exception as e:
                 print("PASSWORD CHECK ERROR:", e)
                 result = False
+
         else:
             result = False
 
@@ -147,11 +151,15 @@ def login():
 
             print("LOGIN SUCCESS")
 
-            return redirect(
-                url_for('student_dashboard')
-                if user['role'] == 'student'
-                else url_for('teacher_dashboard')
-            )
+            if user['role'] == 'student':
+                return redirect(url_for('student_dashboard'))
+
+            elif user['role'] == 'platform_admin':
+                return redirect(url_for('platform_admin.schools_page'))
+
+            else:
+                # teacher и admin
+                return redirect(url_for('teacher_dashboard'))
 
         print("LOGIN FAILED")
         return render_template('auth.html', error="Неверное имя пользователя или пароль")
@@ -161,30 +169,36 @@ def login():
 
 def verify_password(conn, stored_hash: str, plain_password: str) -> bool:
     """
-    Поддерживает:
-    - werkzeug pbkdf2:sha256
-    - PostgreSQL scrypt / crypt
+    Поддержка ВСЕХ форматов:
+    - werkzeug: scrypt
+    - werkzeug: pbkdf2
+    - PostgreSQL crypt() (bcrypt, md5, etc)
     """
-    # 1️⃣ Werkzeug (pbkdf2)
-    if stored_hash.startswith("pbkdf2:"):
-        return check_password_hash(stored_hash, plain_password)
 
-    # 2️⃣ PostgreSQL crypt / scrypt
-    cur = conn.cursor()
-    cur.execute("SELECT crypt(%s, %s) = %s", (plain_password, stored_hash, stored_hash))
-    ok = cur.fetchone()[0]
-    cur.close()
-    return bool(ok)
+    if not stored_hash:
+        return False
 
+    # 1️⃣ Werkzeug (scrypt, pbkdf2 и будущие)
+    if stored_hash.startswith(("scrypt:", "pbkdf2:")):
+        try:
+            return check_password_hash(stored_hash, plain_password)
+        except Exception as e:
+            print("Werkzeug hash check error:", e)
+            return False
 
-@app.route("/debug/session")
-def debug_session():
-    return jsonify({
-        "user_id": session.get("user_id"),
-        "role": session.get("role"),
-        "school_id": session.get("school_id"),
-        "g_school_id": getattr(g, "school_id", None)
-    })
+    # 2️⃣ PostgreSQL crypt (старые пароли)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT crypt(%s, %s) = %s",
+            (plain_password, stored_hash, stored_hash)
+        )
+        ok = cur.fetchone()[0]
+        cur.close()
+        return bool(ok)
+    except Exception as e:
+        print("Postgres crypt check error:", e)
+        return False
 
 
 
@@ -326,8 +340,9 @@ def edit_lesson(lesson_id):
         # --------------------------------------------------
         cursor.execute('''
     SELECT *
-    FROM textbooks
-    WHERE school_id = %s
+FROM textbooks
+WHERE school_id IS NULL OR school_id = %s
+
     ORDER BY id, title
 ''', (g.school_id,))
 
@@ -1223,7 +1238,13 @@ def manage_tasks():
     conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM textbooks WHERE school_id = %s ORDER BY grade, title', (g.school_id,))
+        cursor.execute("""
+    SELECT *
+    FROM textbooks
+    WHERE school_id IS NULL OR school_id = %s
+    ORDER BY grade, title
+""", (g.school_id,))
+
 
         textbooks = cursor.fetchall()
         cursor.close()
@@ -1236,7 +1257,6 @@ def manage_tasks():
     finally:
         conn.close()
 
-
 @app.route('/teacher/manage_tasks/<int:textbook_id>')
 def textbook_tasks(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1246,36 +1266,69 @@ def textbook_tasks(textbook_id):
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # Получаем учебник
-        cursor.execute('SELECT * FROM textbooks WHERE id = %s AND school_id = %s', (textbook_id, g.school_id))
+        # 1️⃣ Получаем учебник (ГЛОБАЛЬНЫЙ)
+        cursor.execute("""
+            SELECT *
+            FROM textbooks
+            WHERE id = %s
+              AND school_id IS NULL
+        """, (textbook_id,))
 
         textbook = cursor.fetchone()
         if not textbook:
-            cursor.close()
             flash('Учебник не найден', 'error')
             return redirect(url_for('manage_tasks'))
-        
-        # Получаем шаблоны заданий с нумерацией
-        cursor.execute('''
-    SELECT *, ROW_NUMBER() OVER (ORDER BY id) as task_number
-    FROM task_templates
-    WHERE textbook_id = %s AND school_id = %s
-    ORDER BY id
-''', (textbook_id, g.school_id))
+
+        # 2️⃣ Получаем шаблоны заданий (ТОЛЬКО ГЛОБАЛЬНЫЕ)
+        cursor.execute("""
+            SELECT *,
+                   ROW_NUMBER() OVER (ORDER BY id) AS task_number
+            FROM task_templates
+            WHERE textbook_id = %s
+              AND school_id IS NULL
+            ORDER BY id
+        """, (textbook_id,))
 
         templates = cursor.fetchall()
-        
-        cursor.close()
+
         return render_template(
-            'textbook_tasks.html', 
+            'textbook_tasks.html',
             full_name=session['full_name'],
             textbook=dict(textbook),
             templates=templates
         )
+
     except Exception as e:
         print(f"Error loading textbook tasks: {e}")
         flash('Произошла ошибка при загрузке заданий', 'error')
         return redirect(url_for('manage_tasks'))
+    finally:
+        conn.close()
+
+@app.route('/api/textbooks/<int:textbook_id>/templates')
+def api_textbook_templates(textbook_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cursor.execute("""
+            SELECT id, name,
+                   question_template, answer_template, parameters
+            FROM task_templates
+            WHERE textbook_id = %s
+              AND school_id IS NULL
+            ORDER BY id
+        """, (textbook_id,))
+
+        templates = [dict(t) for t in cursor.fetchall()]
+
+        return jsonify({
+            'success': True,
+            'templates': templates
+        })
     finally:
         conn.close()
 
@@ -1291,18 +1344,17 @@ def add_task_template():
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
-            INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters, school_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-        ''', (
-            data['textbook_id'],
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters']),
-            g.school_id
-        ))
+    INSERT INTO task_templates 
+    (textbook_id, name, question_template, answer_template, parameters, school_id)
+    VALUES (%s, %s, %s, %s, %s, NULL)
+    RETURNING id
+''', (
+    data['textbook_id'],
+    data['name'],
+    data['question_template'],
+    data['answer_template'],
+    json.dumps(data['parameters'])
+))
         template_id = cursor.fetchone()[0]
 
         
@@ -1327,21 +1379,19 @@ def update_task_template(template_id):
     conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('''
+        cursor.execute("""
     UPDATE task_templates SET
         name = %s,
         question_template = %s,
         answer_template = %s,
         parameters = %s
     WHERE id = %s
-      AND school_id = %s
-''', (
+""", (
     data['name'],
     data['question_template'],
     data['answer_template'],
     json.dumps(data['parameters']),
-    template_id,
-    g.school_id
+    template_id
 ))
 
         
@@ -1361,7 +1411,11 @@ def delete_task_template(template_id):
     conn = get_db()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('DELETE FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+        cursor.execute(
+    'DELETE FROM task_templates WHERE id = %s',
+    (template_id,)
+)
+
 
         conn.commit()
         return jsonify({'success': True})
@@ -1390,7 +1444,8 @@ def add_textbook():
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('''
             INSERT INTO textbooks (title, description, grade, school_id)
-            VALUES (%s, %s, %s, %s)
+VALUES (%s, %s, %s, NULL)
+
             RETURNING id
         ''', (title, description, grade, g.school_id))
         textbook_id = cursor.fetchone()[0]
@@ -1399,7 +1454,7 @@ def add_textbook():
         conn.commit()
         return jsonify({
             'success': True,
-            'textbook_id': cursor.lastrowid
+            'textbook_id': textbook_id
         })
     except sqlite3.IntegrityError:
         return jsonify({'success': False, 'error': 'Учебник с таким названием и классом уже существует'})
@@ -1439,16 +1494,16 @@ def save_template():
         cursor.execute('''
     INSERT INTO task_templates
     (textbook_id, name, question_template, answer_template, parameters, school_id)
-    VALUES (%s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, NULL)
     RETURNING id
 ''', (
     data['textbook_id'],
     data['name'],
     data['question'],
     data['answer'],
-    json.dumps(data['parameters']),
-    g.school_id
+    json.dumps(data['parameters'])
 ))
+
 
         template_id = cursor.fetchone()[0]
         conn.commit()
@@ -1489,31 +1544,6 @@ def natural_key(s: str):
     return tuple(key)
 
 
-@app.route('/api/textbooks/<int:textbook_id>/templates')
-def get_templates(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('''
-    SELECT id, name, question_template, answer_template, parameters
-    FROM task_templates
-    WHERE textbook_id = %s AND school_id = %s
-''', (textbook_id, g.school_id))
-
-        templates = [dict(t) for t in cursor.fetchall()]
-        cursor.close()
-
-        # Натуральная сортировка: 1.4 < 1.30, 1а после 1, и т.д.
-        templates.sort(key=lambda t: natural_key(t['name']))
-
-        return jsonify({'success': True, 'templates': templates})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-    finally:
-        conn.close()
 
 
 def get_textbook_templates(textbook_id):
@@ -1546,7 +1576,7 @@ def delete_templates(template_id):
     conn = get_db()
     try:
         cur = conn.cursor()
-        cur.execute('DELETE FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+        cur.execute('DELETE FROM task_templates WHERE id = %s ', (template_id, g.school_id))
         deleted = cur.rowcount
         conn.commit()
         cur.close()
@@ -1572,13 +1602,14 @@ def get_template(template_id):
 
     conn = get_db()
     try:
-        # ОТКРЫВАЕМ КУРСОР
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('''
-    SELECT id, textbook_id, name, question_template, answer_template, parameters
-    FROM task_templates
-    WHERE id = %s AND school_id = %s
-''', (template_id, g.school_id))
+
+        cursor.execute("""
+            SELECT id, textbook_id, name,
+                   question_template, answer_template, parameters
+            FROM task_templates
+            WHERE id = %s
+        """, (template_id,))
 
         template = cursor.fetchone()
         cursor.close()
@@ -1590,10 +1621,9 @@ def get_template(template_id):
             'success': True,
             'template': dict(template)
         })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
+
 
 
 def compare_expressions(ans1, ans2):
@@ -1625,7 +1655,10 @@ def generate_task():
     template_id = data.get('template_id')
     
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute('SELECT * FROM task_templates WHERE id = %s AND school_id = %s', (template_id, g.school_id))
+    cur.execute(
+    'SELECT * FROM task_templates WHERE id = %s',
+    (template_id,)
+)
     template = cur.fetchone()
 
     if not template:
@@ -3027,6 +3060,45 @@ def update_student():
         conn.close()
 
 
+
+@app.route('/teacher/create_class', methods=['POST'])
+def create_class():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    grade = data.get('grade')
+    letter = (data.get('letter') or '').strip().upper()
+
+    if not grade or not letter:
+        return jsonify({'success': False, 'error': 'Invalid data'}), 400
+
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO classes (grade, letter, school_id)
+            VALUES (%s, %s, %s)
+            RETURNING id
+        """, (int(grade), letter, g.school_id))
+
+        class_id = cur.fetchone()[0]
+        conn.commit()
+
+        return jsonify({
+            'success': True,
+            'class': {
+                'id': class_id,
+                'grade': grade,
+                'letter': letter
+            }
+        })
+    except psycopg2.IntegrityError:
+        conn.rollback()
+        return jsonify({'success': False, 'error': 'Класс уже существует'}), 400
+    finally:
+        conn.close()
 
 
 

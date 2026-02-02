@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ school.name }}</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#4f46e5;
+      --primaryHover:#4338ca;
+      --success:#16a34a;
+      --successHover:#15803d;
+      --shadow:0 8px 24px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:36px 18px;
+    }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    a.back{
+      text-decoration:none;
+      color:var(--primary);
+      font-weight:800;
+    }
+    a.back:hover{ text-decoration:underline; }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid var(--line);
+      padding:18px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size: 26px;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin:0;
+    }
+
+    h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    .flash{
+      margin: 0 0 16px;
+      padding:12px 14px;
+      border-radius: 10px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .flash ul{ margin:0; padding-left:18px; }
+    .flash li{ margin:6px 0; }
+    .flash b{ text-transform: uppercase; font-size: 12px; color: var(--muted); }
+
+    form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      align-items:end;
+    }
+    @media (min-width: 900px){
+      form{
+        grid-template-columns: 180px 1fr 1fr 1fr auto;
+      }
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus, select:focus{
+      border-color: rgba(79,70,229,.6);
+      box-shadow: 0 0 0 4px rgba(79,70,229,.12);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:10px;
+      border:0;
+      background:var(--success);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+      width:100%;
+      height: 42px;
+    }
+    .btn:hover{ background:var(--successHover); }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    th, td{
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      font-size:14px;
+    }
+    th{
+      background:#f9fafb;
+      color:#374151;
+      font-weight:800;
+      font-size:13px;
+    }
+    tr:last-child td{ border-bottom:0; }
+    .role-badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:#f3f4f6;
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <!-- ВАЖНО: endpoint как у тебя, НЕ меняем -->
+    <a class="back" href="{{ url_for('platform_admin.schools_page') }}">← назад к школам</a>
+  </div>
+
+  <div class="card">
+    <h1>{{ school.name }}</h1>
+    <p class="subtitle">{% if school.city %}{{ school.city }}{% else %}—{% endif %}</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash">
+        <ul>
+          {% for cat,msg in messages %}
+            <li><b>{{cat}}:</b> {{msg}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <h2>➕ Добавить учителя / школьного админа</h2>
+
+    <form method="post">
+      <input type="hidden" name="action" value="create_user">
+
+      <div>
+        <label>Роль</label>
+        <select name="role" required>
+          <option value="teacher">teacher</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+
+      <div>
+        <label>ФИО</label>
+        <input name="full_name" placeholder="Иванов Иван Иванович" required>
+      </div>
+
+      <div>
+        <label>Username</label>
+        <input name="username" placeholder="Уникален на всю платформу" required>
+      </div>
+
+      <div>
+        <label>Пароль</label>
+        <input name="password" placeholder="Например: qwerty123" required>
+      </div>
+
+      <button class="btn" type="submit">Создать</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>👥 Учителя и админы школы</h2>
+
+    <table>
+      <tr>
+        <th>ID</th><th>Role</th><th>ФИО</th><th>Username</th>
+      </tr>
+
+      {% for u in staff %}
+        <tr>
+          <td>{{u.id}}</td>
+          <td><span class="role-badge">{{u.role}}</span></td>
+          <td>{{u.full_name}}</td>
+          <td>{{u.username}}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="4">Пока никто не добавлен</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

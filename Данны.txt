@@ -13,36 +13,260 @@ ON DELETE CASCADE;
 # sudo -u postgres psql mathdbnew
 systemctl restart urok
 
-ALTER TABLE lessons
-ADD COLUMN is_self_work BOOLEAN NOT NULL DEFAULT false;
 
 
 
 
+CREATE TABLE IF NOT EXISTS schools (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    city TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 
 
+-- 1. убедимся, что в classes есть уникальная пара (id, school_id)
+ALTER TABLE classes
+ADD CONSTRAINT classes_id_school_unique UNIQUE (id, school_id);
+
+-- 2. удаляем старый FK
+ALTER TABLE users DROP CONSTRAINT users_class_id_fkey;
+
+-- 3. добавляем безопасный FK
+ALTER TABLE users
+ADD CONSTRAINT users_class_school_fk
+FOREIGN KEY (class_id, school_id)
+REFERENCES classes (id, school_id)
+ON DELETE SET NULL;
 
 
-WITH ordered AS (
-  SELECT id,
-         ROW_NUMBER() OVER (
-           PARTITION BY lesson_id
-           ORDER BY id
-         ) AS rn
-  FROM lesson_tasks
-  WHERE position IS NULL
+ALTER TABLE classes
+ADD CONSTRAINT classes_unique_per_school
+UNIQUE (school_id, grade, letter);
+
+
+ALTER TABLE users
+ADD CONSTRAINT users_role_check
+CHECK (role IN ('platform_admin','admin','teacher','student'));
+
+
+-- Посмотри, есть ли platform_admin
+SELECT id, username, role FROM users WHERE role='platform_admin';
+
+-- Если нет — создай. Пароль вставь уже ХЕШ (проще через твой generate_password_hash в питоне).
+
+
+INSERT INTO schools (name, city) VALUES ('System school', '—');
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+INSERT INTO users (
+    username,
+    password,
+    role,
+    full_name,
+    school_id
 )
-UPDATE lesson_tasks
-SET position = ordered.rn
-FROM ordered
-WHERE lesson_tasks.id = ordered.id;
+VALUES (
+    'root',
+    crypt('admin123', gen_salt('bf')),
+    'platform_admin',
+    'Platform Admin',
+    1
+);
 
-ALTER TABLE lesson_tasks
-ALTER COLUMN position SET DEFAULT 1;
+ALTER TABLE public.users
+ADD COLUMN school_id INTEGER;
 
-ALTER TABLE lesson_tasks
+UPDATE public.users
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.users
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.subjects
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.subjects
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.subjects
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.classes
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.classes
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.classes
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.lessons
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.lessons
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.lessons
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.lessons
+ADD COLUMN is_self_work BOOLEAN NOT NULL DEFAULT FALSE;
+
+
+ALTER TABLE public.lesson_tasks
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.lesson_tasks
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.lesson_tasks
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.lesson_tasks
+ADD COLUMN position INTEGER;
+
+UPDATE public.lesson_tasks
+SET position = id
+WHERE position IS NULL;
+
+ALTER TABLE public.lesson_tasks
 ALTER COLUMN position SET NOT NULL;
 
-CREATE INDEX idx_lesson_tasks_lesson_position
-ON lesson_tasks (lesson_id, position);
+
+ALTER TABLE public.textbooks
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.textbooks
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.textbooks
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.task_templates
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.task_templates
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.task_templates
+ALTER COLUMN school_id SET NOT NULL;
+
+
+ALTER TABLE public.lesson_templates
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.lesson_templates
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.lesson_templates
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+ALTER TABLE public.student_answers
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.student_answers
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.student_answers
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+ALTER TABLE public.student_task_variants
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.student_task_variants
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.student_task_variants
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+ALTER TABLE public.student_progress
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.student_progress
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.student_progress
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+ALTER TABLE public.ai_solution_cache
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.ai_solution_cache
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.ai_solution_cache
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+ALTER TABLE public.student_seats
+ADD COLUMN school_id INTEGER;
+
+UPDATE public.student_seats
+SET school_id = 1
+WHERE school_id IS NULL;
+
+ALTER TABLE public.student_seats
+ALTER COLUMN school_id SET NOT NULL;
+
+
+
+
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON TABLE schools
+TO mathuser;
+
+
+GRANT USAGE, SELECT
+ON ALL SEQUENCES IN SCHEMA public
+TO mathuser;
+
+
+ALTER TABLE textbooks
+ALTER COLUMN school_id DROP NOT NULL;
+
+ALTER TABLE task_templates
+ALTER COLUMN school_id DROP NOT NULL;
+
+UPDATE textbooks
+SET school_id = NULL;
+
+
+UPDATE task_templates
+SET school_id = NULL;
+
+
+UPDATE task_templates SET school_id = NULL;
+UPDATE textbooks SET school_id = NULL;
+
+

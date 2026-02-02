@@ -15,6 +15,91 @@ document.addEventListener('DOMContentLoaded', function () {
   let seating = {};
   let draggedStudentId = null;
 
+    /* =========================
+     ДОБАВЛЕНИЕ УЧЕНИКА
+     ========================= */
+  addStudentBtn.addEventListener('click', () => {
+    const fullName = document.getElementById('newStudentName').value.trim();
+    const username = document.getElementById('newStudentLogin').value.trim();
+    const password = document.getElementById('newStudentPassword').value.trim();
+    const classId = classSelect.value;
+
+    if (!fullName || !username || !password) {
+      alert('Заполните ФИО, логин и пароль');
+      return;
+    }
+
+    fetch('/teacher/add_student', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: fullName,
+        username,
+        password,
+        class_id: classId
+      })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) {
+          alert(data.error || 'Ошибка добавления ученика');
+          return;
+        }
+
+        // очищаем форму
+        document.getElementById('newStudentName').value = '';
+        document.getElementById('newStudentLogin').value = '';
+        document.getElementById('newStudentPassword').value = '';
+
+        // перезагружаем список
+        loadStudents(classId);
+      });
+  });
+
+  
+    /* =========================
+     ДОБАВЛЕНИЕ КЛАССА
+     ========================= */
+  const createClassBtn = document.getElementById('createClassBtn');
+
+  if (createClassBtn) {
+    createClassBtn.addEventListener('click', () => {
+      const grade = document.getElementById('newClassGrade').value;
+      const letter = document.getElementById('newClassLetter').value.trim().toUpperCase();
+
+      if (!grade || !letter) {
+        alert('Введите номер и букву класса');
+        return;
+      }
+
+      fetch('/teacher/create_class', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grade, letter })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (!data.success) {
+            alert(data.error || 'Ошибка');
+            return;
+          }
+
+          const opt = document.createElement('option');
+          opt.value = data.class.id;
+          opt.textContent = `${data.class.grade}${data.class.letter}`;
+          classSelect.appendChild(opt);
+
+          classSelect.value = data.class.id;
+          loadStudents(data.class.id);
+
+          document.getElementById('newClassGrade').value = '';
+          document.getElementById('newClassLetter').value = '';
+        });
+    });
+  }
+
+
+
   /* =========================
      ОЦЕНКА
      ========================= */
@@ -362,3 +447,4 @@ document.addEventListener('DOMContentLoaded', function () {
     loadStudents(classSelect.value);
   }
 });
+

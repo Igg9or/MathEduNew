@@ -25,6 +25,33 @@
     <!-- ===== CONTENT ===== -->
     <main class="manage-students-container">
 
+        <section class="class-create">
+    <h3>Добавить класс</h3>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+        <input id="newClassGrade"
+               type="number"
+               min="1"
+               max="11"
+               placeholder="Класс"
+               class="form-control"
+               style="width:120px;">
+
+        <input id="newClassLetter"
+               type="text"
+               maxlength="1"
+               placeholder="Буква"
+               class="form-control"
+               style="width:120px;">
+
+        <button id="createClassBtn"
+                class="btn btn-success">
+            ➕ Добавить
+        </button>
+    </div>
+</section>
+
+
         <!-- Выбор класса -->
         <section class="class-selection">
             <h3>Выберите класс</h3>
