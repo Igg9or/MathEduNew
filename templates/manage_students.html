@@ -149,9 +149,19 @@
                        class="form-control"
                        placeholder="Логин">
 
-                <input type="password" id="newStudentPassword"
-                       class="form-control"
-                       placeholder="Пароль">
+                <div style="display:flex; gap:10px; align-items:center;">
+    <input type="text"
+           id="newStudentPassword"
+           class="form-control"
+           placeholder="Пароль">
+
+    <button type="button"
+            id="generatePasswordBtn"
+            class="btn btn-secondary">
+        🔑 Сгенерировать
+    </button>
+</div>
+
 
                 <button id="addStudentBtn"
                         class="btn btn-success btn-wide">

@@ -269,4 +269,6 @@ SET school_id = NULL;
 UPDATE task_templates SET school_id = NULL;
 UPDATE textbooks SET school_id = NULL;
 
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
+pip install unidecode

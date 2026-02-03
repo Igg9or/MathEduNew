@@ -27,6 +27,8 @@ from dotenv import load_dotenv
 import requests
 import hashlib
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify, g
+from username_generator import generate_unique_username
+from services.password_generator import generate_password
 
 
 
@@ -637,47 +639,66 @@ def add_student():
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.get_json() or {}
-    username = (data.get('username') or '').strip()
-    password = (data.get('password') or '').strip()
+
     full_name = (data.get('full_name') or '').strip()
     class_id = data.get('class_id')
+    teacher_password = (data.get('password') or '').strip()
 
-    if not username or not password or not full_name or not class_id:
+    if not full_name or not class_id:
         return jsonify({'success': False, 'error': 'Invalid payload'}), 400
 
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    try:
-        # 1) убеждаемся, что класс принадлежит школе учителя
-        cursor.execute("""
-            SELECT 1
-            FROM classes
-            WHERE id = %s AND school_id = %s
-        """, (class_id, g.school_id))
-        if not cursor.fetchone():
-            return jsonify({'success': False, 'error': 'Class not found in your school'}), 403
 
-        # 2) создаём ученика
-        cursor.execute('''
+    try:
+        # 🔹 логин (как раньше)
+        username = generate_unique_username(conn, full_name)
+
+        # 🔹 пароль: либо от учителя, либо авто
+        if teacher_password:
+            plain_password = teacher_password
+            password_was_generated = False
+        else:
+            plain_password = generate_password()
+            password_was_generated = True
+
+        cursor.execute("""
             INSERT INTO users (username, password, role, full_name, class_id, school_id)
             VALUES (%s, %s, 'student', %s, %s, %s)
-        ''', (
+        """, (
             username,
-            generate_password_hash(password),
+            generate_password_hash(plain_password),
             full_name,
             class_id,
             g.school_id
         ))
+
         conn.commit()
-        return jsonify({'success': True})
+
+        # 🔹 ответ
+        response = {
+            'success': True,
+            'username': username
+        }
+
+        # показываем пароль ТОЛЬКО если он был сгенерирован
+        if password_was_generated:
+            response['password'] = plain_password
+
+        return jsonify(response)
+
     except psycopg2.IntegrityError:
         conn.rollback()
-        return jsonify({'success': False, 'error': 'Логин уже существует'}), 400
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': 'Логин уже существует. Попробуйте другой.'
+        }), 409
+
     finally:
         conn.close()
+
+
+
 
 
 @app.route('/teacher/delete_student/<int:student_id>', methods=['DELETE'])
@@ -3100,6 +3121,24 @@ def create_class():
     finally:
         conn.close()
 
+
+@app.route('/teacher/suggest_username', methods=['POST'])
+def suggest_username():
+    if session.get('role') != 'teacher':
+        return jsonify({'error': 'Forbidden'}), 403
+
+    data = request.get_json()
+    full_name = data.get('full_name', '').strip()
+
+    if not full_name:
+        return jsonify({}), 400
+
+    conn = get_db()
+    try:
+        username = generate_unique_username(conn, full_name)
+        return jsonify({'username': username})
+    finally:
+        conn.close()
 
 
 

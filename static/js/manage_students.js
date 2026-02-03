@@ -15,6 +15,55 @@ document.addEventListener('DOMContentLoaded', function () {
   let seating = {};
   let draggedStudentId = null;
 
+
+  const nameInput = document.getElementById('newStudentName');
+const loginInput = document.getElementById('newStudentLogin');
+const passwordInput = document.getElementById('newStudentPassword');
+const generatePasswordBtn = document.getElementById('generatePasswordBtn');
+
+
+let loginTouched = false;
+
+// если учитель сам начал править логин — не затираем
+loginInput.addEventListener('input', () => {
+  loginTouched = true;
+});
+
+nameInput.addEventListener('blur', () => {
+  if (loginTouched) return;
+
+  const fullName = nameInput.value.trim();
+  if (!fullName) return;
+
+  fetch('/teacher/suggest_username', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ full_name: fullName })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.username) {
+        loginInput.value = data.username;
+      }
+    });
+});
+
+
+function generatePassword() {
+  const words = ['sun', 'fox', 'math', 'star', 'book', 'tree', 'code'];
+  const word = words[Math.floor(Math.random() * words.length)];
+  const number = Math.floor(100 + Math.random() * 900);
+  return `${word}-${number}`;
+}
+
+if (generatePasswordBtn) {
+  generatePasswordBtn.addEventListener('click', () => {
+    passwordInput.value = generatePassword();
+    passwordInput.focus();
+  });
+}
+
+
     /* =========================
      ДОБАВЛЕНИЕ УЧЕНИКА
      ========================= */
@@ -24,10 +73,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const password = document.getElementById('newStudentPassword').value.trim();
     const classId = classSelect.value;
 
-    if (!fullName || !username || !password) {
-      alert('Заполните ФИО, логин и пароль');
-      return;
-    }
+    if (!fullName || !username) {
+  alert('Заполните ФИО и логин');
+  return;
+}
 
     fetch('/teacher/add_student', {
       method: 'POST',
@@ -41,19 +90,29 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(r => r.json())
       .then(data => {
-        if (!data.success) {
-          alert(data.error || 'Ошибка добавления ученика');
-          return;
-        }
+  if (!data.success) {
+    alert(data.error || 'Ошибка добавления ученика');
+    return;
+  }
 
-        // очищаем форму
-        document.getElementById('newStudentName').value = '';
-        document.getElementById('newStudentLogin').value = '';
-        document.getElementById('newStudentPassword').value = '';
+  let msg = "Ученик создан!\n\n" +
+            "Логин: " + data.username;
 
-        // перезагружаем список
-        loadStudents(classId);
-      });
+  if (data.password) {
+    msg += "\nПароль: " + data.password +
+           "\n\n⚠️ Пароль был сгенерирован автоматически. Сохраните его.";
+  }
+
+  alert(msg);
+
+  document.getElementById('newStudentName').value = '';
+  document.getElementById('newStudentLogin').value = '';
+  document.getElementById('newStudentPassword').value = '';
+  loginTouched = false;
+
+  loadStudents(classId);
+});
+
   });
 
   
