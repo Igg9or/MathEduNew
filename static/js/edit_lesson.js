@@ -17,17 +17,22 @@ document.addEventListener('DOMContentLoaded', function () {
   ================================= */
 
   function renderTaskPreview(taskCard) {
-    const textarea = taskCard.querySelector('.task-question');
-    const preview = taskCard.querySelector('.task-question-preview');
-    if (!textarea || !preview) return;
+  const textarea = taskCard.querySelector('.task-question');
+  const preview = taskCard.querySelector('.task-question-preview');
+  if (!textarea || !preview) return;
 
-    const html = (textarea.value || '').trim();
-    preview.innerHTML = html || '<em style="color:#999">Нет текста задания</em>';
+  let html = (textarea.value || '').trim();
 
-    if (window.MathJax?.typesetPromise) {
-      MathJax.typesetPromise([preview]);
-    }
+  // ✅ ВАЖНО: нормализуем ТОЛЬКО для отображения
+  html = normalizePlusMinus(html);
+
+  preview.innerHTML = html || '<em style="color:#999">Нет текста задания</em>';
+
+  if (window.MathJax?.typesetPromise) {
+    MathJax.typesetPromise([preview]);
   }
+}
+
 
   function syncPreviewToTextarea() {
     document.querySelectorAll('.task-card').forEach(card => {
@@ -39,6 +44,23 @@ document.addEventListener('DOMContentLoaded', function () {
       if (html) textarea.value = html;
     });
   }
+
+
+  function normalizePlusMinus(expr) {
+  if (!expr) return expr;
+
+  let s = String(expr);
+
+  // Меняем " + -27" → " − 27", но НЕ трогаем +(-27), * -27 и т.п.
+  s = s.replace(
+    /(\s|^)\+\s*-(\s*[0-9a-zA-Z\\])/g,
+    (_, before, value) => `${before}− ${value}`
+  );
+
+  return s;
+}
+
+
 
   /* ================================
      ПРАВЫЙ САЙДБАР (ИНДЕКС)

@@ -90,6 +90,30 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 }
 
+function normalizePlusMinus(expr) {
+  if (!expr) return expr;
+
+  let s = String(expr);
+
+  /**
+   * Меняем:
+   *   " + -27"  → " − 27"
+   *   "+ -x"    → " − x"
+   *
+   * НО НЕ:
+   *   "+(-27)"
+   *   "* -27"
+   */
+
+  s = s.replace(
+    /(\s|^)\+\s*-(\s*[0-9a-zA-Z\\])/g,
+    (_, before, value) => `${before}− ${value}`
+  );
+
+  return s;
+}
+
+
     // Функция открытия модального окна
     // Функция открытия модального окна
 async function openRetryModal(taskCard) {
@@ -164,7 +188,8 @@ async function openRetryModal(taskCard) {
         }
 
         // Нормализуем LaTeX в вопросе
-        const normalizedQuestion = normalizeLatexForRetry(newTask.question);
+        let normalizedQuestion = normalizeLatexForRetry(newTask.question);
+normalizedQuestion = normalizePlusMinus(normalizedQuestion);
 
         // ✅ Формируем HTML
         const html = `
@@ -1270,8 +1295,14 @@ async function checkAnswerSilently(taskCard, studentAnswer) {
 
 
 document.querySelectorAll('.task-card').forEach(taskCard => {
+  const q = taskCard.querySelector('.task-question');
+  if (q) {
+    q.innerHTML = normalizePlusMinus(q.innerHTML);
+  }
+
   renderStudentLikePreview(taskCard);
 });
+
 
 });
 
