@@ -2604,7 +2604,8 @@ def generate_retry_task(task_id):
             FROM lesson_tasks lt
             LEFT JOIN task_templates tt ON lt.template_id = tt.id
             WHERE lt.id = %s
-        ''', (task_id,))
+  AND lt.school_id = %s
+        ''', (task_id, g.school_id))
         task = cursor.fetchone()
         if not task:
             return jsonify({'error': 'Task not found'}), 404
@@ -2638,12 +2639,20 @@ def generate_retry_task(task_id):
         }
 
         cursor.execute('''
-            INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
+            VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT (lesson_id, user_id, task_id)
-            DO UPDATE SET variant_data = EXCLUDED.variant_data,
-                          created_at = CURRENT_TIMESTAMP
-        ''', (task['lesson_id'], user_id, task_id, json.dumps(variant_data)))
+            DO UPDATE SET
+                variant_data = EXCLUDED.variant_data,
+                school_id = EXCLUDED.school_id,
+                created_at = CURRENT_TIMESTAMP
+        ''', (
+            task['lesson_id'],
+            user_id,
+            task_id,
+            json.dumps(variant_data),
+            g.school_id
+        ))
 
         conn.commit()
 
