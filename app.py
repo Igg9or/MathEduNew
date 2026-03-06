@@ -299,7 +299,7 @@ def edit_lesson(lesson_id):
         l.id,
         l.title,
         l.date,
-        
+        l.join_token,
         c.grade,
         c.letter
     FROM lessons l

@@ -387,6 +387,46 @@ column.appendChild(deskDiv)
 
 }
 
+const copyBtn = document.getElementById("copyJoinLinkBtn");
+
+if (copyBtn) {
+
+copyBtn.addEventListener("click", function () {
+
+const url = window.location.origin + "/join/" + window.lessonJoinToken;
+
+// универсальное копирование
+if (navigator.clipboard && navigator.clipboard.writeText) {
+
+navigator.clipboard.writeText(url)
+.then(() => alert("Ссылка скопирована:\n" + url))
+.catch(() => fallbackCopy(url));
+
+} else {
+
+fallbackCopy(url);
+
+}
+
+});
+
+}
+
+function fallbackCopy(text){
+
+const input = document.createElement("input");
+input.value = text;
+document.body.appendChild(input);
+
+input.select();
+document.execCommand("copy");
+
+document.body.removeChild(input);
+
+alert("Ссылка скопирована:\n" + text);
+
+}
+
   /* ================================
      СОХРАНЕНИЕ
   ================================= */

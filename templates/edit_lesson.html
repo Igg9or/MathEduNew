@@ -79,6 +79,10 @@
                         <h2><i class="icon-tasks"></i> Задания урока</h2>
                         <div class="toolbar-actions">
 
+                            <button id="copyJoinLinkBtn" class="btn btn-secondary">
+                            Скопировать ссылку на урок
+                            </button>
+
                             <button id="showSeatingBtn" class="btn btn-secondary">
                                 <i class="icon-users"></i> Посмотреть рассадку
                                 </button>
@@ -201,8 +205,12 @@
 </div>
 </div>
 
+<script>
+window.lessonJoinToken = "{{ lesson.join_token }}";
+</script>
     <!-- Подключение основного скрипта -->
     <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+    
 
     
 </body>
