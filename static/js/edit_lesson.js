@@ -309,6 +309,84 @@ function reorderTask(taskCard, newPosition) {
 
 
 
+const seatingBtn = document.getElementById("showSeatingBtn")
+const seatingModal = document.getElementById("seatingModal")
+const closeSeatingModal = document.getElementById("closeSeatingModal")
+const classroom = document.getElementById("lessonClassroom")
+
+if(seatingBtn){
+
+seatingBtn.onclick = () => {
+
+fetch(`/teacher/get_lesson_seating/${lessonId}`)
+.then(r=>r.json())
+.then(data=>renderLessonSeating(data.seats))
+
+seatingModal.classList.remove("hidden")
+
+}
+
+}
+
+closeSeatingModal.onclick = () => {
+seatingModal.classList.add("hidden")
+}
+
+function renderLessonSeating(seats){
+
+document.querySelectorAll(".classroom-column").forEach(col=>{
+col.querySelectorAll(".desk").forEach(d=>d.remove())
+})
+
+const rows = 5
+
+for(let col=0; col<3; col++){
+
+const column = document.querySelector(`.classroom-column[data-col="${col}"]`)
+
+for(let desk=0; desk<rows; desk++){
+
+const deskDiv = document.createElement("div")
+deskDiv.className="desk"
+
+for(let side=0; side<2; side++){
+
+const seat=document.createElement("div")
+seat.className="seat"
+
+const seatRow = col
+const seatCol = desk*2+side
+
+const students = seats.filter(s =>
+s.seat_row===seatRow && s.seat_col===seatCol
+)
+
+if(students.length){
+
+seat.innerHTML = students
+.map(s=>`<div>${s.full_name}</div>`)
+.join("")
+
+seat.style.background="#dfe6ff"
+
+}else{
+
+seat.innerText="—"
+
+}
+
+deskDiv.appendChild(seat)
+
+}
+
+column.appendChild(deskDiv)
+
+}
+
+}
+
+}
+
   /* ================================
      СОХРАНЕНИЕ
   ================================= */

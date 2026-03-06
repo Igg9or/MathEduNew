@@ -529,3 +529,25 @@
 .task-index-label:hover {
   text-decoration: underline;
 }
+
+.seating-modal{
+width:700px;
+max-width:90%;
+}
+
+.desk{
+display:flex;
+gap:5px;
+margin-bottom:6px;
+}
+
+.seat{
+background:#eef1ff;
+border-radius:6px;
+padding:4px 6px;
+font-size:12px;
+min-height:22px;
+display:flex;
+align-items:center;
+justify-content:center;
+}

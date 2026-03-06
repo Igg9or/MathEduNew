@@ -85,6 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (data.success && data.lesson_id) {
+
+            if (data.join_url) {
+                alert("Ссылка для учеников:\n\n" + window.location.origin + data.join_url);
+            }
+
             window.location.href = `/teacher/edit_lesson/${data.lesson_id}`;
         } else {
             throw new Error('Не удалось создать урок');

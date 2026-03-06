@@ -272,3 +272,8 @@ UPDATE textbooks SET school_id = NULL;
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 pip install unidecode
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, 06.03
+
+ALTER TABLE users
+ALTER COLUMN password DROP NOT NULL;

@@ -78,6 +78,11 @@
                     <div class="section-toolbar">
                         <h2><i class="icon-tasks"></i> Задания урока</h2>
                         <div class="toolbar-actions">
+
+                            <button id="showSeatingBtn" class="btn btn-secondary">
+                                <i class="icon-users"></i> Посмотреть рассадку
+                                </button>
+
                             <button id="addTaskBtn" class="btn btn-primary">
                                 <i class="icon-plus"></i> Новое задание
                             </button>
@@ -169,7 +174,36 @@
     });
     </script>
 
+    <div id="seatingModal" class="modal hidden">
+
+<div class="modal-content seating-modal">
+
+<span id="closeSeatingModal" class="close">&times;</span>
+
+<h2>Рассадка класса</h2>
+
+<div id="lessonClassroom" class="classroom-grid classroom-3cols">
+
+<div class="classroom-column" data-col="0">
+<div class="column-title">Левый ряд</div>
+</div>
+
+<div class="classroom-column" data-col="1">
+<div class="column-title">Центральный ряд</div>
+</div>
+
+<div class="classroom-column" data-col="2">
+<div class="column-title">Правый ряд</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
     <!-- Подключение основного скрипта -->
     <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+
+    
 </body>
 </html>

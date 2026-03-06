@@ -29,7 +29,7 @@ import hashlib
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify, g
 from username_generator import generate_unique_username
 from services.password_generator import generate_password
-
+import secrets
 
 
 
@@ -299,6 +299,7 @@ def edit_lesson(lesson_id):
         l.id,
         l.title,
         l.date,
+        
         c.grade,
         c.letter
     FROM lessons l
@@ -432,6 +433,7 @@ def conduct_lesson(lesson_id):
     finally:
         conn.close()
 
+
 @app.route('/teacher/create_lesson', methods=['POST'])
 def create_lesson():
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -468,26 +470,38 @@ def create_lesson():
         class_id = class_row['id']
 
         # 🔹 СОЗДАЁМ УРОК (добавили is_self_work)
+        join_token = secrets.token_urlsafe(8)
+
         cursor.execute('''
-    INSERT INTO lessons (teacher_id, class_id, title, date, is_self_work, school_id)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    RETURNING id
-''', (
-    session['user_id'],
-    class_id,
-    data['title'],
-    data['date'],
-    is_self_work,
-    g.school_id
-))
+        INSERT INTO lessons (teacher_id, class_id, title, date, is_self_work, school_id, join_token)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        RETURNING id, join_token
+        ''', (
+            session['user_id'],
+            class_id,
+            data['title'],
+            data['date'],
+            is_self_work,
+            g.school_id,
+            join_token
+        ))
+
+        row = cursor.fetchone()
+
+        if not row:
+            raise Exception("Ошибка создания урока — RETURNING не вернул данные")
+
+        lesson_id = row[0]
+        join_token = row[1]
 
 
-        lesson_id = cursor.fetchone()['id']
+        
         conn.commit()
         
         return jsonify({
             'success': True,
-            'lesson_id': lesson_id
+            'lesson_id': lesson_id,
+            'join_url': f"/join/{join_token}"
         })
 
     except Exception as e:
@@ -787,6 +801,98 @@ def student_lessons():
     finally:
         conn.close()
 
+@app.route('/join/<path:token>', methods=['GET', 'POST'])
+def join_lesson(token):
+
+    token = token.strip()
+    print("JOIN TOKEN:", token)
+
+    conn = psycopg2.connect(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+    )
+
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # ищем урок
+    cursor.execute("""
+        SELECT id, class_id, school_id
+        FROM lessons
+        WHERE TRIM(join_token) = TRIM(%s)
+    """, (token,))
+
+    lesson = cursor.fetchone()
+
+    if not lesson:
+        conn.close()
+        return "Урок не найден", 404
+
+    # если ученик уже авторизован
+    if 'user_id' in session:
+        conn.close()
+        return redirect(url_for('start_lesson', lesson_id=lesson['id']))
+
+    if request.method == 'POST':
+
+        full_name = request.form['full_name']
+        seat_row = int(request.form['seat_row'])
+        seat_col = int(request.form['seat_col'])
+
+        username = generate_unique_username(conn, full_name)
+
+        # вычисляем место
+        desk_index = seat_col // 2
+        seat_side = seat_col % 2
+
+        base = 2 if desk_index % 2 == 0 else 4
+        grade = base if seat_side == 0 else base + 1
+
+        # создаём ученика
+        cursor.execute("""
+            INSERT INTO users (username, role, full_name, class_id, school_id, grade)
+            VALUES (%s,'student',%s,%s,%s,%s)
+            RETURNING id
+        """, (
+            username,
+            full_name,
+            lesson['class_id'],
+            lesson['school_id'],
+            grade
+        ))
+
+        student_id = cursor.fetchone()['id']
+
+        # сохраняем место
+        cursor.execute("""
+            INSERT INTO student_seats
+            (student_id, seat_row, seat_col, class_id, school_id)
+            VALUES (%s,%s,%s,%s,%s)
+        """, (
+            student_id,
+            seat_row,
+            seat_col,
+            lesson['class_id'],
+            lesson['school_id']
+        ))
+
+        conn.commit()
+
+        # создаём сессию
+        session['user_id'] = student_id
+        session['role'] = 'student'
+        session['full_name'] = full_name
+        session['school_id'] = lesson['school_id']
+
+        conn.close()
+
+        return redirect(url_for('start_lesson', lesson_id=lesson['id']))
+
+    conn.close()
+
+    return render_template("join_lesson.html")
 
 @app.route('/lesson/<int:lesson_id>')
 def start_lesson(lesson_id):
@@ -3149,6 +3255,51 @@ def suggest_username():
     finally:
         conn.close()
 
+@app.route('/teacher/get_lesson_seating/<int:lesson_id>')
+def get_lesson_seating(lesson_id):
+
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    try:
+
+        # получаем класс урока
+        cursor.execute("""
+            SELECT class_id
+            FROM lessons
+            WHERE id = %s
+        """, (lesson_id,))
+
+        lesson = cursor.fetchone()
+
+        if not lesson:
+            return jsonify({'seats': []})
+
+        class_id = lesson['class_id']
+
+        # получаем рассадку класса
+        cursor.execute("""
+            SELECT
+                u.full_name,
+                ss.seat_row,
+                ss.seat_col
+            FROM student_seats ss
+            JOIN users u ON u.id = ss.student_id
+            WHERE ss.class_id = %s
+            ORDER BY ss.seat_row, ss.seat_col
+        """, (class_id,))
+
+        seats = cursor.fetchall()
+
+        return jsonify({
+            'seats': [dict(s) for s in seats]
+        })
+
+    finally:
+        conn.close()
 
 
 if __name__ == '__main__':
