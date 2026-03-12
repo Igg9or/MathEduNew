@@ -277,3 +277,19 @@ pip install unidecode
 
 ALTER TABLE users
 ALTER COLUMN password DROP NOT NULL;
+
+ALTER TABLE student_seats
+DROP CONSTRAINT student_seats_class_id_seat_row_seat_col_key;
+
+ALTER TABLE users
+ADD COLUMN is_guest BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE users
+SET created_at = CURRENT_TIMESTAMP
+WHERE created_at IS NULL;
+
+ALTER TABLE student_seats
+ADD COLUMN lesson_id INTEGER;

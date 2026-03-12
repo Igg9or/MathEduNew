@@ -52,6 +52,37 @@
                 <button type="submit" class="btn btn-primary">Войти</button>
             </form>
 
+            <!-- ===== Вход в урок по коду ===== -->
+
+<div style="
+margin-top:25px;
+padding-top:20px;
+border-top:1px solid #e5e5e5;
+text-align:center;
+">
+
+<h3 style="margin-bottom:10px">Войти в урок</h3>
+
+<input
+type="text"
+id="lessonCodeInput"
+placeholder="Введите код урока"
+style="
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:6px;
+margin-bottom:10px;
+font-size:16px;
+"
+/>
+
+<button id="joinLessonBtn" class="btn btn-secondary" style="width:100%">
+Войти по коду
+</button>
+
+</div>
+
             <div class="auth-footer">
                 <p>Нет аккаунта? Обратитесь к администратору</p>
             </div>
@@ -60,5 +91,29 @@
     <!-- ======================================== -->
 
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+    <script>
+
+const joinBtn = document.getElementById("joinLessonBtn")
+
+if(joinBtn){
+
+joinBtn.onclick = () => {
+
+const code = document.getElementById("lessonCodeInput").value.trim()
+
+if(!code){
+alert("Введите код урока")
+return
+}
+
+window.location.href = "/join/" + code
+
+}
+
+}
+
+</script>
+
 </body>
 </html>

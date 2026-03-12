@@ -79,6 +79,10 @@
                         <h2><i class="icon-tasks"></i> Задания урока</h2>
                         <div class="toolbar-actions">
 
+                            <button id="showQrBtn" class="btn btn-secondary">
+                                Показать QR
+                                </button>
+
                             <button id="copyJoinLinkBtn" class="btn btn-secondary">
                             Скопировать ссылку на урок
                             </button>
@@ -178,7 +182,7 @@
     });
     </script>
 
-    <div id="seatingModal" class="modal hidden">
+<div id="seatingModal" class="modal hidden">
 
 <div class="modal-content seating-modal">
 
@@ -204,6 +208,50 @@
 
 </div>
 </div>
+
+<div id="qrModal" class="modal hidden">
+
+<div class="modal-content" style="text-align:center">
+
+<span id="closeQrModal" class="close">&times;</span>
+
+<h2>Подключение к уроку</h2>
+
+<canvas id="qrCanvas"></canvas>
+
+<p style="margin-top:15px">
+Отсканируйте QR код
+</p>
+
+<div style="
+margin-top:20px;
+padding:12px;
+background:#f5f6ff;
+border-radius:10px;
+font-size:18px;
+font-weight:600;
+letter-spacing:2px;
+">
+
+Код комнаты:  
+<br>
+<span id="roomCode">{{ lesson.join_token }}</span>
+
+</div>
+
+<p style="margin-top:10px;color:#666">
+или введите код на странице входа
+</p>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast hidden">
+    Ссылка скопирована
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
 window.lessonJoinToken = "{{ lesson.join_token }}";

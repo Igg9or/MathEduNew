@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success && data.lesson_id) {
 
             if (data.join_url) {
-                alert("Ссылка для учеников:\n\n" + window.location.origin + data.join_url);
+                showToast("Урок создан");
             }
 
             window.location.href = `/teacher/edit_lesson/${data.lesson_id}`;
@@ -100,6 +100,23 @@ document.addEventListener('DOMContentLoaded', function() {
         alert(`Ошибка создания урока: ${error.message}`);
     }
 });
+
+function showToast(message){
+
+const toast = document.createElement("div")
+toast.className = "copy-toast"
+toast.innerText = message
+
+document.body.appendChild(toast)
+
+setTimeout(()=>toast.classList.add("show"),50)
+
+setTimeout(()=>{
+toast.classList.remove("show")
+setTimeout(()=>toast.remove(),300)
+},2000)
+
+}
 
     // Функция для загрузки уроков класса
     async function loadLessons(grade, letter) {

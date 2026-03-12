@@ -399,7 +399,7 @@ const url = window.location.origin + "/join/" + window.lessonJoinToken;
 if (navigator.clipboard && navigator.clipboard.writeText) {
 
 navigator.clipboard.writeText(url)
-.then(() => alert("Ссылка скопирована:\n" + url))
+.then(() => showCopyToast())
 .catch(() => fallbackCopy(url));
 
 } else {
@@ -423,7 +423,33 @@ document.execCommand("copy");
 
 document.body.removeChild(input);
 
-alert("Ссылка скопирована:\n" + text);
+showCopyToast();
+
+}
+
+function showCopyToast(){
+
+const toast = document.createElement("div");
+toast.innerText = "Ссылка скопирована";
+
+toast.style.position = "fixed";
+toast.style.bottom = "30px";
+toast.style.left = "50%";
+toast.style.transform = "translateX(-50%)";
+
+toast.style.background = "#2e7d32";
+toast.style.color = "white";
+toast.style.padding = "10px 18px";
+toast.style.borderRadius = "8px";
+toast.style.fontSize = "14px";
+toast.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+toast.style.zIndex = "9999";
+
+document.body.appendChild(toast);
+
+setTimeout(()=>{
+toast.remove();
+},2000);
 
 }
 
@@ -473,5 +499,47 @@ alert("Ссылка скопирована:\n" + text);
   document.querySelectorAll('.task-card').forEach(taskCard => {
   renderTeacherStudentView(taskCard);
 });
+
+const qrBtn = document.getElementById("showQrBtn")
+const qrModal = document.getElementById("qrModal")
+const closeQrModal = document.getElementById("closeQrModal")
+
+if (qrBtn) {
+
+  qrBtn.addEventListener("click", () => {
+
+    const canvas = document.getElementById("qrCanvas")
+
+    if (!canvas) {
+      console.error("Canvas qrCanvas не найден")
+      return
+    }
+
+    const url = window.location.origin + "/join/" + window.lessonJoinToken
+
+    QRCode.toCanvas(canvas, url, {
+      width: 250,
+      margin: 2
+    }, function (error) {
+
+      if (error) {
+        console.error("QR error:", error)
+      }
+
+    })
+
+    qrModal.classList.remove("hidden")
+
+  })
+
+}
+
+if (closeQrModal) {
+
+  closeQrModal.addEventListener("click", () => {
+    qrModal.classList.add("hidden")
+  })
+
+}
 
 });

@@ -100,7 +100,61 @@ def get_db():
     cur.close()
     return conn
 
+def cleanup_guest_students():
 
+    print("🧹 Cleaning old guest students...")
+
+    conn = psycopg2.connect(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+    )
+
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute("""
+        DELETE FROM student_answers
+        WHERE user_id IN (
+            SELECT id FROM users
+            WHERE is_guest = TRUE
+            AND created_at < NOW() - INTERVAL '3 days'
+        )
+        """)
+
+        cursor.execute("""
+        DELETE FROM student_task_variants
+        WHERE user_id IN (
+            SELECT id FROM users
+            WHERE is_guest = TRUE
+            AND created_at < NOW() - INTERVAL '3 days'
+        )
+        """)
+
+        cursor.execute("""
+        DELETE FROM student_seats
+        WHERE student_id IN (
+            SELECT id FROM users
+            WHERE is_guest = TRUE
+            AND created_at < NOW() - INTERVAL '3 days'
+        )
+        """)
+
+        cursor.execute("""
+        DELETE FROM users
+        WHERE is_guest = TRUE
+        AND created_at < NOW() - INTERVAL '3 days'
+        """)
+
+        conn.commit()
+
+        print("✅ Guest cleanup finished")
+
+    finally:
+        conn.close()
 
 @app.route('/')
 def home():
@@ -843,17 +897,17 @@ def join_lesson(token):
 
         username = generate_unique_username(conn, full_name)
 
-        # вычисляем место
+        # вычисляем уровень ученика по месту
         desk_index = seat_col // 2
         seat_side = seat_col % 2
 
         base = 2 if desk_index % 2 == 0 else 4
         grade = base if seat_side == 0 else base + 1
 
-        # создаём ученика
+        # создаём ученика (гостя)
         cursor.execute("""
-            INSERT INTO users (username, role, full_name, class_id, school_id, grade)
-            VALUES (%s,'student',%s,%s,%s,%s)
+            INSERT INTO users (username, role, full_name, class_id, school_id, grade, is_guest)
+            VALUES (%s,'student',%s,%s,%s,%s,TRUE)
             RETURNING id
         """, (
             username,
@@ -865,16 +919,17 @@ def join_lesson(token):
 
         student_id = cursor.fetchone()['id']
 
-        # сохраняем место
+        # сохраняем место (ПРИВЯЗАНО К УРОКУ)
         cursor.execute("""
             INSERT INTO student_seats
-            (student_id, seat_row, seat_col, class_id, school_id)
-            VALUES (%s,%s,%s,%s,%s)
+            (student_id, seat_row, seat_col, class_id, lesson_id, school_id)
+            VALUES (%s,%s,%s,%s,%s,%s)
         """, (
             student_id,
             seat_row,
             seat_col,
             lesson['class_id'],
+            lesson['id'],          # ← ВАЖНО
             lesson['school_id']
         ))
 
@@ -3280,7 +3335,9 @@ def get_lesson_seating(lesson_id):
 
         class_id = lesson['class_id']
 
-        # получаем рассадку класса
+        # берём ТОЛЬКО:
+        # 1) базовую рассадку класса
+        # 2) гостей ЭТОГО урока
         cursor.execute("""
             SELECT
                 u.full_name,
@@ -3289,8 +3346,13 @@ def get_lesson_seating(lesson_id):
             FROM student_seats ss
             JOIN users u ON u.id = ss.student_id
             WHERE ss.class_id = %s
+            AND (
+                (u.is_guest = FALSE AND ss.lesson_id IS NULL)  -- обычная рассадка класса
+                OR
+                (u.is_guest = TRUE AND ss.lesson_id = %s)      -- гости только этого урока
+            )
             ORDER BY ss.seat_row, ss.seat_col
-        """, (class_id,))
+        """, (class_id, lesson_id))
 
         seats = cursor.fetchall()
 
@@ -3303,4 +3365,5 @@ def get_lesson_seating(lesson_id):
 
 
 if __name__ == '__main__':
+    cleanup_guest_students()
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
