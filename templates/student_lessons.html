@@ -4,57 +4,429 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои уроки | Math Teaching System</title>
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-greeting {
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: var(--error-light);
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        /* Main */
+        .dashboard-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        /* Lessons Grid */
+        .lessons-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .lesson-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .lesson-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .lesson-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Progress Badge */
+        .lesson-progress {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .progress-red {
+            background: var(--error);
+        }
+
+        .progress-orange {
+            background: var(--warning);
+        }
+
+        .progress-blue {
+            background: var(--primary);
+        }
+
+        .progress-green {
+            background: var(--success);
+        }
+
+        .lesson-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-light), #e0e7ff);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .lesson-info {
+            flex: 1;
+        }
+
+        .lesson-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+            padding-right: 80px;
+        }
+
+        .lesson-info p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lesson-actions {
+            margin-left: auto;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border);
+        }
+
+        .empty-state i {
+            width: 80px;
+            height: 80px;
+            background: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 16px;
+            }
+
+            .header-right {
+                gap: 12px;
+            }
+
+            .user-greeting {
+                display: none;
+            }
+
+            .dashboard-main {
+                padding: 24px 16px;
+            }
+
+            .lesson-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 24px;
+            }
+
+            .lesson-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            .lesson-info h3 {
+                padding-right: 0;
+                margin-top: 12px;
+            }
+
+            .lesson-progress {
+                position: static;
+                margin-top: 12px;
+                align-self: flex-start;
+            }
+
+            .lesson-actions {
+                margin-left: 0;
+                width: 100%;
+                margin-top: 16px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
+    <header class="dashboard-header">
+        <div class="header-container">
             <div class="header-left">
-                
+                <div class="header-logo"><i class="fas fa-graduation-cap"></i></div>
                 <h1>Мои уроки</h1>
             </div>
             <div class="header-right">
-                <span class="user-greeting">{{ full_name }}</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+                <span class="user-greeting">
+                    <i class="fas fa-user-circle" style="font-size: 20px; color: var(--primary);"></i>
+                    {{ full_name }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Выйти
+                </a>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main class="dashboard-main">
-            <div class="lessons-list">
-                <h2>Доступные уроки</h2>
-                <div class="lessons-container">
-                    {% for lesson in lessons %}
-                    <div class="lesson-card">
-                        {% if lesson.progress > 0 %}
-<div class="lesson-progress
-    {% if lesson.progress <= 25 %}progress-red
-    {% elif lesson.progress <= 50 %}progress-orange
-    {% elif lesson.progress <= 75 %}progress-blue
-    {% else %}progress-green
-    {% endif %}
-">
-    {{ lesson.progress }}%
-</div>
-{% endif %}
+    <main class="dashboard-main">
+        <div class="page-header">
+            <h2><i class="fas fa-book-open" style="color: var(--primary);"></i> Доступные уроки</h2>
+            <p>Выберите урок, чтобы начать решать задачи</p>
+        </div>
 
-                        <div class="lesson-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6H8v6H6v-9l6-7.2z"/>
-                            </svg>
-                        </div>
-                        <div class="lesson-info">
-                            <h3>{{ lesson.title }}</h3>
-                            <p>Дата: {{ lesson.date }}</p>
-                            <p>Учитель: {{ lesson.teacher_name }}</p>
-                        </div>
-                        <div class="lesson-actions">
-                            <a href="{{ url_for('start_lesson', lesson_id=lesson.id) }}" class="btn btn-primary">Начать урок</a>
-                        </div>
-                    </div>
-                    {% endfor %}
+        <div class="lessons-container">
+            {% for lesson in lessons %}
+            <div class="lesson-card">
+                {% if lesson.progress > 0 %}
+                <div class="lesson-progress
+                    {% if lesson.progress <= 25 %}progress-red
+                    {% elif lesson.progress <= 50 %}progress-orange
+                    {% elif lesson.progress <= 75 %}progress-blue
+                    {% else %}progress-green
+                    {% endif %}">
+                    {{ lesson.progress }}%
+                </div>
+                {% endif %}
+
+                <div class="lesson-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                
+                <div class="lesson-info">
+                    <h3>{{ lesson.title }}</h3>
+                    <p><i class="fas fa-calendar"></i> Дата: {{ lesson.date }}</p>
+                    <p><i class="fas fa-chalkboard-teacher"></i> Учитель: {{ lesson.teacher_name }}</p>
+                </div>
+                
+                <div class="lesson-actions">
+                    <a href="{{ url_for('start_lesson', lesson_id=lesson.id) }}" class="btn-primary">
+                        Начать урок <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
-        </main>
-    </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>Нет доступных уроков</h3>
+                <p>У вас пока нет назначенных уроков. Обратитесь к учителю.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
 </body>
 </html>

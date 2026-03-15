@@ -2,264 +2,887 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактирование урока | {{ lesson.title }}</title>
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/edit_lesson.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['\\(', '\\)'], ['$', '$']],
-      displayMath: [['\\[', '\\]'], ['$$','$$']]
-    }
-  };
-</script>
-<script id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
-
-</head>
-<body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
-            <div class="header-left">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
-                <h1>Редактирование урока: {{ lesson.title }}</h1>
-            </div>
-            <div class="header-right">
-                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
-            </div>
-        </header>
-
-        <main class="edit-lesson-layout">
-            <!-- Боковая панель с учебниками -->
-            <aside class="textbook-sidebar-collapsible">
-                <div class="sidebar-header">
-                    <h3><i class="icon-book"></i> Задания из учебников</h3>
-                    <div class="sidebar-controls">
-                        <select id="textbookSelect" class="form-select">
-                            <option value="">Выберите учебник...</option>
-                            {% for textbook in textbooks %}
-                            <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
-                            {% endfor %}
-                        </select>
-                        <div class="search-box with-icon">
-                            <i class="icon-search"></i>
-                            <input type="text" id="templateSearch" placeholder="Поиск заданий...">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="templates-list-container">
-                    <div id="templatesList" class="templates-list">
-                        <div class="empty-state">
-                            <i class="icon-book-open"></i>
-                            <p>Выберите учебник для просмотра заданий</p>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Основная область с заданиями -->
-            <div class="lesson-main-area">
-                <div class="lesson-header">
-                    <div>
-                        <h1>{{ lesson.title }}</h1>
-                        <div class="lesson-meta">
-                            <span><i class="icon-class"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
-                            <span><i class="icon-calendar"></i> {{ lesson.date }}</span>
-                        </div>
-                    </div>
-                    <button id="toggleSidebar" class="btn btn-icon">
-                        <i class="icon-menu"></i>
-                    </button>
-                </div>
-
-                <div class="tasks-fullwidth-section">
-                    <div class="section-toolbar">
-                        <h2><i class="icon-tasks"></i> Задания урока</h2>
-                        <div class="toolbar-actions">
-
-                            <button id="showQrBtn" class="btn btn-secondary">
-                                Показать QR
-                                </button>
-
-                            <button id="copyJoinLinkBtn" class="btn btn-secondary">
-                            Скопировать ссылку на урок
-                            </button>
-
-                            <button id="showSeatingBtn" class="btn btn-secondary">
-                                <i class="icon-users"></i> Посмотреть рассадку
-                                </button>
-
-                            <button id="addTaskBtn" class="btn btn-primary">
-                                <i class="icon-plus"></i> Новое задание
-                            </button>
-                            <button id="saveLessonBtn" class="btn btn-save">
-                                <i class="icon-save"></i> Сохранить
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="tasksContainer" class="tasks-container">
-                        {% for task in tasks %}
-                        <div class="task-card"
-     data-task-id="{{ task.id }}"
-     data-template-id="{{ task.template_id or '' }}"
-     data-template-name="{{ task.template_name or '' }}">
-                            <div class="task-header">
-                                <h3>
-  Задание <span class="task-number">{{ loop.index }}</span>
-  {% if task.template_name %}
-    <span class="task-template-name">
-      — {{ task.template_name }}
-    </span>
-  {% endif %}
-</h3>
-
-                                <button class="btn btn-danger btn-remove-task">Удалить</button>
-                            </div>
-                            <!-- Красивое отображение для учителя -->
-<div class="task-question-preview"></div>
-
-<!-- Скрытое поле для сохранения -->
-<textarea class="task-question hidden">{{ task.question|safe }}</textarea>
-
-                            <div class="answer-section">
-                                <label>Формула ответа:</label>
-                                <textarea class="task-answer">{{ task.answer }}</textarea>
-                            </div>
-                            <div class="teacher-preview hidden">
-                                <h4>Пример для учителя:</h4>
-                                <div class="preview-content">
-                                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
-                                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
-                                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
-                                </div>
-                                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
-                            </div>
-                            <button class="btn btn-small btn-show-preview">Показать пример</button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Правый сайдбар со списком заданий -->
-<aside class="task-index-sidebar">
-    <div class="task-index-card">
-        <div class="task-index-header">
-            <h3><i class="icon-list"></i> Задания</h3>
-            <span class="task-index-count" id="taskIndexCount">0</span>
-        </div>
-        <ol class="task-index-list" id="taskIndexList">
-            <!-- сюда JS будет рендерить пункты -->
-        </ol>
-    </div>
-</aside>
-
-
-        </main>
-    </div>
-
-    <!-- Добавьте этот скрипт перед закрывающим тегом body -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Управление боковой панелью
-        const toggleBtn = document.getElementById('toggleSidebar');
-        const sidebar = document.querySelector('.textbook-sidebar-collapsible');
-        const mainArea = document.querySelector('.lesson-main-area');
-
-        if (toggleBtn && sidebar && mainArea) {
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                mainArea.classList.toggle('sidebar-hidden');
-            });
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$','$$']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
         }
 
-        // Здесь можно добавить остальной JavaScript из edit_lesson.js
-        // Или оставить как есть, если он подключается отдельно
-    });
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-left h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: translateY(-1px);
+        }
+
+        /* Layout */
+        .edit-lesson-layout {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            gap: 24px;
+            padding: 24px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar (Textbooks) */
+        .textbook-sidebar {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            position: sticky;
+            top: 88px;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-select, .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--card);
+            transition: all 0.2s;
+        }
+
+        .form-select:focus, .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .templates-list-container {
+            overflow-y: auto;
+            flex: 1;
+            padding: 12px;
+        }
+
+        .template-item {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .template-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .template-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .template-item p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            background: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        /* Main Area */
+        .lesson-main-area {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .lesson-header-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lesson-info h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .lesson-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .lesson-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-toolbar {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-toolbar h2 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        /* Task Cards */
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .task-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .task-card:hover::before {
+            opacity: 1;
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .task-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-template-name {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .task-question-preview {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 60px;
+        }
+
+        .task-question {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 16px;
+        }
+
+        .task-question:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .answer-section {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .answer-section label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-answer {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .task-answer:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Task Index Sidebar */
+        .task-index-sidebar {
+            position: sticky;
+            top: 88px;
+            height: fit-content;
+        }
+
+        .task-index-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .task-index-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+        }
+
+        .task-index-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-index-count {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .task-index-list {
+            list-style: none;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .task-index-item {
+            margin-bottom: 8px;
+        }
+
+        .task-index-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .task-index-row:hover {
+            background: var(--bg);
+        }
+
+        .task-order-input {
+            width: 40px;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .task-index-label {
+            font-size: 14px;
+            color: var(--text);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.95);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .modal:not(.hidden) .modal-content {
+            transform: scale(1);
+        }
+
+        .close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .close:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Seating Modal Specific */
+        .seating-modal {
+            max-width: 900px;
+            width: 95%;
+        }
+
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .classroom-column {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .column-title {
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .desk {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .seat {
+            flex: 1;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .seat:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .edit-lesson-layout {
+                grid-template-columns: 280px 1fr;
+            }
+            .task-index-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .edit-lesson-layout {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .textbook-sidebar {
+                display: none;
+            }
+            .classroom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo">M</div>
+                <h1>Редактирование: {{ lesson.title }}</h1>
+            </div>
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </a>
+        </div>
+    </header>
+
+    <div class="edit-lesson-layout">
+        <!-- Левая панель: Учебники -->
+        <aside class="textbook-sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-book"></i> Задания из учебников</h3>
+                <div class="sidebar-controls">
+                    <select id="textbookSelect" class="form-select">
+                        <option value="">Выберите учебник...</option>
+                        {% for textbook in textbooks %}
+                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" id="templateSearch" class="search-input" placeholder="Поиск заданий...">
+                </div>
+            </div>
+            
+            <div class="templates-list-container">
+                <div id="templatesList">
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <p>Выберите учебник для просмотра заданий</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Центр: Задания урока -->
+        <div class="lesson-main-area">
+            <div class="lesson-header-card">
+                <div class="lesson-info">
+                    <h1>{{ lesson.title }}</h1>
+                    <div class="lesson-meta">
+                        <span><i class="fas fa-users"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
+                        <span><i class="fas fa-calendar"></i> {{ lesson.date }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-toolbar">
+                <h2><i class="fas fa-tasks" style="color: var(--primary);"></i> Задания урока</h2>
+                <div class="toolbar-actions">
+                    <button id="showQrBtn" class="btn btn-secondary">
+                        <i class="fas fa-qrcode"></i> QR-код
+                    </button>
+                    <button id="copyJoinLinkBtn" class="btn btn-secondary">
+                        <i class="fas fa-link"></i> Ссылка
+                    </button>
+                    <button id="showSeatingBtn" class="btn btn-secondary">
+                        <i class="fas fa-chair"></i> Рассадка
+                    </button>
+                    <button id="addTaskBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Новое задание
+                    </button>
+                    <button id="saveLessonBtn" class="btn btn-save">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+            </div>
+
+            <div id="tasksContainer" class="tasks-container">
+                {% for task in tasks %}
+                <div class="task-card"
+                     data-task-id="{{ task.id }}"
+                     data-template-id="{{ task.template_id or '' }}"
+                     data-template-name="{{ task.template_name or '' }}">
+                    <div class="task-header">
+                        <h3>
+                            Задание <span class="task-number">{{ loop.index }}</span>
+                            {% if task.template_name %}
+                            <span class="task-template-name">— {{ task.template_name }}</span>
+                            {% endif %}
+                        </h3>
+                        <button class="btn btn-danger btn-remove-task" style="padding: 6px 12px; font-size: 12px;">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                    </div>
+                    
+                    <div class="task-question-preview"></div>
+                    <textarea class="task-question hidden">{{ task.question|safe }}</textarea>
+
+                    <div class="answer-section">
+                        <label>Формула ответа</label>
+                        <textarea class="task-answer" placeholder="Например: 2*x + 5">{{ task.answer }}</textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Правая панель: Индекс заданий -->
+        <aside class="task-index-sidebar">
+            <div class="task-index-card">
+                <div class="task-index-header">
+                    <h3><i class="fas fa-list-ol"></i> Задания</h3>
+                    <span class="task-index-count" id="taskIndexCount">0</span>
+                </div>
+                <ol class="task-index-list" id="taskIndexList">
+                    <!-- JS заполняет -->
+                </ol>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Модалка рассадки -->
+    <div id="seatingModal" class="modal hidden">
+        <div class="modal-content seating-modal">
+            <button class="close" id="closeSeatingModal">&times;</button>
+            <h2><i class="fas fa-chair" style="color: var(--primary);"></i> Рассадка класса</h2>
+            <div id="lessonClassroom" class="classroom-grid">
+                <div class="classroom-column" data-col="0">
+                    <div class="column-title">Левый ряд</div>
+                </div>
+                <div class="classroom-column" data-col="1">
+                    <div class="column-title">Центральный ряд</div>
+                </div>
+                <div class="classroom-column" data-col="2">
+                    <div class="column-title">Правый ряд</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка QR -->
+    <div id="qrModal" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <button class="close" id="closeQrModal">&times;</button>
+            <h2>Подключение к уроку</h2>
+            <canvas id="qrCanvas" style="margin: 20px auto;"></canvas>
+            <div style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px;">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Код комнаты:</div>
+                <div style="font-size: 24px; font-weight: 700; letter-spacing: 2px; color: var(--primary);">{{ lesson.join_token }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Ссылка скопирована</div>
+
+    <script>
+        window.lessonJoinToken = "{{ lesson.join_token }}";
     </script>
-
-<div id="seatingModal" class="modal hidden">
-
-<div class="modal-content seating-modal">
-
-<span id="closeSeatingModal" class="close">&times;</span>
-
-<h2>Рассадка класса</h2>
-
-<div id="lessonClassroom" class="classroom-grid classroom-3cols">
-
-<div class="classroom-column" data-col="0">
-<div class="column-title">Левый ряд</div>
-</div>
-
-<div class="classroom-column" data-col="1">
-<div class="column-title">Центральный ряд</div>
-</div>
-
-<div class="classroom-column" data-col="2">
-<div class="column-title">Правый ряд</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-<div id="qrModal" class="modal hidden">
-
-<div class="modal-content" style="text-align:center">
-
-<span id="closeQrModal" class="close">&times;</span>
-
-<h2>Подключение к уроку</h2>
-
-<canvas id="qrCanvas"></canvas>
-
-<p style="margin-top:15px">
-Отсканируйте QR код
-</p>
-
-<div style="
-margin-top:20px;
-padding:12px;
-background:#f5f6ff;
-border-radius:10px;
-font-size:18px;
-font-weight:600;
-letter-spacing:2px;
-">
-
-Код комнаты:  
-<br>
-<span id="roomCode">{{ lesson.join_token }}</span>
-
-</div>
-
-<p style="margin-top:10px;color:#666">
-или введите код на странице входа
-</p>
-
-</div>
-
-</div>
-
-<div id="toast" class="toast hidden">
-    Ссылка скопирована
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
-<script>
-window.lessonJoinToken = "{{ lesson.join_token }}";
-</script>
-    <!-- Подключение основного скрипта -->
     <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
-    
-
-    
 </body>
 </html>

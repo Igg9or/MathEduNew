@@ -4,134 +4,647 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Проведение урока | {{ lesson.title }}</title>
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/teacher_dashboard.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-left h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .class-info {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: translateY(-1px);
+        }
+
+        /* Main Layout - ДВУХКОЛОНОЧНЫЙ */
+        .conduct-lesson-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        /* Left Column - Table */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+
+        .results-table thead {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .results-table th {
+            padding: 14px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .results-table th:first-child {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .results-table th small {
+            display: block;
+            margin-top: 4px;
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 11px;
+        }
+
+        .results-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .results-table td:first-child {
+            text-align: left;
+            padding-left: 20px;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+            background: var(--card);
+            z-index: 5;
+        }
+
+        .results-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .results-table tbody tr:hover {
+            background: var(--bg);
+        }
+
+        .results-table tbody tr:hover td:first-child {
+            background: var(--bg);
+        }
+
+        .results-table tbody tr.updating {
+            opacity: 0.6;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .status-badge.correct {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-badge.incorrect {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .status-badge.pending {
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 2px solid var(--border);
+        }
+
+        /* Progress Bar Compact */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 80px;
+        }
+
+        .progress-bar-mini {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-mini .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #34d399);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 35px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Checkbox styling */
+        .exclude-task {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Right Column - Analytics Sidebar */
+        .analytics-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 88px;
+            height: fit-content;
+        }
+
+        .analytics-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .analytics-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Difficult Tasks */
+        .task-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .task-progress span:first-child {
+            min-width: 80px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .task-progress progress {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: none;
+            background: var(--border);
+        }
+
+        .task-progress progress::-webkit-progress-bar {
+            background: var(--border);
+        }
+
+        .task-progress progress::-webkit-progress-value {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .task-progress progress.danger::-webkit-progress-value {
+            background: var(--error);
+        }
+
+        .task-progress span:last-child {
+            min-width: 35px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Errors List */
+        .errors-list {
+            list-style: none;
+        }
+
+        .errors-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .errors-list li:last-child {
+            border-bottom: none;
+        }
+
+        .error-count {
+            background: var(--error-light);
+            color: var(--error);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        /* Lesson Controls - Sticky Bottom */
+        .lesson-controls {
+            display: flex;
+            gap: 12px;
+            padding: 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            position: sticky;
+            bottom: 24px;
+            margin-top: auto;
+            grid-column: 1 / -1;
+        }
+
+        /* Notification */
+        .error-notification {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--error);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .conduct-lesson-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-sidebar {
+                position: static;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+            
+            .results-table td:first-child {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .conduct-lesson-container {
+                padding: 16px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .results-table {
+                font-size: 12px;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 8px 4px;
+            }
+            
+            .lesson-controls {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 0;
+                margin: 0;
+                z-index: 100;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
+    <header class="dashboard-header">
+        <div class="header-container">
             <div class="header-left">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <div class="header-logo"><i class="fas fa-chalkboard-teacher"></i></div>
                 <h1>Проведение урока: {{ lesson.title }}</h1>
             </div>
             <div class="header-right">
-                <span class="class-info">{{ lesson.grade }}{{ lesson.letter }} класс</span>
-                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+                <span class="class-info"><i class="fas fa-users"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main class="conduct-lesson-container">
-            <div class="real-time-results">
+    <main class="conduct-lesson-container">
+        <!-- Левая колонка - Таблица результатов -->
+        <div class="main-content">
+            <div class="section-header">
+                <h2><i class="fas fa-users" style="color: var(--primary);"></i> Результаты класса</h2>
+                <button id="generateClassHomeworkBtn" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> ДЗ для класса
+                </button>
+            </div>
 
-    <div class="section-header">
-        <h2>Результаты класса</h2>
-        <button id="generateClassHomeworkBtn" class="btn btn-primary">
-            📘 Создать ДЗ для класса
-        </button>
-    </div>
-
-    <div class="table-card">
-        <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Ученик</th>
-                                {% for task in tasks %}
-                                <th>
-    Задание {{ loop.index }}
-    <br>
-    <label>
-        <input type="checkbox" class="exclude-task" value="{{ task.id }}">
-        Исключить
-    </label>
-</th>
-                                {% endfor %}
-                                <th>Прогресс</th>
-                                <th>Домашка</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentsResults">
-                            {% for student in students %}
-                            <tr data-student-id="{{ student.id }}">
-                                <td>{{ student.full_name }}</td>
-                                {% for task in tasks %}
-                                <td data-task-id="{{ task.id }}">
-                                    <span class="pending">—</span>
-                                </td>
-                                {% endfor %}
-                                <td>
-                                    <div class="progress-container">
-                                        <div class="progress-bar"></div>
-                                        <span>0%</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn-generate-homework" data-student-id="{{ student.id }}">
-                                        📘 ДЗ
-                                    </button>
-                                </td>
-                            </tr>
+            <div class="table-card" style="max-height: 70vh; overflow-y: auto;">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Ученик</th>
+                            {% for task in tasks %}
+                            <th>
+                                №{{ loop.index }}
+                                <br>
+                                <label style="font-size: 10px; cursor: pointer;">
+                                    <input type="checkbox" class="exclude-task" value="{{ task.id }}">
+                                    <span>Искл.</span>
+                                </label>
+                            </th>
                             {% endfor %}
-                        </tbody>
-                    </table>
-                    
-                    <div class="lesson-analytics">
-                        <h2>📊 Аналитика урока</h2>
-                        <div class="lesson-summary">
-    <div class="summary-card">
-        <div class="label">Освоение темы</div>
-        <div class="value">76%</div>
-    </div>
-    <div class="summary-card">
-        <div class="label">Решено примеров</div>
-        <div class="value">312</div>
-    </div>
-    <div class="summary-card">
-        <div class="label">Среднее время</div>
-        <div class="value">2 мин 13 сек</div>
-    </div>
-</div>
-                        
-                        <div class="analytics-grid">
-                            <!-- Блок сложных заданий -->
-                            <div class="analytics-card difficult-tasks">
-                                <h3>Самые сложные задания</h3>
-                                <div class="progress-bars">
-                                    <!-- Динамически будет заполняться через JS -->
+                            <th>Прогресс</th>
+                            <th>ДЗ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsResults">
+                        {% for student in students %}
+                        <tr data-student-id="{{ student.id }}">
+                            <td>{{ student.full_name }}</td>
+                            {% for task in tasks %}
+                            <td data-task-id="{{ task.id }}">
+                                <span class="status-badge pending">—</span>
+                            </td>
+                            {% endfor %}
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar-mini">
+                                        <div class="fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-text">0%</span>
                                 </div>
-                            </div>
-                            
-                            <!-- Блок ошибок -->
-                            <div class="analytics-card common-errors">
-                                <h3>Типичные ошибки</h3>
-                                <ul class="errors-list">
-                                    <!-- Динамически будет заполняться через JS -->
-                                </ul>
-                            </div>
-                            
-                            <!-- График успеваемости -->
-                            <div class="analytics-card performance-chart">
-                                <h3>Прогресс класса</h3>
-                                <canvas id="performanceChart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <button id="generateReportBtn" class="btn btn-primary">
-                            📄 Сгенерировать полный отчет (PDF)
-                        </button>
-                    </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-success btn-generate-homework" data-student-id="{{ student.id }}">
+                                    <i class="fas fa-book"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <!-- Правая колонка - Аналитика (без статичных блоков) -->
+        <aside class="analytics-sidebar">
+            <div class="analytics-card difficult-tasks">
+                <h3><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Сложные задания</h3>
+                <div class="progress-bars">
+                    <!-- JS заполняет -->
                 </div>
             </div>
 
-            <div class="lesson-controls">
-                <button id="refreshResults" class="btn btn-primary">Обновить результаты</button>
-                <button id="endLesson" class="btn btn-danger">Завершить урок</button>
+            <div class="analytics-card common-errors">
+                <h3><i class="fas fa-times-circle" style="color: var(--error);"></i> Типичные ошибки</h3>
+                <ul class="errors-list">
+                    <!-- JS заполняет -->
+                </ul>
             </div>
-        </main>
-    </div>
+
+            <div class="analytics-card performance-chart">
+                <h3><i class="fas fa-chart-bar" style="color: var(--success);"></i> Прогресс класса</h3>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Контрольная панель -->
+        <div class="lesson-controls">
+            <button id="refreshResults" class="btn btn-primary" style="flex: 1;">
+                <i class="fas fa-sync-alt"></i> Обновить
+            </button>
+            <button id="endLesson" class="btn btn-danger" style="flex: 1;">
+                <i class="fas fa-stop-circle"></i> Завершить
+            </button>
+        </div>
+    </main>
 
     <script src="{{ url_for('static', filename='js/conduct_lesson.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </body>
 </html>

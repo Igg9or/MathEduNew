@@ -9,21 +9,25 @@ window.addEventListener('load', () => {
         if (closed) return;
         closed = true;
 
-        // Плавное затемнение
-        fade.style.opacity = '1';
+        // Плавное затемнение (если элемент есть)
+        if (fade) {
+            fade.style.opacity = '1';
+        }
 
         setTimeout(() => {
-            overlay.remove();
-            auth.classList.add('visible');
-        }, 1000);
+            if (overlay) overlay.remove();
+            if (auth) auth.classList.add('visible');
+        }, fade ? 1000 : 300); // Если нет fade, закрываем быстрее
     }
 
-    // ⏱ Автозакрытие через 5 секунд
+    // Автозакрытие через 5 секунд
     setTimeout(closeIntro, 5000);
 
-    // 🖱 Клик / тап
-    overlay.addEventListener('click', closeIntro);
+    // Клик / тап
+    if (overlay) {
+        overlay.addEventListener('click', closeIntro);
+    }
 
-    // ⌨ Любая клавиша
+    // Любая клавиша
     document.addEventListener('keydown', closeIntro);
 });

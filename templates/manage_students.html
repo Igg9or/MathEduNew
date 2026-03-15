@@ -2,177 +2,620 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Управление учениками</title>
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление учениками | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: translateY(-1px);
+        }
+
+        /* Main Layout */
+        .manage-students-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 32px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Forms */
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-control {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-light {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-light:hover {
+            background: var(--border);
+        }
+
+        .btn-wide {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* Table */
+        .students-list table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .students-list th {
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .students-list td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .students-list tr:hover {
+            background: var(--bg);
+        }
+
+        .grade-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Classroom */
+        .classroom-section {
+            grid-column: 1 / -1;
+        }
+
+        .classroom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .classroom-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .classroom-controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .classroom-controls input[type="number"] {
+            width: 60px;
+            padding: 6px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .classroom-column {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 2px solid var(--border);
+        }
+
+        .column-title {
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .desk {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .desk-inner {
+            display: flex;
+            gap: 8px;
+        }
+
+        .seat {
+            flex: 1;
+            min-height: 60px;
+            background: var(--bg);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .seat:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .seat:has(.student-chip) {
+            border-style: solid;
+            border-color: var(--border);
+            background: white;
+        }
+
+        /* Student Chips */
+        .student-chip {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            user-select: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .student-chip:active {
+            cursor: grabbing;
+        }
+
+        .student-chip.grade-2 {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .student-chip.grade-3 {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .student-chip.grade-4 {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .student-chip.grade-5 {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        /* Unseated */
+        .unseated-section {
+            background: var(--warning-light);
+            border: 2px dashed var(--warning);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .unseated-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .unseated-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 50px;
+        }
+
+        .classroom-hint {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Add Student Form */
+        .add-student-form {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .add-student-form h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .manage-students-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .classroom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .manage-students-container {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .classroom-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .classroom-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .students-list {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<div class="dashboard-container">
-
-    <!-- ===== HEADER ===== -->
     <header class="dashboard-header">
-        <div class="header-left">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" class="header-logo">
-            <h1>Управление учениками</h1>
-        </div>
-        <div class="header-right">
-            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">
-                ← Назад
-            </a>
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo"><i class="fas fa-users-cog"></i></div>
+                <h1>Управление учениками</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+            </div>
         </div>
     </header>
 
-    <!-- ===== CONTENT ===== -->
     <main class="manage-students-container">
-
-        <section class="class-create">
-    <h3>Добавить класс</h3>
-
-    <div style="display:flex; gap:10px; align-items:center;">
-        <input id="newClassGrade"
-               type="number"
-               min="1"
-               max="11"
-               placeholder="Класс"
-               class="form-control"
-               style="width:120px;">
-
-        <input id="newClassLetter"
-               type="text"
-               maxlength="1"
-               placeholder="Буква"
-               class="form-control"
-               style="width:120px;">
-
-        <button id="createClassBtn"
-                class="btn btn-success">
-            ➕ Добавить
-        </button>
-    </div>
-</section>
-
-
-        <!-- Выбор класса -->
-        <section class="class-selection">
-            <h3>Выберите класс</h3>
-
-            <select id="classSelect">
-                {% for class in classes %}
-                <option value="{{ class.id }}">
-                    {{ class.grade }}{{ class.letter }}
-                </option>
-                {% endfor %}
-            </select>
-
-            <button id="showStudentsBtn" class="btn btn-primary btn-wide">
-                Показать учеников
-            </button>
-        </section>
-
-
-        
-        <!-- Рассадка -->
-<section class="classroom-section">
-    <div class="classroom-header">
-        <h3>Рассадка (перетащи ученика на парту)</h3>
-
-        <div class="classroom-controls">
-            <label>
-                Рядов:
-                <input id="rowsCount" type="number" min="1" max="10" value="5">
-            </label>
-
-            <button id="autoSeatBtn" class="btn btn-secondary btn-sm">
-                🔄 Рассадить автоматически
-            </button>
-
-            <button id="clearSeatingBtn" class="btn btn-secondary btn-sm">
-                🧹 Сбросить рассадку
-            </button>
-        </div>
-    </div>
-
-      <div class="unseated-section">
-    <h4>Нерассаженные ученики</h4>
-    <div id="unseatedList" class="unseated-list"></div>
-  </div>
-  
-
-    <div id="classroom" class="classroom-grid classroom-3cols">
-  <div class="classroom-column" data-col="0">
-    <div class="column-title">Левый ряд</div>
-  </div>
-  <div class="classroom-column" data-col="1">
-    <div class="column-title">Центральный ряд</div>
-  </div>
-  <div class="classroom-column" data-col="2">
-    <div class="column-title">Правый ряд</div>
-  </div>
-</div>
-
-
-    <div class="classroom-hint">
-        Оценка (2–5) выставляется автоматически по месту: 1 ряд → 2/3, 2 ряд → 4/5, 3 ряд → 2/3…
-    </div>
-</section>
-
-
-
-        <!-- Ученики -->
-        <section class="students-list">
-            <h3>Ученики класса <span id="currentClass"></span></h3>
-
-            <table id="studentsTable">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>ФИО</th>
-                    <th>Логин</th>
-                    <th>Оценка</th>
-                    <th>Действия</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- JS -->
-                </tbody>
-            </table>
-
-            <!-- Добавление ученика -->
-            <div class="add-student-form">
-                <h4>Добавить нового ученика</h4>
-
-                <input type="text" id="newStudentName"
-                       class="form-control"
-                       placeholder="ФИО">
-
-                <input type="text" id="newStudentLogin"
-                       class="form-control"
-                       placeholder="Логин">
-
-                <div style="display:flex; gap:10px; align-items:center;">
-    <input type="text"
-           id="newStudentPassword"
-           class="form-control"
-           placeholder="Пароль">
-
-    <button type="button"
-            id="generatePasswordBtn"
-            class="btn btn-secondary">
-        🔑 Сгенерировать
-    </button>
-</div>
-
-
-                <button id="addStudentBtn"
-                        class="btn btn-success btn-wide">
-                    Добавить ученика
+        <!-- Левая колонка -->
+        <div class="left-column">
+            <div class="card class-create">
+                <h3><i class="fas fa-plus-circle" style="color: var(--success);"></i> Добавить класс</h3>
+                <div class="form-row">
+                    <input type="number" id="newClassGrade" min="1" max="11" placeholder="Класс" class="form-control">
+                    <input type="text" id="newClassLetter" maxlength="1" placeholder="Буква" class="form-control">
+                </div>
+                <button id="createClassBtn" class="btn btn-success btn-wide">
+                    <i class="fas fa-plus"></i> Добавить класс
                 </button>
             </div>
-        </section>
 
+            <div class="card class-selection">
+                <h3><i class="fas fa-school" style="color: var(--primary);"></i> Выбор класса</h3>
+                <select id="classSelect" class="form-control">
+                    {% for class in classes %}
+                    <option value="{{ class.id }}">{{ class.grade }}{{ class.letter }}</option>
+                    {% endfor %}
+                </select>
+                <button id="showStudentsBtn" class="btn btn-primary btn-wide">
+                    <i class="fas fa-search"></i> Показать учеников
+                </button>
+            </div>
+
+            <div class="card students-list">
+                <h3><i class="fas fa-user-graduate" style="color: var(--primary);"></i> Ученики класса <span id="currentClass"></span></h3>
+                
+                <div style="overflow-x: auto;">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ФИО</th>
+                                <th>Логин</th>
+                                <th>Оц.</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS заполняет -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="add-student-form">
+                    <h4><i class="fas fa-user-plus"></i> Добавить нового ученика</h4>
+                    <input type="text" id="newStudentName" class="form-control" placeholder="ФИО">
+                    <input type="text" id="newStudentLogin" class="form-control" placeholder="Логин">
+                    <div class="form-row">
+                        <input type="text" id="newStudentPassword" class="form-control" placeholder="Пароль">
+                        <button id="generatePasswordBtn" class="btn btn-light" style="margin-bottom: 12px; white-space: nowrap;">
+                            <i class="fas fa-key"></i>
+                        </button>
+                    </div>
+                    <button id="addStudentBtn" class="btn btn-primary btn-wide">
+                        <i class="fas fa-plus"></i> Добавить ученика
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Рассадка -->
+        <div class="right-column">
+            <div class="card classroom-section">
+                <div class="classroom-header">
+                    <h3><i class="fas fa-chair" style="color: var(--warning);"></i> Рассадка (перетащи ученика на парту)</h3>
+                    <div class="classroom-controls">
+                        <label>
+                            Рядов:
+                            <input type="number" id="rowsCount" min="1" max="10" value="5">
+                        </label>
+                        <button id="autoSeatBtn" class="btn btn-light btn-sm">
+                            <i class="fas fa-magic"></i> Авто
+                        </button>
+                        <button id="clearSeatingBtn" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Сброс
+                        </button>
+                    </div>
+                </div>
+
+                <div class="unseated-section">
+                    <h4><i class="fas fa-users"></i> Нерассаженные ученики</h4>
+                    <div id="unseatedList" class="unseated-list">
+                        <!-- JS заполняет -->
+                    </div>
+                </div>
+
+                <div id="classroom" class="classroom-grid classroom-3cols">
+                    <div class="classroom-column" data-col="0">
+                        <div class="column-title">Левый ряд</div>
+                    </div>
+                    <div class="classroom-column" data-col="1">
+                        <div class="column-title">Центральный ряд</div>
+                    </div>
+                    <div class="classroom-column" data-col="2">
+                        <div class="column-title">Правый ряд</div>
+                    </div>
+                </div>
+
+                <div class="classroom-hint">
+                    <i class="fas fa-info-circle"></i> Оценка (2–5) выставляется автоматически по месту: 1 ряд → 2/3, 2 ряд → 4/5, 3 ряд → 2/3…
+                </div>
+            </div>
+        </div>
     </main>
-</div>
 
-<script src="{{ url_for('static', filename='js/manage_students.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/manage_students.js') }}"></script>
 </body>
 </html>

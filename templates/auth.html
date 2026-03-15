@@ -4,116 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Платформа урока. СОШ №62 - Авторизация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный фон */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            animation: move 20s linear infinite;
+        }
+
+        @keyframes move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-card {
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 8px 16px -4px rgba(59, 130, 246, 0.3);
+        }
+
+        .auth-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: var(--card);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .lesson-code-section {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 2px dashed var(--border);
+        }
+
+        .lesson-code-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
-
-    <!-- ================= VIDEO INTRO ================= -->
-   <div id="intro-overlay">
-    <div class="intro-bg">
-        <video
-            id="intro-video"
-            src="{{ url_for('static', filename='video/intro.mp4') }}"
-            autoplay
-            muted
-            playsinline
-        ></video>
-    </div>
-
-    <div class="intro-fade"></div>
-</div>
-    <!-- ================================================= -->
-
-    <!-- ================= AUTH ================= -->
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
                 <h1>Математическая платформа</h1>
-                <p>Система интерактивного обучения математике</p>
+                <p>Система интерактивного обучения</p>
             </div>
 
             <form id="loginForm" method="POST" action="{{ url_for('login') }}">
                 {% if error %}
-                <div class="alert alert-error">{{ error }}</div>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
                 {% endif %}
 
                 <div class="form-group">
                     <label for="username">Имя пользователя</label>
-                    <input type="text" id="username" name="username" required>
+                    <input type="text" id="username" name="username" placeholder="Введите логин" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Пароль</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password" placeholder="Введите пароль" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Войти</button>
+                <button type="submit" class="btn btn-primary">
+                    <span>Войти в систему</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
 
-            <!-- ===== Вход в урок по коду ===== -->
+            <div class="divider">
+                <span>или</span>
+            </div>
 
-<div style="
-margin-top:25px;
-padding-top:20px;
-border-top:1px solid #e5e5e5;
-text-align:center;
-">
-
-<h3 style="margin-bottom:10px">Войти в урок</h3>
-
-<input
-type="text"
-id="lessonCodeInput"
-placeholder="Введите код урока"
-style="
-width:100%;
-padding:10px;
-border:1px solid #ccc;
-border-radius:6px;
-margin-bottom:10px;
-font-size:16px;
-"
-/>
-
-<button id="joinLessonBtn" class="btn btn-secondary" style="width:100%">
-Войти по коду
-</button>
-
-</div>
+            <div class="lesson-code-section">
+                <h3>Быстрый вход в урок</h3>
+                <div class="form-group" style="margin-bottom: 12px; margin-top: 12px;">
+                    <input type="text" id="lessonCodeInput" placeholder="Введите код урока (например: MATH-2024)">
+                </div>
+                <button id="joinLessonBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Присоединиться</span>
+                </button>
+            </div>
 
             <div class="auth-footer">
-                <p>Нет аккаунта? Обратитесь к администратору</p>
+                <p>Нет аккаунта? Обратитесь к администратору школы</p>
             </div>
         </div>
     </div>
-    <!-- ======================================== -->
-
-    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
     <script>
-
-const joinBtn = document.getElementById("joinLessonBtn")
-
-if(joinBtn){
-
-joinBtn.onclick = () => {
-
-const code = document.getElementById("lessonCodeInput").value.trim()
-
-if(!code){
-alert("Введите код урока")
-return
-}
-
-window.location.href = "/join/" + code
-
-}
-
-}
-
-</script>
-
+        // Вход по коду
+        document.getElementById('joinLessonBtn').onclick = () => {
+            const code = document.getElementById('lessonCodeInput').value.trim();
+            if (!code) {
+                alert('Введите код урока');
+                return;
+            }
+            window.location.href = '/join/' + code;
+        };
+    </script>
 </body>
 </html>
