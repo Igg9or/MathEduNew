@@ -66,31 +66,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Обновляем задания
             student.tasks.forEach((task, index) => {
-                const tasksCount = student.tasks.length;
-                const cell = row.cells[index + 1]; // ОК, НО ниже важное
+                const cell = row.cells[index + 1];
                 if (!cell) return;
                 
+                // ✅ ИСПРАВЛЕНО: Добавлен класс status-badge для цветной подсветки
                 cell.innerHTML = task.answered 
                     ? (task.is_correct 
-                        ? '<span class="correct" title="Правильно">✓</span>' 
-                        : '<span class="incorrect" title="Ошибка">✗</span>')
-                    : '<span class="pending" title="Не отвечено">—</span>';
+                        ? '<span class="status-badge correct" title="Правильно">✓</span>' 
+                        : '<span class="status-badge incorrect" title="Ошибка">✗</span>')
+                    : '<span class="status-badge pending" title="Не отвечено">—</span>';
             });
 
-            // Обновляем прогресс
-            // Обновляем прогресс
-const progressBar = row.querySelector('.progress-bar');
-const progressText = row.querySelector('.progress-container span');
+            // ✅ ИСПРАВЛЕНО: Обновляем прогресс - правильные селекторы
+            const progressBarFill = row.querySelector('.progress-bar-mini .fill');
+            const progressText = row.querySelector('.progress-text');
 
-if (progressBar && progressText) {
-    const total = student.tasks.length;
-    const correct = student.tasks.filter(t => t.is_correct).length;
-    const percent = total ? Math.round((correct / total) * 100) : 0;
+            if (progressBarFill && progressText) {
+                const total = student.tasks.length;
+                const correct = student.tasks.filter(t => t.is_correct).length;
+                const percent = total ? Math.round((correct / total) * 100) : 0;
 
-    progressBar.style.width = percent + '%';
-    progressText.textContent = percent + '%';
-}
-
+                progressBarFill.style.width = percent + '%';
+                progressText.textContent = percent + '%';
+            }
         });
     }
 
@@ -220,7 +218,11 @@ if (progressBar && progressText) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
+                    legend: {
+                        display: false
+                    },
                     tooltip: {
                         callbacks: {
                             label: (ctx) => `${ctx.parsed.y}% правильных ответов`
@@ -252,47 +254,46 @@ if (progressBar && progressText) {
         }, 3000);
     }
 
-
+    // Генерация ДЗ для класса
     document.getElementById('generateClassHomeworkBtn')?.addEventListener('click', function() {
-    this.disabled = true;
-    this.textContent = 'Генерация...';
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация...';
 
-    // Собираем ID исключённых заданий (если чекбоксы есть)
-    const excludedTasks = Array.from(document.querySelectorAll('.exclude-task:checked'))
-        .map(cb => cb.value);
+        // Собираем ID исключённых заданий (если чекбоксы есть)
+        const excludedTasks = Array.from(document.querySelectorAll('.exclude-task:checked'))
+            .map(cb => cb.value);
 
-    fetch(`/api/generate_homework_class/${lessonId}`, { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exclude: excludedTasks })
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.blob();
-            }
-            throw new Error('Ошибка генерации');
+        fetch(`/api/generate_homework_class/${lessonId}`, { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ exclude: excludedTasks })
         })
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Домашнее_задание_класс_${lessonId}.pdf`;
-            a.click();
-        })
-        .catch(error => {
-            showErrorNotification(error.message);
-        })
-        .finally(() => {
-            this.disabled = false;
-            this.textContent = '📘 Создать ДЗ для класса';
-        });
-});
-
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Ошибка генерации');
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Домашнее_задание_класс_${lessonId}.pdf`;
+                a.click();
+            })
+            .catch(error => {
+                showErrorNotification(error.message);
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-file-alt"></i> ДЗ для класса';
+            });
+    });
 
     // Генерация отчета
     document.getElementById('generateReportBtn')?.addEventListener('click', function() {
         this.disabled = true;
-        this.textContent = 'Генерация...';
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Генерация...';
         
         fetch(`/teacher/generate_lesson_report/${lessonId}`)
             .then(response => {
@@ -313,7 +314,7 @@ if (progressBar && progressText) {
             })
             .finally(() => {
                 this.disabled = false;
-                this.textContent = '📄 Сгенерировать отчет (PDF)';
+                this.innerHTML = '<i class="fas fa-file-pdf"></i> Сгенерировать отчет (PDF)';
             });
     });
 
@@ -341,34 +342,33 @@ if (progressBar && progressText) {
     });
 
     // Генерация ДЗ для конкретного ученика
-document.querySelectorAll('.btn-generate-homework').forEach(button => {
-    button.addEventListener('click', async () => {
-        const studentId = button.dataset.studentId;
-        const lessonId = window.location.pathname.split('/').pop();
+    document.querySelectorAll('.btn-generate-homework').forEach(button => {
+        button.addEventListener('click', async () => {
+            const studentId = button.dataset.studentId;
+            const lessonId = window.location.pathname.split('/').pop();
 
-        button.disabled = true;
-        button.textContent = '⏳ Генерация...';
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-        try {
-            const response = await fetch(`/api/generate_homework/${lessonId}/${studentId}`, {
-                method: 'POST'
-            });
+            try {
+                const response = await fetch(`/api/generate_homework/${lessonId}/${studentId}`, {
+                    method: 'POST'
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (data.url) {
-                window.open(data.url, '_blank');
-            } else {
-                alert(data.text || 'Не удалось сгенерировать ДЗ');
+                if (data.url) {
+                    window.open(data.url, '_blank');
+                } else {
+                    alert(data.text || 'Не удалось сгенерировать ДЗ');
+                }
+            } catch (e) {
+                alert('Ошибка при генерации ДЗ');
+                console.error(e);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-book"></i>';
             }
-        } catch (e) {
-            alert('Ошибка при генерации ДЗ');
-            console.error(e);
-        } finally {
-            button.disabled = false;
-            button.textContent = '📘 ДЗ';
-        }
+        });
     });
-});
-
 });
