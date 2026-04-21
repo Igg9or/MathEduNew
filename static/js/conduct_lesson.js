@@ -69,22 +69,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cell = row.cells[index + 1];
                 if (!cell) return;
                 
-                // ✅ ИСПРАВЛЕНО: Добавлен класс status-badge для цветной подсветки
-                cell.innerHTML = task.answered 
-                    ? (task.is_correct 
-                        ? '<span class="status-badge correct" title="Правильно">✓</span>' 
-                        : '<span class="status-badge incorrect" title="Ошибка">✗</span>')
-                    : '<span class="status-badge pending" title="Не отвечено">—</span>';
+                // ✅ ИСПРАВЛЕНО: Добавлен класс status-badge для цветной подсветки + partial
+                let badgeHtml;
+                if (!task.answered) {
+                    badgeHtml = '<span class="status-badge pending" title="Не отвечено">—</span>';
+                } else if (task.is_partial) {
+                    badgeHtml = '<span class="status-badge partial" title="Правильно, но с ошибкой (0.5 балла)">●</span>';
+                } else if (task.is_correct) {
+                    badgeHtml = '<span class="status-badge correct" title="Правильно">✓</span>';
+                } else {
+                    badgeHtml = '<span class="status-badge incorrect" title="Ошибка">✗</span>';
+                }
+                cell.innerHTML = badgeHtml;
             });
 
-            // ✅ ИСПРАВЛЕНО: Обновляем прогресс - правильные селекторы
+            // ✅ ИСПРАВЛЕНО: Обновляем прогресс с учётом partial (0.5 балла)
             const progressBarFill = row.querySelector('.progress-bar-mini .fill');
             const progressText = row.querySelector('.progress-text');
 
             if (progressBarFill && progressText) {
                 const total = student.tasks.length;
-                const correct = student.tasks.filter(t => t.is_correct).length;
-                const percent = total ? Math.round((correct / total) * 100) : 0;
+                const score = student.tasks.reduce((sum, t) => {
+                    if (t.is_partial) return sum + 0.5;
+                    if (t.is_correct) return sum + 1;
+                    return sum;
+                }, 0);
+                const percent = total ? Math.round((score / total) * 100) : 0;
 
                 progressBarFill.style.width = percent + '%';
                 progressText.textContent = percent + '%';
@@ -154,7 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 tasks[task.task_id].total++;
-                if (task.is_correct) tasks[task.task_id].correct++;
+                if (task.is_partial) {
+                    tasks[task.task_id].correct += 0.5;
+                } else if (task.is_correct) {
+                    tasks[task.task_id].correct++;
+                }
             });
         });
         

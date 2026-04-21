@@ -30,6 +30,10 @@
             <h3>Правильные</h3>
             <p id="correctCount">0</p>
         </div>
+        <div class="stat-card partial">
+            <h3>С ошибкой</h3>
+            <p id="partialCount">0</p>
+        </div>
         <div class="stat-card incorrect">
             <h3>Ошибочные</h3>
             <p id="incorrectCount">0</p>
@@ -48,6 +52,8 @@
                 <h2>Ваши уроки</h2>
                 <ul class="lesson-tree">
                     {% for lesson in lessons %}
+                    {% set score = (lesson.correct_tasks or 0) + ((lesson.partial_tasks or 0) * 0.5) %}
+                    {% set percent = (score / (lesson.total_tasks or 1)) * 100 %}
                     <li class="lesson-item {% if lesson.incorrect_tasks == 0 and lesson.total_tasks %}completed{% endif %}">
                         <div class="lesson-info">
                             <div class="lesson-meta">
@@ -56,11 +62,10 @@
                             </div>
                             <div class="lesson-progress">
                                 <div class="progress-bar">
-                                    {% set percent = (lesson.correct_tasks or 0) / (lesson.total_tasks or 1) * 100 %}
                                     <div class="progress-fill" style="width: {{ percent|round(0) }}%"></div>
                                 </div>
                                 <span class="progress-text">
-                                    {{ lesson.correct_tasks or 0 }}/{{ lesson.total_tasks or 0 }} верно
+                                    {{ lesson.correct_tasks or 0 }} верно{% if lesson.partial_tasks %} + {{ lesson.partial_tasks }} с ошибкой{% endif %} / {{ lesson.total_tasks or 0 }}
                                 </span>
                             </div>
                             <div class="lesson-actions">
@@ -84,11 +89,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         const res = await fetch("/student/statistics");
         const data = await res.json();
 
-        const total = (data.correct_answers || 0) + (data.incorrect_answers || 0);
-        const successPercent = total ? Math.round((data.correct_answers / total) * 100) : 0;
+        const correct = data.correct_answers || 0;
+        const partial = data.partial_answers || 0;
+        const incorrect = data.incorrect_answers || 0;
+        const total = correct + partial + incorrect;
+        const score = correct + (partial * 0.5);
+        const successPercent = total ? Math.round((score / total) * 100) : 0;
 
-        document.getElementById("correctCount").textContent = data.correct_answers || 0;
-        document.getElementById("incorrectCount").textContent = data.incorrect_answers || 0;
+        document.getElementById("correctCount").textContent = correct;
+        document.getElementById("partialCount").textContent = partial;
+        document.getElementById("incorrectCount").textContent = incorrect;
         document.getElementById("successPercent").textContent = successPercent + "%";
         document.getElementById("successBar").style.width = successPercent + "%";
     } catch (err) {
@@ -217,6 +227,9 @@ body {
 
 .stat-card.correct p {
     color: #2ecc71;
+}
+.stat-card.partial p {
+    color: #f59e0b;
 }
 .stat-card.incorrect p {
     color: #e74c3c;

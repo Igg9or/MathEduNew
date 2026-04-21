@@ -834,7 +834,11 @@ def student_lessons():
         u.full_name AS teacher_name,
         COALESCE(
             ROUND(
-                (COUNT(sa.task_id) FILTER (WHERE sa.is_correct = TRUE)::numeric /
+                (SUM(CASE
+                    WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1
+                    WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 0.5
+                    ELSE 0
+                END)::numeric /
                 NULLIF(COUNT(lt.id), 0)) * 100
             ),
             0
@@ -1212,7 +1216,7 @@ def save_answer():
                 WHERE task_id = %s AND user_id = %s
             ''', (data['answer'], True, task_id, user_id))
             conn.commit()
-            return jsonify({'success': True, 'updated_to_correct': True})
+            return jsonify({'success': True, 'updated_to_correct': True, 'is_partial': True})
 
         # ✅ Если ученик уже перерешивал (retry_used=True), обновляем этот флаг
         elif retry_used and not old_retry:
@@ -1223,15 +1227,17 @@ def save_answer():
                 WHERE task_id = %s AND user_id = %s
             ''', (task_id, user_id))
             conn.commit()
-            return jsonify({'success': True, 'retry_marked': True})
+            return jsonify({'success': True, 'retry_marked': True, 'is_partial': old_correct and True})
 
         # Иначе просто возвращаем старые данные
+        is_partial = bool(existing['is_correct'] and existing['retry_used'])
         return jsonify({
             'success': True,
             'already_exists': True,
             'saved_answer': existing['answer'],
             'is_correct': existing['is_correct'],
-            'retry_used': existing['retry_used']
+            'retry_used': existing['retry_used'],
+            'is_partial': is_partial
         })
 
     # 🔹 Если записи ещё нет — создаём новую
@@ -1259,7 +1265,7 @@ def save_answer():
         (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND school_id = %s AND task_id IN (
             SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s) AND school_id = %s
         )),
-        (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND school_id = %s AND is_correct = TRUE AND task_id IN (
+        (SELECT COUNT(*) FROM student_answers WHERE user_id = %s AND school_id = %s AND is_correct = TRUE AND NOT COALESCE(retry_used, FALSE) AND task_id IN (
             SELECT id FROM lesson_tasks WHERE lesson_id = (SELECT lesson_id FROM lesson_tasks WHERE id = %s AND school_id = %s) AND school_id = %s
         )),
         %s
@@ -1279,7 +1285,7 @@ def save_answer():
 
     conn.commit()
 
-    return jsonify({'success': True, 'already_exists': False})
+    return jsonify({'success': True, 'already_exists': False, 'is_partial': bool(is_correct_val and retry_used)})
 
 
 
@@ -1299,7 +1305,8 @@ def get_lesson_results(lesson_id):
         u.full_name,
         t.id as task_id,
         sa.answer,
-        sa.is_correct
+        sa.is_correct,
+        COALESCE(sa.retry_used, FALSE) as retry_used
     FROM lessons l
     JOIN users u ON u.class_id = l.class_id AND u.role='student'
     JOIN lesson_tasks t ON t.lesson_id = l.id AND t.school_id = %s
@@ -1323,10 +1330,13 @@ def get_lesson_results(lesson_id):
                     'tasks': []
                 }
             
+            is_correct = row['is_correct'] if row['is_correct'] is not None else False
+            retry_used = row['retry_used'] if row['retry_used'] is not None else False
             results[user_id]['tasks'].append({
                 'task_id': row['task_id'],
                 'answered': row['answer'] is not None,
-                'is_correct': row['is_correct'] if row['is_correct'] is not None else False,
+                'is_correct': is_correct,
+                'is_partial': bool(is_correct and retry_used),
                 'answer': row['answer']
             })
         
@@ -1356,8 +1366,13 @@ def get_student_answers(lesson_id, user_id):
     
     answers = cursor.fetchall()
     conn.close()
-    print("DEBUG get_student_answers:", answers)
-    return jsonify([dict(answer) for answer in answers])
+    result = []
+    for answer in answers:
+        d = dict(answer)
+        d['is_partial'] = bool(d.get('is_correct') and d.get('retry_used'))
+        result.append(d)
+    print("DEBUG get_student_answers:", result)
+    return jsonify(result)
 
 
 
@@ -1389,7 +1404,8 @@ def get_student_progress(lesson_id):
                 u.full_name,
                 t.id as task_id,
                 sa.answer,
-                sa.is_correct
+                sa.is_correct,
+                COALESCE(sa.retry_used, FALSE) as retry_used
             FROM users u
             JOIN lessons l ON u.class_id = l.class_id
             JOIN lesson_tasks t ON t.lesson_id = l.id
@@ -1409,18 +1425,21 @@ def get_student_progress(lesson_id):
                     'tasks': []
                 }
             
+            is_correct = row['is_correct'] if row['is_correct'] is not None else False
+            retry_used = row['retry_used'] if row['retry_used'] is not None else False
             students[student_id]['tasks'].append({
                 'task_id': row['task_id'],
                 'answered': row['answer'] is not None,
-                'is_correct': row['is_correct'] if row['is_correct'] is not None else False
+                'is_correct': is_correct,
+                'is_partial': bool(is_correct and retry_used)
             })
         
         # Рассчитываем прогресс для каждого студента
         result = []
         for student in students.values():
-            correct_count = sum(1 for task in student['tasks'] if task['is_correct'])
+            score_sum = sum(1 if task['is_correct'] and not task['is_partial'] else (0.5 if task['is_partial'] else 0) for task in student['tasks'])
             total_tasks = len(student['tasks'])
-            progress = round((correct_count / total_tasks) * 100) if total_tasks > 0 else 0
+            progress = round((score_sum / total_tasks) * 100) if total_tasks > 0 else 0
             
             result.append({
                 'student_id': student['student_id'],
@@ -2750,7 +2769,8 @@ def infer_student_mark(user_id: int) -> int:
         cur.execute("""
             SELECT 
                 COUNT(*) AS total,
-                SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct
+                SUM(CASE WHEN is_correct AND NOT COALESCE(retry_used, FALSE) THEN 1 ELSE 0 END) +
+                SUM(CASE WHEN is_correct AND COALESCE(retry_used, FALSE) THEN 0.5 ELSE 0 END) AS correct
             FROM student_answers
             WHERE user_id = %s
         """, (user_id,))
@@ -2961,16 +2981,25 @@ def student_profile():
         ''', (lesson_id, user_id))
         solved_tasks = cursor.fetchone()[0] or 0
 
-        # Сколько решено правильно
+        # Сколько решено правильно (без retry)
         cursor.execute('''
             SELECT COUNT(*)
             FROM student_answers sa
             JOIN lesson_tasks lt ON sa.task_id = lt.id
-            WHERE lt.lesson_id = %s AND sa.user_id = %s AND sa.is_correct = TRUE
+            WHERE lt.lesson_id = %s AND sa.user_id = %s AND sa.is_correct = TRUE AND NOT COALESCE(sa.retry_used, FALSE)
         ''', (lesson_id, user_id))
         correct_tasks = cursor.fetchone()[0] or 0
 
-        incorrect_tasks = total_tasks - correct_tasks
+        # Сколько решено с ошибкой (partial)
+        cursor.execute('''
+            SELECT COUNT(*)
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = %s AND sa.user_id = %s AND sa.is_correct = TRUE AND COALESCE(sa.retry_used, FALSE)
+        ''', (lesson_id, user_id))
+        partial_tasks = cursor.fetchone()[0] or 0
+
+        incorrect_tasks = total_tasks - correct_tasks - partial_tasks
 
         result.append({
             'id': lesson['id'],
@@ -2978,6 +3007,7 @@ def student_profile():
             'date': lesson['date'],
             'total_tasks': total_tasks,
             'correct_tasks': correct_tasks,
+            'partial_tasks': partial_tasks,
             'incorrect_tasks': incorrect_tasks
         })
 
@@ -3141,7 +3171,8 @@ def student_statistics():
     cursor.execute('''
         SELECT 
             COUNT(sa.task_id) AS total_answers,
-            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct_answers,
+            SUM(CASE WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS correct_answers,
+            SUM(CASE WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS partial_answers,
             SUM(CASE WHEN NOT sa.is_correct THEN 1 ELSE 0 END) AS incorrect_answers
         FROM student_answers sa
         WHERE sa.user_id = %s
@@ -3173,10 +3204,12 @@ def student_class_rating():
             u.id AS user_id,
             u.full_name,
             COUNT(sa.task_id) AS total,
-            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct,
+            SUM(CASE WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS correct,
+            SUM(CASE WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS partial,
             ROUND(
                 COALESCE(
-                    (SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END)::numeric /
+                    ((SUM(CASE WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) +
+                      SUM(CASE WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 0.5 ELSE 0 END))::numeric /
                      NULLIF(COUNT(sa.task_id), 0)::numeric) * 100,
                     0
                 ), 1
@@ -3213,10 +3246,12 @@ def student_lesson_rating(lesson_id):
             u.id AS user_id,
             u.full_name,
             COUNT(sa.task_id) AS total,
-            SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END) AS correct,
+            SUM(CASE WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS correct,
+            SUM(CASE WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) AS partial,
             ROUND(
                 COALESCE(
-                    (SUM(CASE WHEN sa.is_correct THEN 1 ELSE 0 END)::numeric /
+                    ((SUM(CASE WHEN sa.is_correct AND NOT COALESCE(sa.retry_used, FALSE) THEN 1 ELSE 0 END) +
+                      SUM(CASE WHEN sa.is_correct AND COALESCE(sa.retry_used, FALSE) THEN 0.5 ELSE 0 END))::numeric /
                      NULLIF(COUNT(sa.task_id), 0)::numeric) * 100,
                     0
                 ), 1

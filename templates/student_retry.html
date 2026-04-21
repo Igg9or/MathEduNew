@@ -59,6 +59,10 @@
                                     <span class="icon">✓</span>
                                     <span>Правильно!</span>
                                 </div>
+                                <div class="feedback-partial hidden">
+                                    <span class="icon">●</span>
+                                    <span>Молодец, но с ошибкой. Засчитано 0.5 балла.</span>
+                                </div>
                                 <div class="feedback-incorrect hidden">
                                     <span class="icon">✗</span>
                                     <span class="error-message">Ошибка! Правильный ответ: 
@@ -91,8 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const isCorrect = answer == correct;
-            card.querySelector('.feedback-correct').classList.toggle('hidden', !isCorrect);
-            card.querySelector('.feedback-incorrect').classList.toggle('hidden', isCorrect);
+            if (isCorrect) {
+                card.querySelector('.feedback-partial').classList.remove('hidden');
+                card.querySelector('.feedback-correct').classList.add('hidden');
+                card.querySelector('.feedback-incorrect').classList.add('hidden');
+            } else {
+                card.querySelector('.feedback-correct').classList.add('hidden');
+                card.querySelector('.feedback-partial').classList.add('hidden');
+                card.querySelector('.feedback-incorrect').classList.remove('hidden');
+            }
             card.querySelector('.task-feedback').classList.remove('hidden');
 
             // Сохраняем результат
@@ -173,6 +184,11 @@ body {
 }
 .feedback-correct {
     color: #4CAF50;
+    font-weight: bold;
+    margin-top: 8px;
+}
+.feedback-partial {
+    color: #f59e0b;
     font-weight: bold;
     margin-top: 8px;
 }

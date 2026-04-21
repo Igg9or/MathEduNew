@@ -275,7 +275,7 @@ async function checkRetryAnswer() {
     if (normalizedUser === normalizedCorrect) {
         console.log("✔ Автоматически засчитано (retry)");
 
-        feedback.innerHTML = '<div class="success">Правильно! Задание засчитано.</div>';
+        feedback.innerHTML = '<div class="success partial">Правильно! Молодец, но с ошибкой. Засчитано 0.5 балла.</div>';
         feedback.classList.remove('hidden');
 
         input.disabled = true;
@@ -293,7 +293,7 @@ async function checkRetryAnswer() {
             }
 
             // обновляем исходную карточку
-            showResult(currentRetryTaskCard, true, userAnswer);
+            showResult(currentRetryTaskCard, true, userAnswer, true);
             currentRetryTaskCard.querySelector('.answer-input').disabled = true;
             currentRetryTaskCard.querySelector('.btn-check').disabled = true;
 
@@ -320,8 +320,8 @@ async function checkRetryAnswer() {
         const result = await response.json();
 
         if (result.is_correct) {
-            // 💚 Правильный ответ
-            feedback.innerHTML = '<div class="success">Правильно! Задание засчитано.</div>';
+            // 🧡 Правильный ответ после retry — частичный балл
+            feedback.innerHTML = '<div class="success partial">Правильно! Молодец, но с ошибкой. Засчитано 0.5 балла.</div>';
             feedback.classList.remove('hidden');
 
             input.disabled = true;
@@ -337,7 +337,7 @@ async function checkRetryAnswer() {
                     retryBtn.classList.add('hidden');
                 }
 
-                showResult(currentRetryTaskCard, true, userAnswer);
+                showResult(currentRetryTaskCard, true, userAnswer, true);
                 currentRetryTaskCard.querySelector('.answer-input').disabled = true;
                 currentRetryTaskCard.querySelector('.btn-check').disabled = true;
 
@@ -445,7 +445,7 @@ await fetchRetryAISolution(
                     if (answer.is_correct !== null) {
                         input.disabled = true;
                         button.disabled = true;
-                        showResult(taskCard, answer.is_correct, answer.answer);
+                        showResult(taskCard, answer.is_correct, answer.answer, answer.is_partial);
                     }
 
                     // 🔒 Если ученик уже перерешивал задание — скрываем кнопку "Решить еще раз"
@@ -596,7 +596,7 @@ async function checkAnswer(taskCard) {
 
 
     // Функция показа результата
-    function showResult(taskCard, isCorrect, userAnswer) {
+    function showResult(taskCard, isCorrect, userAnswer, isPartial = false) {
          if (IS_SELF_WORK) {
     // В самостоятельной работе НИЧЕГО не показываем
     return;
@@ -607,14 +607,22 @@ async function checkAnswer(taskCard) {
     const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
     const status = taskCard.querySelector('.task-status');
 
-    if (isCorrect) {
+    if (isPartial) {
         correctFeedback.classList.remove('hidden');
         incorrectFeedback.classList.add('hidden');
-        status.style.backgroundColor = 'var(--success-color)';
+        correctFeedback.innerHTML = '<div class="feedback-partial"><i class="fas fa-check-circle"></i> Молодец, но с ошибкой. Засчитано 0.5 балла.</div>';
+        status.style.backgroundColor = 'var(--warning)';
+        taskCard.classList.add('partial');
+    } else if (isCorrect) {
+        correctFeedback.classList.remove('hidden');
+        incorrectFeedback.classList.add('hidden');
+        status.style.backgroundColor = 'var(--success)';
+        taskCard.classList.remove('partial');
     } else {
         correctFeedback.classList.add('hidden');
         incorrectFeedback.classList.remove('hidden');
-        status.style.backgroundColor = 'var(--error-color)';
+        status.style.backgroundColor = 'var(--error)';
+        taskCard.classList.remove('partial');
 
         incorrectFeedback.querySelector('.error-message').innerHTML =
             "Ответ неверный. Правильный ответ: <span class='correct-answer'>" +
@@ -651,9 +659,9 @@ async function checkAnswer(taskCard) {
     }
 }
 
-    // Функция обновления прогресса (без изменений)
+    // Функция обновления прогресса
     function updateProgress() {
-        const completedTasks = document.querySelectorAll('.task-status[style*="var(--success-color)"]').length;
+        const completedTasks = document.querySelectorAll('.task-card.correct, .task-card.partial').length;
         const totalTasks = document.querySelectorAll('.task-card').length;
         const percentage = Math.round((completedTasks / totalTasks) * 100);
 

@@ -27,18 +27,21 @@ td:first-child { width:50px; text-align:center; }
             <tr>
                 <th>№</th>
                 <th>Ученик</th>
-                <th>Решено верно</th>
+                <th>Всего</th>
+                <th>Верно</th>
+                <th>С ошибкой</th>
                 <th>Процент</th>
             </tr>
         </thead>
         <tbody>
     {% for row in rating %}
-    <tr {% if row.user_id == user_id %}class="highlight"{% endif %}>
+    <tr {% if row.user_id == user_id %}class="me"{% endif %}>
       <td>{{ loop.index }}</td>
       <td>{{ row.full_name }}</td>
       <td>{{ row.total }}</td>
       <td>{{ row.correct }}</td>
-      <td>{{ row.percent }}%</td>
+      <td>{{ row.partial or 0 }}</td>
+      <td class="percent">{{ row.percent }}%</td>
     </tr>
     {% endfor %}
   </tbody>

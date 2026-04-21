@@ -299,3 +299,9 @@ ADD COLUMN lesson_id INTEGER;
 
 ALTER TABLE lessons
 ADD COLUMN room_code INTEGER UNIQUE;
+
+
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, 21/04
+ALTER TABLE student_answers
+ADD COLUMN partial_credit BOOLEAN DEFAULT FALSE;

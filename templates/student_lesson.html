@@ -132,6 +132,11 @@
             background: linear-gradient(to right, var(--success-light) 0%, transparent 100%);
         }
 
+        .task-card.partial {
+            border-color: var(--warning);
+            background: linear-gradient(to right, var(--warning-light) 0%, transparent 100%);
+        }
+
         .task-card.incorrect {
             border-color: var(--error);
         }
@@ -166,6 +171,10 @@
 
         .task-status.correct {
             background: var(--success);
+        }
+
+        .task-status.partial {
+            background: var(--warning);
         }
 
         .task-status.incorrect {
@@ -280,6 +289,18 @@
             background: var(--success-light);
             color: #065f46;
             border: 1px solid #6ee7b7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .feedback-partial {
+            background: var(--warning-light);
+            color: #92400e;
+            border: 1px solid #fcd34d;
             display: flex;
             align-items: center;
             gap: 8px;
