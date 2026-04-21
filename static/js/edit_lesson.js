@@ -496,9 +496,7 @@ toast.remove();
   });
 
   renderTaskIndex();
-  document.querySelectorAll('.task-card').forEach(taskCard => {
-  renderTeacherStudentView(taskCard);
-});
+  
 
 const qrBtn = document.getElementById("showQrBtn")
 const qrModal = document.getElementById("qrModal")

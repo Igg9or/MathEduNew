@@ -293,3 +293,9 @@ WHERE created_at IS NULL;
 
 ALTER TABLE student_seats
 ADD COLUMN lesson_id INTEGER;
+
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, 17/03
+
+ALTER TABLE lessons
+ADD COLUMN room_code INTEGER UNIQUE;

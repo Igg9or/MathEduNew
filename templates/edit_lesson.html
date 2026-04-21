@@ -872,9 +872,16 @@
             <h2>Подключение к уроку</h2>
             <canvas id="qrCanvas" style="margin: 20px auto;"></canvas>
             <div style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px;">
-                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Код комнаты:</div>
-                <div style="font-size: 24px; font-weight: 700; letter-spacing: 2px; color: var(--primary);">{{ lesson.join_token }}</div>
-            </div>
+
+    <div style="font-size:14px;color:#666;margin-bottom:6px">
+        Код комнаты
+    </div>
+
+    <div style="font-size:32px;font-weight:700;letter-spacing:4px;color:var(--primary)">
+        {{ lesson.room_code }}
+    </div>
+
+</div>
         </div>
     </div>
 

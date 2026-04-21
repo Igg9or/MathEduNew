@@ -346,49 +346,45 @@ def edit_lesson(lesson_id):
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # --------------------------------------------------
-        # 1️⃣ Информация об уроке
+        # 1️⃣ Информация об уроке (добавили room_code)
         # --------------------------------------------------
         cursor.execute('''
-    SELECT 
-        l.id,
-        l.title,
-        l.date,
-        l.join_token,
-        c.grade,
-        c.letter
-    FROM lessons l
-    JOIN classes c ON l.class_id = c.id
-    WHERE l.id = %s
-      AND l.teacher_id = %s
-      AND l.school_id = %s
-      AND c.school_id = %s
-''', (lesson_id, session['user_id'], g.school_id, g.school_id))
-
+            SELECT 
+                l.id,
+                l.title,
+                l.date,
+                l.join_token,
+                l.room_code,          -- ✅ ВОТ ЭТО ДОБАВИЛИ
+                c.grade,
+                c.letter
+            FROM lessons l
+            JOIN classes c ON l.class_id = c.id
+            WHERE l.id = %s
+              AND l.teacher_id = %s
+              AND l.school_id = %s
+              AND c.school_id = %s
+        ''', (lesson_id, session['user_id'], g.school_id, g.school_id))
 
         lesson = cursor.fetchone()
         if not lesson:
             return redirect(url_for('teacher_dashboard'))
 
         # --------------------------------------------------
-        # 2️⃣ ЗАДАНИЯ УРОКА (ВАЖНО!)
-        # 👉 берём question и answer из lesson_tasks
-        # 👉 LEFT JOIN — чтобы кастомные задания не пропали
-        # 👉 ORDER BY — чтобы порядок был стабильный
+        # 2️⃣ ЗАДАНИЯ УРОКА
         # --------------------------------------------------
         cursor.execute('''
-    SELECT
-        lt.id,
-        lt.question,
-        lt.answer,
-        lt.template_id,
-        tt.name AS template_name
-    FROM lesson_tasks lt
-    LEFT JOIN task_templates tt ON lt.template_id = tt.id
-    WHERE lt.lesson_id = %s
-      AND lt.school_id = %s
-    ORDER BY lt.position ASC, lt.id ASC
-''', (lesson_id, g.school_id))
-
+            SELECT
+                lt.id,
+                lt.question,
+                lt.answer,
+                lt.template_id,
+                tt.name AS template_name
+            FROM lesson_tasks lt
+            LEFT JOIN task_templates tt ON lt.template_id = tt.id
+            WHERE lt.lesson_id = %s
+              AND lt.school_id = %s
+            ORDER BY lt.position ASC, lt.id ASC
+        ''', (lesson_id, g.school_id))
 
         tasks = cursor.fetchall()
 
@@ -396,19 +392,23 @@ def edit_lesson(lesson_id):
         # 3️⃣ Учебники
         # --------------------------------------------------
         cursor.execute('''
-    SELECT *
-FROM textbooks
-WHERE school_id IS NULL OR school_id = %s
-
-    ORDER BY id, title
-''', (g.school_id,))
+            SELECT *
+            FROM textbooks
+            WHERE school_id IS NULL OR school_id = %s
+            ORDER BY id, title
+        ''', (g.school_id,))
 
         textbooks = cursor.fetchall()
 
         # --------------------------------------------------
-        # 4️⃣ Шаблоны уроков (если используются)
+        # 4️⃣ Шаблоны уроков
         # --------------------------------------------------
-        cursor.execute('SELECT * FROM lesson_templates WHERE school_id = %s ORDER BY id', (g.school_id,))
+        cursor.execute('''
+            SELECT *
+            FROM lesson_templates
+            WHERE school_id = %s
+            ORDER BY id
+        ''', (g.school_id,))
 
         lesson_templates = cursor.fetchall()
 
@@ -417,7 +417,7 @@ WHERE school_id IS NULL OR school_id = %s
         # --------------------------------------------------
         return render_template(
             'edit_lesson.html',
-            lesson=dict(lesson),
+            lesson=dict(lesson),  # 👈 теперь тут есть lesson['room_code']
             tasks=[dict(t) for t in tasks],
             textbooks=[dict(tb) for tb in textbooks],
             lesson_templates=[dict(tpl) for tpl in lesson_templates]
@@ -425,7 +425,6 @@ WHERE school_id IS NULL OR school_id = %s
 
     finally:
         conn.close()
-
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):
@@ -525,20 +524,31 @@ def create_lesson():
 
         # 🔹 СОЗДАЁМ УРОК (добавили is_self_work)
         join_token = secrets.token_urlsafe(8)
+        room_code = generate_room_code(conn)
 
         cursor.execute('''
-        INSERT INTO lessons (teacher_id, class_id, title, date, is_self_work, school_id, join_token)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        RETURNING id, join_token
+        INSERT INTO lessons (
+teacher_id,
+class_id,
+title,
+date,
+is_self_work,
+school_id,
+join_token,
+room_code
+)
+VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+RETURNING id, join_token, room_code
         ''', (
-            session['user_id'],
-            class_id,
-            data['title'],
-            data['date'],
-            is_self_work,
-            g.school_id,
-            join_token
-        ))
+session['user_id'],
+class_id,
+data['title'],
+data['date'],
+is_self_work,
+g.school_id,
+join_token,
+room_code
+))
 
         row = cursor.fetchone()
 
@@ -547,6 +557,7 @@ def create_lesson():
 
         lesson_id = row[0]
         join_token = row[1]
+        room_code = row[2]
 
 
         
@@ -555,7 +566,8 @@ def create_lesson():
         return jsonify({
             'success': True,
             'lesson_id': lesson_id,
-            'join_url': f"/join/{join_token}"
+            'join_url': f"/join/{join_token}",
+            'room_code': room_code
         })
 
     except Exception as e:
@@ -3362,6 +3374,43 @@ def get_lesson_seating(lesson_id):
 
     finally:
         conn.close()
+
+import random
+
+def generate_room_code(conn):
+    cursor = conn.cursor()
+
+    while True:
+        code = random.randint(100000, 999999)
+
+        cursor.execute(
+            "SELECT 1 FROM lessons WHERE room_code = %s",
+            (code,)
+        )
+
+        if not cursor.fetchone():
+            return code
+
+@app.route('/join_code/<int:code>')
+def join_by_code(code):
+
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    cursor.execute("""
+        SELECT join_token
+        FROM lessons
+        WHERE room_code = %s
+    """, (code,))
+
+    lesson = cursor.fetchone()
+
+    conn.close()
+
+    if not lesson:
+        return "Урок не найден", 404
+
+    return redirect(url_for('join_lesson', token=lesson['join_token']))
 
 
 if __name__ == '__main__':

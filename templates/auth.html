@@ -303,14 +303,24 @@
 
     <script>
         // Вход по коду
-        document.getElementById('joinLessonBtn').onclick = () => {
-            const code = document.getElementById('lessonCodeInput').value.trim();
-            if (!code) {
-                alert('Введите код урока');
-                return;
-            }
-            window.location.href = '/join/' + code;
-        };
+        const joinBtn = document.getElementById("joinLessonBtn")
+
+        if(joinBtn){
+
+        joinBtn.onclick = () => {
+
+        const code = document.getElementById("lessonCodeInput").value.trim()
+
+        if(!code){
+        alert("Введите код урока")
+        return
+        }
+
+        window.location.href = "/join_code/" + code
+
+        }
+
+        }
     </script>
 </body>
 </html>
