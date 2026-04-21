@@ -1042,6 +1042,8 @@ def start_lesson(lesson_id):
                 question = variant_data.get('generated_question', task['question'])
                 computed_answer = variant_data.get('computed_answer', '')
                 params = variant_data.get('params', {})
+                initial_choice_idx = variant_data.get('initial_choice_idx')
+                current_choice_idx = variant_data.get('current_choice_idx') 
 
                 if task['template_id']:
                     cursor.execute(
@@ -1075,6 +1077,7 @@ def start_lesson(lesson_id):
                     question = variant['question']
                     computed_answer = variant['correct_answer']
                     params = variant['params']
+                    choice_idx = variant.get('choice_idx')
 
                     answer_type = template_dict.get('answer_type', 'numeric')
                 else:
@@ -1098,7 +1101,15 @@ def start_lesson(lesson_id):
     json.dumps({
         'params': params,
         'generated_question': question,
-        'computed_answer': computed_answer
+        'computed_answer': computed_answer,
+        'initial_choice_idx': choice_idx,
+        'current_choice_idx': choice_idx,
+        'is_retry': False,
+
+        'retry_generated_question': None,
+        'retry_computed_answer': None,
+        'retry_params': None,
+        'retry_choice_idx': None
     }),
     g.school_id
 ))
@@ -2767,22 +2778,86 @@ def generate_retry_task(task_id):
 
     user_id = session['user_id']
     conn = get_db()
+
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # --- Получаем lesson_id и шаблон ---
+        # 1. Получаем задачу и шаблон
         cursor.execute('''
-            SELECT lt.lesson_id, lt.template_id, tt.question_template, tt.answer_template,
-                   tt.parameters, tt.conditions, tt.answer_type
+            SELECT
+                lt.lesson_id,
+                lt.template_id,
+                tt.question_template,
+                tt.answer_template,
+                tt.parameters,
+                tt.conditions,
+                tt.answer_type
             FROM lesson_tasks lt
             LEFT JOIN task_templates tt ON lt.template_id = tt.id
             WHERE lt.id = %s
-  AND lt.school_id = %s
+              AND lt.school_id = %s
         ''', (task_id, g.school_id))
+
         task = cursor.fetchone()
         if not task:
             return jsonify({'error': 'Task not found'}), 404
 
+        if not task['template_id']:
+            return jsonify({'error': 'Для этого задания нет template_id'}), 400
+
+        # 2. Получаем уже выданный ученику основной вариант
+        cursor.execute('''
+            SELECT variant_data
+            FROM student_task_variants
+            WHERE lesson_id = %s
+              AND user_id = %s
+              AND task_id = %s
+              AND school_id = %s
+        ''', (task['lesson_id'], user_id, task_id, g.school_id))
+
+        saved_variant_row = cursor.fetchone()
+        if not saved_variant_row:
+            return jsonify({'error': 'Исходный вариант ученика не найден'}), 404
+
+        raw_variant = saved_variant_row['variant_data']
+        if isinstance(raw_variant, str):
+            try:
+                saved_variant = json.loads(raw_variant)
+            except Exception:
+                saved_variant = {}
+        else:
+            saved_variant = raw_variant or {}
+
+        # 3. Если retry уже был ранее сгенерирован — возвращаем его,
+        #    а не создаём заново и не трогаем основной вариант
+        existing_retry_question = saved_variant.get('retry_generated_question')
+        existing_retry_answer = saved_variant.get('retry_computed_answer')
+        existing_retry_params = saved_variant.get('retry_params')
+        existing_retry_idx = saved_variant.get('retry_choice_idx')
+
+        if existing_retry_question and existing_retry_answer:
+            return jsonify({
+                'question': existing_retry_question,
+                'correct_answer': existing_retry_answer,
+                'params': existing_retry_params or {},
+                'choice_idx': existing_retry_idx
+            })
+
+        # 4. Берём ИСХОДНЫЙ индекс
+        original_idx = saved_variant.get('initial_choice_idx')
+        if original_idx is None:
+            return jsonify({
+                'error': 'У исходного задания не сохранён initial_choice_idx. '
+                         'Нужно один раз пересоздать варианты после обновления кода.'
+            }), 400
+
+        original_idx = int(original_idx)
+
+        # 5. Ваше правило:
+        # 1->3, 2->4, 3->1, 4->2
+        retry_idx = (original_idx + 2) % 4
+
+        # 6. Подготавливаем template_dict
         params = task['parameters']
         if isinstance(params, str):
             try:
@@ -2792,7 +2867,6 @@ def generate_retry_task(task_id):
         elif not isinstance(params, dict):
             params = {}
 
-        # --- Генерируем новый вариант ---
         template_dict = {
             'id': task['template_id'],
             'question_template': task['question_template'],
@@ -2802,28 +2876,36 @@ def generate_retry_task(task_id):
             'answer_type': task['answer_type'] or 'numeric'
         }
 
-        variant = TaskGenerator.generate_task_variant(template_dict)
+        # 7. Генерируем retry-вариант
+        variant = TaskGenerator.generate_task_variant(
+            template_dict,
+            forced_choice_idx=retry_idx
+        )
 
-        # --- Сохраняем как текущий вариант ученика (перезаписываем) ---
-        variant_data = {
-            'params': variant['params'],
-            'generated_question': variant['question'],
-            'computed_answer': variant['correct_answer']
-        }
+        if not variant:
+            return jsonify({'error': 'Не удалось сгенерировать retry-вариант'}), 500
+
+        # 8. ВАЖНО:
+        # НЕ перетираем основной вариант,
+        # а сохраняем retry отдельно
+        saved_variant['retry_generated_question'] = variant['question']
+        saved_variant['retry_computed_answer'] = variant['correct_answer']
+        saved_variant['retry_params'] = variant['params']
+        saved_variant['retry_choice_idx'] = retry_idx
 
         cursor.execute('''
-            INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
-            VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (lesson_id, user_id, task_id)
-            DO UPDATE SET
-                variant_data = EXCLUDED.variant_data,
-                school_id = EXCLUDED.school_id,
+            UPDATE student_task_variants
+            SET variant_data = %s,
                 created_at = CURRENT_TIMESTAMP
+            WHERE lesson_id = %s
+              AND user_id = %s
+              AND task_id = %s
+              AND school_id = %s
         ''', (
+            json.dumps(saved_variant),
             task['lesson_id'],
             user_id,
             task_id,
-            json.dumps(variant_data),
             g.school_id
         ))
 
@@ -2832,12 +2914,13 @@ def generate_retry_task(task_id):
         return jsonify({
             'question': variant['question'],
             'correct_answer': variant['correct_answer'],
-            'params': variant['params']
+            'params': variant['params'],
+            'choice_idx': retry_idx
         })
 
     except Exception as e:
-        print(f"ERROR generating retry task: {e}")
         conn.rollback()
+        print(f"Error in generate_retry_task: {e}")
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
@@ -2917,13 +3000,30 @@ def student_retry_lesson(lesson_id):
 
     # 1. Выбираем шаблоны для всех задач, где есть ошибки
     cursor.execute('''
-        SELECT lt.id AS task_id, lt.template_id, tt.question_template, tt.answer_template,
-               tt.parameters, tt.conditions, tt.answer_type
+        SELECT
+            lt.id AS task_id,
+            lt.template_id,
+            tt.question_template,
+            tt.answer_template,
+            tt.parameters,
+            tt.conditions,
+            tt.answer_type,
+            stv.variant_data
         FROM lesson_tasks lt
         JOIN task_templates tt ON lt.template_id = tt.id
-        LEFT JOIN student_answers sa ON sa.task_id = lt.id AND sa.user_id = %s
-        WHERE lt.lesson_id = %s AND (sa.is_correct = FALSE OR sa.answer IS NULL)
-    ''', (user_id, lesson_id))
+        LEFT JOIN student_answers sa
+            ON sa.task_id = lt.id
+        AND sa.user_id = %s
+        AND sa.school_id = %s
+        LEFT JOIN student_task_variants stv
+            ON stv.lesson_id = lt.lesson_id
+        AND stv.task_id = lt.id
+        AND stv.user_id = %s
+        AND stv.school_id = %s
+        WHERE lt.lesson_id = %s
+        AND lt.school_id = %s
+        AND (sa.is_correct = FALSE OR sa.answer IS NULL)
+    ''', (user_id, g.school_id, user_id, g.school_id, lesson_id, g.school_id))
     tasks = cursor.fetchall()
 
     if not tasks:
@@ -2937,8 +3037,10 @@ def student_retry_lesson(lesson_id):
 
     generated_tasks = []
     for t in tasks:
+        
         try:
             params = json.loads(t['parameters']) if isinstance(t['parameters'], str) else (t['parameters'] or {})
+
             template_dict = {
                 'id': t['template_id'],
                 'question_template': t['question_template'],
@@ -2948,8 +3050,33 @@ def student_retry_lesson(lesson_id):
                 'answer_type': t['answer_type'] or 'numeric'
             }
 
-            # 2. Генерируем новое задание
-            variant = TaskGenerator.generate_task_variant(template_dict)
+            # 1. Читаем старый variant_data
+            raw_variant_data = t['variant_data']
+            if isinstance(raw_variant_data, str):
+                try:
+                    old_variant_data = json.loads(raw_variant_data)
+                except Exception:
+                    old_variant_data = {}
+            else:
+                old_variant_data = raw_variant_data or {}
+
+            initial_choice_idx = old_variant_data.get('initial_choice_idx')
+
+            if initial_choice_idx is None:
+                print(f"У задания {t['task_id']} нет initial_choice_idx, пропускаю")
+                continue
+
+            initial_choice_idx = int(initial_choice_idx)
+
+            # 2. Считаем парный retry-вариант:
+            # 0->2, 1->3, 2->0, 3->1
+            retry_idx = (initial_choice_idx + 2) % 4
+
+            # 3. Генерируем НЕ случайный вариант, а строго нужный
+            variant = TaskGenerator.generate_task_variant(
+                template_dict,
+                forced_choice_idx=retry_idx
+            )
 
             generated_tasks.append({
                 'id': t['task_id'],
@@ -2958,13 +3085,32 @@ def student_retry_lesson(lesson_id):
                 'answer': variant['correct_answer']
             })
 
-            # 3. (необязательно) Сохраняем сгенерированный вариант в student_task_variants
+            # 4. Сохраняем новый retry-вариант
+            new_variant_data = {
+                'params': variant['params'],
+                'generated_question': variant['question'],
+                'computed_answer': variant['correct_answer'],
+                'initial_choice_idx': initial_choice_idx,
+                'current_choice_idx': retry_idx,
+                'is_retry': True
+            }
+
             cursor.execute('''
-                INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO student_task_variants
+                    (lesson_id, user_id, task_id, variant_data, school_id)
+                VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT (lesson_id, user_id, task_id)
-                DO UPDATE SET variant_data = EXCLUDED.variant_data
-            ''', (lesson_id, user_id, t['task_id'], json.dumps(variant)))
+                DO UPDATE SET
+                    variant_data = EXCLUDED.variant_data,
+                    school_id = EXCLUDED.school_id,
+                    created_at = CURRENT_TIMESTAMP
+            ''', (
+                lesson_id,
+                user_id,
+                t['task_id'],
+                json.dumps(new_variant_data),
+                g.school_id
+            ))
 
         except Exception as e:
             print(f"Ошибка генерации задания {t['task_id']}: {e}")

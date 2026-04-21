@@ -22,7 +22,11 @@ def simplify_polynomial_answer(answer: str) -> str:
 
 class TaskGenerator:
     @staticmethod
-    def generate_task_variant(template, band: int | None = None):
+    def generate_task_variant(
+        template,
+        band: int | None = None,
+        forced_choice_idx: int | None = None
+    ):
         if not all(k in template for k in ('question_template', 'answer_template', 'parameters')):
             return None
 
@@ -34,8 +38,11 @@ class TaskGenerator:
             params = MathEngine.generate_parameters(
                 template['parameters'],
                 template.get('conditions', ''),
-                band=band
+                band=band,
+                forced_choice_idx=forced_choice_idx
             )
+
+        choice_idx = params.pop('__choice_idx', None)
 
         # expression-параметры
         for param, config in template.get('parameters', {}).items():
@@ -100,7 +107,8 @@ class TaskGenerator:
                 'question': question,
                 'correct_answer': answer,
                 'params': params,
-                'template_id': template.get('id')
+                'template_id': template.get('id'),
+                'choice_idx': choice_idx
             }
 
         # -------------------------
@@ -137,7 +145,8 @@ class TaskGenerator:
             'question': question,
             'correct_answer': answer,
             'params': params,
-            'template_id': template.get('id')
+            'template_id': template.get('id'),
+            'choice_idx': choice_idx
         }
 
     @staticmethod

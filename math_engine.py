@@ -39,7 +39,12 @@ class MathEngine:
         return start, end
 
     @staticmethod
-    def generate_parameters(template_params, conditions='', band: int | None = None):
+    def generate_parameters(
+        template_params,
+        conditions='',
+        band: int | None = None,
+        forced_choice_idx: int | None = None
+    ):
         params = {}
         # 1. Собираем все ключи типа choice для согласованного выбора
         choice_keys = [param for param, config in template_params.items()
@@ -56,10 +61,21 @@ class MathEngine:
 
             # Генерация согласованных choice-параметров по индексу
             if choice_len:
-                start, end = MathEngine._band_slice(choice_len, band)
-                idx = random.randrange(start, end)
+                if forced_choice_idx is not None:
+                    idx = int(forced_choice_idx)
+                    if idx < 0 or idx >= choice_len:
+                        raise ValueError(
+                            f"forced_choice_idx={idx} вне диапазона 0..{choice_len - 1}"
+                        )
+                else:
+                    start, end = MathEngine._band_slice(choice_len, band)
+                    idx = random.randrange(start, end)
+
                 for k in choice_keys:
                     generated[k] = template_params[k]['values'][idx]
+
+                # служебно сохраняем индекс выбранного набора
+                generated['__choice_idx'] = idx
 
             # Генерация остальных параметров
             for param, config in template_params.items():
