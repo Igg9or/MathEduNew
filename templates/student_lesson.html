@@ -720,7 +720,7 @@
     </style>
 </head>
 <body>
-    <div class="lesson-container" data-self-work="{{ 'true' if is_self_work else 'false' }}">
+    <div class="lesson-container" data-self-work="{{ 'true' if is_self_work else 'false' }}" data-lesson-ended="{{ 'true' if lesson_ended else 'false' }}">
         <header class="lesson-header">
             <div>
                 <h1>{{ lesson.title }}</h1>

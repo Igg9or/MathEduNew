@@ -992,12 +992,13 @@ def start_lesson(lesson_id):
             if not cursor.fetchone():
                 return redirect(url_for('student_lessons'))
 
-        # 📘 Информация об уроке (+ is_self_work)
+        # 📘 Информация об уроке (+ is_self_work + ended)
         cursor.execute('''
     SELECT 
         l.title,
         l.date,
         l.is_self_work,
+        l.ended,
         u.full_name AS teacher_name
     FROM lessons l
     JOIN users u ON l.teacher_id = u.id
@@ -1148,7 +1149,8 @@ def start_lesson(lesson_id):
             tasks=tasks,
             user_id=user_id,
             student_grade=student_grade,
-            is_self_work=lesson['is_self_work']  # 🔹 ВАЖНО
+            is_self_work=lesson['is_self_work'],
+            lesson_ended=bool(lesson.get('ended'))  # 🔹 НОВОЕ
         )
 
     except Exception as e:
@@ -1205,8 +1207,9 @@ def save_answer():
         old_correct = existing['is_correct']
         old_retry = existing.get('retry_used', False)
 
-        # ✅ Если ученик теперь решил правильно, обновляем статус и retry_used
+        # ✅ Если ученик теперь решил правильно, обновляем статус
         if is_correct_val and not old_correct:
+            new_retry = old_retry or retry_used
             cursor.execute('''
                 UPDATE student_answers
                 SET answer = %s,
@@ -1214,9 +1217,10 @@ def save_answer():
                     retry_used = %s,
                     answered_at = CURRENT_TIMESTAMP
                 WHERE task_id = %s AND user_id = %s
-            ''', (data['answer'], True, task_id, user_id))
+            ''', (data['answer'], new_retry, task_id, user_id))
             conn.commit()
-            return jsonify({'success': True, 'updated_to_correct': True, 'is_partial': True})
+            _update_student_progress(conn, cursor, user_id, task_id)
+            return jsonify({'success': True, 'updated_to_correct': True, 'is_partial': bool(new_retry)})
 
         # ✅ Если ученик уже перерешивал (retry_used=True), обновляем этот флаг
         elif retry_used and not old_retry:
@@ -1227,6 +1231,7 @@ def save_answer():
                 WHERE task_id = %s AND user_id = %s
             ''', (task_id, user_id))
             conn.commit()
+            _update_student_progress(conn, cursor, user_id, task_id)
             return jsonify({'success': True, 'retry_marked': True, 'is_partial': old_correct and True})
 
         # Иначе просто возвращаем старые данные
@@ -1252,10 +1257,14 @@ def save_answer():
         school_id = EXCLUDED.school_id
 ''', (task_id, user_id, data['answer'], is_correct_val, retry_used, g.school_id))
 
-
     conn.commit()
+    _update_student_progress(conn, cursor, user_id, task_id)
 
-        # После conn.commit()
+    return jsonify({'success': True, 'already_exists': False, 'is_partial': bool(is_correct_val and retry_used)})
+
+
+# 🔹 Хелпер: пересчёт прогресса ученика по уроку
+def _update_student_progress(conn, cursor, user_id, task_id):
     cursor.execute('''
     INSERT INTO student_progress (user_id, lesson_id, total_tasks, solved_tasks, correct_tasks, school_id)
     VALUES (
@@ -1282,11 +1291,7 @@ def save_answer():
     user_id, g.school_id, task_id, g.school_id, g.school_id,
     g.school_id
 ))
-
     conn.commit()
-
-    return jsonify({'success': True, 'already_exists': False, 'is_partial': bool(is_correct_val and retry_used)})
-
 
 
 @app.route('/teacher/get_lesson_results/<int:lesson_id>')
@@ -1381,11 +1386,41 @@ def get_student_answers(lesson_id, user_id):
 def end_lesson(lesson_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Здесь можно добавить логику завершения урока
-    # Например, пометить урок как завершенный в базе данных
-    
-    return jsonify({'success': True})
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE lessons SET ended = TRUE WHERE id = %s AND teacher_id = %s AND school_id = %s",
+            (lesson_id, session['user_id'], g.school_id)
+        )
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/lesson_status/<int:lesson_id>')
+def lesson_status(lesson_id):
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(
+            "SELECT ended, is_self_work FROM lessons WHERE id = %s AND school_id = %s",
+            (lesson_id, g.school_id)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({'error': 'Not found'}), 404
+        return jsonify({
+            'ended': bool(row['ended']),
+            'is_self_work': bool(row['is_self_work'])
+        })
+    finally:
+        conn.close()
 
 
 @app.route('/teacher/get_student_progress/<int:lesson_id>')
@@ -2873,10 +2908,6 @@ def generate_retry_task(task_id):
 
         original_idx = int(original_idx)
 
-        # 5. Ваше правило:
-        # 1->3, 2->4, 3->1, 4->2
-        retry_idx = (original_idx + 2) % 4
-
         # 6. Подготавливаем template_dict
         params = task['parameters']
         if isinstance(params, str):
@@ -2886,6 +2917,14 @@ def generate_retry_task(task_id):
                 params = {}
         elif not isinstance(params, dict):
             params = {}
+
+        # 5. Вычисляем retry-индекс на основе реальной длины choice-массива
+        choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
+        if choice_keys:
+            choice_len = len(params[choice_keys[0]]['values'])
+            retry_idx = (original_idx + choice_len // 2) % choice_len
+        else:
+            retry_idx = original_idx
 
         template_dict = {
             'id': task['template_id'],
@@ -3098,9 +3137,13 @@ def student_retry_lesson(lesson_id):
 
             initial_choice_idx = int(initial_choice_idx)
 
-            # 2. Считаем парный retry-вариант:
-            # 0->2, 1->3, 2->0, 3->1
-            retry_idx = (initial_choice_idx + 2) % 4
+            # 2. Считаем парный retry-вариант на основе реальной длины choice-массива
+            choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
+            if choice_keys:
+                choice_len = len(params[choice_keys[0]]['values'])
+                retry_idx = (initial_choice_idx + choice_len // 2) % choice_len
+            else:
+                retry_idx = initial_choice_idx
 
             # 3. Генерируем НЕ случайный вариант, а строго нужный
             variant = TaskGenerator.generate_task_variant(

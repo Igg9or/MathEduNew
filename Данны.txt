@@ -305,3 +305,9 @@ ADD COLUMN room_code INTEGER UNIQUE;
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, 21/04
 ALTER TABLE student_answers
 ADD COLUMN partial_credit BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS is_self_work BOOLEAN DEFAULT FALSE;
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS join_token TEXT;
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS room_code INTEGER;
+
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS ended BOOLEAN DEFAULT FALSE;

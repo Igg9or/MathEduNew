@@ -3,7 +3,8 @@ console.log('student_lesson.js v5 loaded');
 const IS_SELF_WORK =
   document.querySelector('.lesson-container')?.dataset.selfWork === 'true';
 
-
+let isLessonEnded =
+  document.querySelector('.lesson-container')?.dataset.lessonEnded === 'true';
 
 // Глобальные переменные для модального окна перерешивания
 let currentRetryTaskCard = null;
@@ -445,7 +446,13 @@ await fetchRetryAISolution(
                     if (answer.is_correct !== null) {
                         input.disabled = true;
                         button.disabled = true;
-                        showResult(taskCard, answer.is_correct, answer.answer, answer.is_partial);
+                        if (!IS_SELF_WORK || isLessonEnded) {
+                            showResult(taskCard, answer.is_correct, answer.answer, answer.is_partial);
+                        } else {
+                            // Самостоятельная работа, урок не завершён — нейтральный статус
+                            const status = taskCard.querySelector('.task-status');
+                            if (status) status.textContent = 'Ответ сохранён';
+                        }
                     }
 
                     // 🔒 Если ученик уже перерешивал задание — скрываем кнопку "Решить еще раз"
@@ -472,30 +479,38 @@ await fetchRetryAISolution(
 async function checkAnswer(taskCard) {
 
     if (IS_SELF_WORK) {
-  const taskId = taskCard.dataset.taskId;
-  const userAnswer = taskCard.querySelector('.answer-input').value.trim();
+        const taskId = taskCard.dataset.taskId;
+        const userAnswer = taskCard.querySelector('.answer-input').value.trim();
 
-  if (!userAnswer) {
-    alert("Введите ответ!");
-    return;
-  }
+        if (!userAnswer) {
+            alert("Введите ответ!");
+            return;
+        }
 
-  // 1️⃣ сохраняем ответ (без оценки)
-  await saveAnswerToServer(taskId, userAnswer, null);
+        if (isLessonEnded) {
+            alert("Урок уже завершён. Ответы больше не принимаются.");
+            return;
+        }
 
-  // 2️⃣ скрытая проверка (ИИ, но без UI)
-  checkAnswerSilently(taskCard, userAnswer);
+        // 1️⃣ блокируем ввод
+        taskCard.querySelector('.answer-input').disabled = true;
+        taskCard.querySelector('.btn-check').disabled = true;
 
-  // 3️⃣ блокируем ввод
-  taskCard.querySelector('.answer-input').disabled = true;
-  taskCard.querySelector('.btn-check').disabled = true;
+        // 2️⃣ показываем статус проверки
+        const status = taskCard.querySelector('.task-status');
+        if (status) status.textContent = 'Проверяется...';
 
-  // 4️⃣ нейтральный статус
-  const status = taskCard.querySelector('.task-status');
-  if (status) status.textContent = 'Ответ сохранён';
+        // 3️⃣ сохраняем ответ (без оценки — сервер запишет False как placeholder)
+        await saveAnswerToServer(taskId, userAnswer, false);
 
-  return; // ⛔ дальше код НЕ идёт
-}
+        // 4️⃣ скрытая проверка (ИИ, но без UI) — ждём результат
+        await checkAnswerSilently(taskCard, userAnswer);
+
+        // 5️⃣ обновляем статус
+        if (status) status.textContent = 'Ответ сохранён';
+
+        return; // ⛔ дальше код НЕ идёт
+    }
 
 
     const taskId = taskCard.dataset.taskId;
@@ -597,8 +612,8 @@ async function checkAnswer(taskCard) {
 
     // Функция показа результата
     function showResult(taskCard, isCorrect, userAnswer, isPartial = false) {
-         if (IS_SELF_WORK) {
-    // В самостоятельной работе НИЧЕГО не показываем
+         if (IS_SELF_WORK && !isLessonEnded) {
+    // В самостоятельной работе НИЧЕГО не показываем, пока урок не завершён
     return;
   }
 
@@ -944,8 +959,8 @@ function removeTypingIndicator(node) {
     // === НОВАЯ ВЕРСИЯ ===
     async function fetchAISolution(taskCard, studentAnswer = '') {
 
-        if (IS_SELF_WORK) {
-    return; // ❌ ИИ-решение НИКОГДА не показываем
+        if (IS_SELF_WORK && !isLessonEnded) {
+    return; // ❌ ИИ-решение НЕ показываем до завершения урока
   }
   
   // Контейнер решения внутри карточки
@@ -1311,6 +1326,66 @@ document.querySelectorAll('.task-card').forEach(taskCard => {
   renderStudentLikePreview(taskCard);
 });
 
+    // 🔹 Показываем результаты, если урок уже завершён
+    if (isLessonEnded) {
+        revealAllResults();
+    }
+
+    // 🔹 Polling статуса урока (каждые 10 сек)
+    async function pollLessonStatus() {
+        if (isLessonEnded) return;
+        const lessonId = window.location.pathname.split('/').pop();
+        try {
+            const resp = await fetch(`/api/lesson_status/${lessonId}`);
+            const data = await resp.json();
+            if (data.ended) {
+                await revealAllResults();
+            }
+        } catch (e) {
+            console.error('poll error:', e);
+        }
+    }
+
+    const pollInterval = setInterval(pollLessonStatus, 10000);
+
+    // 🔹 Функция раскрытия всех результатов после завершения урока
+    async function revealAllResults() {
+        isLessonEnded = true;
+        clearInterval(pollInterval);
+
+        const lessonId = window.location.pathname.split('/').pop();
+        const firstCard = document.querySelector('.task-card');
+        if (!firstCard) return;
+        const userId = firstCard.dataset.userId;
+
+        const resp = await fetch(`/get_student_answers/${lessonId}/${userId}`);
+        const answers = await resp.json();
+
+        answers.forEach(answer => {
+            const taskCard = document.querySelector(`.task-card[data-task-id="${answer.task_id}"]`);
+            if (!taskCard) return;
+
+            const input = taskCard.querySelector('.answer-input');
+            const btn = taskCard.querySelector('.btn-check');
+            if (input) input.disabled = true;
+            if (btn) btn.disabled = true;
+
+            if (answer.is_correct !== null) {
+                showResult(taskCard, answer.is_correct, answer.answer, answer.is_partial);
+            } else {
+                // Ученик не отправлял ответ — показываем правильный ответ
+                const feedback = taskCard.querySelector('.task-feedback');
+                const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+                incorrectFeedback.querySelector('.error-message').innerHTML =
+                    "Правильный ответ: <span class='correct-answer'>" +
+                    (taskCard.dataset.correctAnswer || '') + "</span>";
+                incorrectFeedback.classList.remove('hidden');
+                feedback.classList.remove('hidden');
+                taskCard.querySelector('.task-status').style.backgroundColor = 'var(--text-muted)';
+                updateProgress();
+            }
+        });
+    }
 
 });
 
