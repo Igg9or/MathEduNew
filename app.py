@@ -494,8 +494,9 @@ def create_lesson():
     
     data = request.get_json()
 
-    # 🔹 НОВОЕ: режим самостоятельной
+    # 🔹 НОВОЕ: режим самостоятельной + без retry
     is_self_work = data.get('is_self_work', False)
+    disable_retry = data.get('disable_retry', False)
 
     class_full = data['grade']  # Формат "6В"
     
@@ -533,11 +534,12 @@ class_id,
 title,
 date,
 is_self_work,
+disable_retry,
 school_id,
 join_token,
 room_code
 )
-VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
 RETURNING id, join_token, room_code
         ''', (
 session['user_id'],
@@ -545,6 +547,7 @@ class_id,
 data['title'],
 data['date'],
 is_self_work,
+disable_retry,
 g.school_id,
 join_token,
 room_code
@@ -992,13 +995,14 @@ def start_lesson(lesson_id):
             if not cursor.fetchone():
                 return redirect(url_for('student_lessons'))
 
-        # 📘 Информация об уроке (+ is_self_work + ended)
+        # 📘 Информация об уроке (+ is_self_work + ended + disable_retry)
         cursor.execute('''
     SELECT 
         l.title,
         l.date,
         l.is_self_work,
         l.ended,
+        l.disable_retry,
         u.full_name AS teacher_name
     FROM lessons l
     JOIN users u ON l.teacher_id = u.id
@@ -1150,7 +1154,8 @@ def start_lesson(lesson_id):
             user_id=user_id,
             student_grade=student_grade,
             is_self_work=lesson['is_self_work'],
-            lesson_ended=bool(lesson.get('ended'))  # 🔹 НОВОЕ
+            lesson_ended=bool(lesson.get('ended')),
+            disable_retry=bool(lesson.get('disable_retry'))
         )
 
     except Exception as e:
@@ -1409,7 +1414,7 @@ def lesson_status(lesson_id):
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute(
-            "SELECT ended, is_self_work FROM lessons WHERE id = %s AND school_id = %s",
+            "SELECT ended, is_self_work, disable_retry FROM lessons WHERE id = %s AND school_id = %s",
             (lesson_id, g.school_id)
         )
         row = cursor.fetchone()
@@ -1417,7 +1422,8 @@ def lesson_status(lesson_id):
             return jsonify({'error': 'Not found'}), 404
         return jsonify({
             'ended': bool(row['ended']),
-            'is_self_work': bool(row['is_self_work'])
+            'is_self_work': bool(row['is_self_work']),
+            'disable_retry': bool(row['disable_retry'])
         })
     finally:
         conn.close()

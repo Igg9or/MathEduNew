@@ -6,6 +6,9 @@ const IS_SELF_WORK =
 let isLessonEnded =
   document.querySelector('.lesson-container')?.dataset.lessonEnded === 'true';
 
+const DISABLE_RETRY =
+  document.querySelector('.lesson-container')?.dataset.disableRetry === 'true';
+
 // Глобальные переменные для модального окна перерешивания
 let currentRetryTaskCard = null;
 let currentRetryTaskId = null;
@@ -16,10 +19,13 @@ const retryTaskCache = {};
 document.addEventListener('DOMContentLoaded', async function() {
 
     if (IS_SELF_WORK) {
-  document.querySelectorAll(
-    '.btn-retry, .btn-ai-chat, .btn-hint'
-  ).forEach(btn => btn.remove());
-}
+        document.querySelectorAll('.btn-ai-chat, .btn-hint')
+            .forEach(btn => btn.remove());
+    }
+    if (IS_SELF_WORK || DISABLE_RETRY) {
+        document.querySelectorAll('.btn-retry')
+            .forEach(btn => btn.remove());
+    }
 
 
     // 1️⃣ Загружаем сохраненные ответы (дождёмся выполнения)
@@ -648,7 +654,9 @@ async function checkAnswer(taskCard) {
         fetchAISolution(taskCard, userAnswer);
 
         // кнопки
-        showRetryButton(taskCard);
+        if (!DISABLE_RETRY) {
+            showRetryButton(taskCard);
+        }
     }
 
     feedback.classList.remove('hidden');

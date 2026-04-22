@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('lessonTitle').value.trim();
     const date = document.getElementById('lessonDate').value;
     const isSelfWork = document.getElementById('isSelfWork')?.checked || false;
+    const disableRetry = document.getElementById('disableRetry')?.checked || false;
 
     if (!title) {
         alert('Введите название урока');
@@ -74,7 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 grade: `${selectedGrade}${selectedLetter}`,
                 title: title,
                 date: date,
-                is_self_work: isSelfWork
+                is_self_work: isSelfWork,
+                disable_retry: disableRetry
             })
         });
 

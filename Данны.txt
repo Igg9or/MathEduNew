@@ -311,3 +311,7 @@ ALTER TABLE lessons ADD COLUMN IF NOT EXISTS join_token TEXT;
 ALTER TABLE lessons ADD COLUMN IF NOT EXISTS room_code INTEGER;
 
 ALTER TABLE lessons ADD COLUMN IF NOT EXISTS ended BOOLEAN DEFAULT FALSE;
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, 22/04
+
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS disable_retry BOOLEAN DEFAULT FALSE;
