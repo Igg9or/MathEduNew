@@ -650,8 +650,10 @@ async function checkAnswer(taskCard) {
             (taskCard.dataset.correctAnswer || '') +
             "</span>";
 
-        // ✅ СРАЗУ запускаем ИИ-решение
-        fetchAISolution(taskCard, userAnswer);
+        // ✅ СРАЗУ запускаем ИИ-решение (только в обычном режиме)
+        if (!IS_SELF_WORK) {
+            fetchAISolution(taskCard, userAnswer);
+        }
 
         // кнопки
         if (!DISABLE_RETRY) {
@@ -967,8 +969,8 @@ function removeTypingIndicator(node) {
     // === НОВАЯ ВЕРСИЯ ===
     async function fetchAISolution(taskCard, studentAnswer = '') {
 
-        if (IS_SELF_WORK && !isLessonEnded) {
-    return; // ❌ ИИ-решение НЕ показываем до завершения урока
+        if (IS_SELF_WORK) {
+    return; // ❌ В самостоятельной работе ИИ-решение не используется
   }
   
   // Контейнер решения внутри карточки
@@ -1065,8 +1067,8 @@ const questionText = extractQuestionForAI(taskCard);
     const data = await resp.json();
     let raw = data && data.solution ? data.solution : 'Ошибка получения решения.';
 
-    // ✅ если AI решил, что ученик прав — засчитываем
-    if (data && data.ai_verdict && data.ai_verdict.is_student_correct === true) {
+    // ✅ если AI решил, что ученик прав — засчитываем (только в обычном режиме)
+    if (!IS_SELF_WORK && data && data.ai_verdict && data.ai_verdict.is_student_correct === true) {
     console.log("✅ AI подтвердил правильность ответа ученика");
 
     // визуально перекрасить карточку в "правильно"
@@ -1291,36 +1293,44 @@ document.querySelectorAll('.btn-dispute').forEach(button => {
 
 async function checkAnswerSilently(taskCard, studentAnswer) {
   const taskId = taskCard.dataset.taskId;
-
-  const questionText = extractQuestionForAI(taskCard);
   const correctAnswer = taskCard.dataset.correctAnswer;
-  const studentGrade = taskCard.dataset.grade;
-  const userId = taskCard.dataset.userId;
+  const answerType = taskCard.dataset.answerType || 'numeric';
+
+  // Автозамена "√5" → "sqrt(5)" (как в обычном checkAnswer)
+  studentAnswer = studentAnswer.replace(/([0-9]*\.?[0-9]*|)\s*√\s*(\(?[a-zA-Z0-9+*/\s-]+\)?)/g, function(_, coeff, radicand) {
+      const coefficient = coeff.trim() === '' ? '' : coeff.trim() + '*';
+      return coefficient + 'sqrt(' + radicand.trim() + ')';
+  });
 
   try {
-    const resp = await fetch('/api/ai_full_solution', {
+    // 1️⃣ Быстрая строковая проверка (если ответы совпадают символически)
+    const normalizedUser = studentAnswer.trim().replace(/\s+/g, "").toLowerCase();
+    const normalizedCorrect = (correctAnswer || '').trim().replace(/\s+/g, "").toLowerCase();
+    if (normalizedUser === normalizedCorrect) {
+      await saveAnswerToServer(taskId, studentAnswer, true);
+      return;
+    }
+
+    // 2️⃣ Точная серверная проверка (SymPy / числовая)
+    const resp = await fetch('/api/check_answer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         task_id: taskId,
-        question: questionText,
+        answer: studentAnswer,
         correct_answer: correctAnswer,
-        student_answer: studentAnswer,
-        student_grade: studentGrade,
-        user_id: userId,
-        silent: true
+        answer_type: answerType
       })
     });
 
-    const data = await resp.json();
+    const result = await resp.json();
+    if (result.error) throw new Error(result.error);
 
-    if (data?.ai_verdict?.is_student_correct === true) {
-      await saveAnswerToServer(taskId, studentAnswer, true);
-    } else {
-      await saveAnswerToServer(taskId, studentAnswer, false);
-    }
+    await saveAnswerToServer(taskId, studentAnswer, result.is_correct);
   } catch (e) {
     console.error('Silent check error:', e);
+    // При ошибке сервера сохраняем как неверный (безопаснее, чем ошибочно засчитать)
+    await saveAnswerToServer(taskId, studentAnswer, false);
   }
 }
 
