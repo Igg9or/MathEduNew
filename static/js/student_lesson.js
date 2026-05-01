@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 4️⃣ Инициализация модального окна
     initRetryModal();
 
+    function _isLinkOnlyQuestion(questionText) {
+        if (!questionText) return false;
+        const q = questionText.trim();
+        return q.startsWith('http') || q.startsWith('<a href=') || (q.includes('http') && q.includes('<a'));
+    }
+
     function extractQuestionForAI(taskCard) {
         const qNode = taskCard.querySelector('.task-question');
         if (!qNode) return '';
@@ -1331,8 +1337,13 @@ async function checkAnswerSilently(taskCard, studentAnswer) {
       return;
     }
 
-    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ
-    await fallbackToAI(taskCard, studentAnswer);
+    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ (если задание не ссылка)
+    const questionText = extractQuestionForAI(taskCard);
+    if (!_isLinkOnlyQuestion(questionText)) {
+      await fallbackToAI(taskCard, studentAnswer);
+    } else {
+      await saveAnswerToServer(taskId, studentAnswer, false);
+    }
   } catch (e) {
     console.error('Silent check error:', e);
     // При ошибке сервера сохраняем как неверный

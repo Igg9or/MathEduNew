@@ -2121,9 +2121,14 @@ def recheck_lesson(lesson_id):
 
         # Получаем все ответы учеников для этого урока
         cursor.execute('''
-            SELECT sa.task_id, sa.user_id, sa.answer, sa.is_correct, lt.answer as correct_answer, tt.answer_type
+            SELECT sa.task_id, sa.user_id, sa.answer, sa.is_correct,
+                   stv.variant_data, tt.answer_type, lt.question as question_text
             FROM student_answers sa
             JOIN lesson_tasks lt ON sa.task_id = lt.id
+            LEFT JOIN student_task_variants stv 
+                   ON stv.lesson_id = lt.lesson_id 
+                  AND stv.user_id = sa.user_id 
+                  AND stv.task_id = sa.task_id
             LEFT JOIN task_templates tt ON lt.template_id = tt.id
             WHERE lt.lesson_id = %s AND sa.school_id = %s
         ''', (lesson_id, g.school_id))
@@ -2132,11 +2137,30 @@ def recheck_lesson(lesson_id):
         updated_count = 0
         checked_count = 0
 
+        def _is_link_only_question(question):
+            if not question:
+                return False
+            q = question.strip()
+            return (q.startswith('http') or 
+                    q.startswith('<a href=') or 
+                    (len(q) < 300 and 'http' in q and '<a' in q))
+
         for row in answers:
             user_answer = row['answer']
-            correct_answer = row['correct_answer']
             answer_type = row['answer_type'] or 'numeric'
             old_is_correct = row['is_correct']
+
+            # Берём правильный ответ из варианта ученика (а не из base lesson_tasks)
+            variant_data = row['variant_data']
+            if isinstance(variant_data, str):
+                import json as _json
+                variant_data = _json.loads(variant_data)
+            elif variant_data is None:
+                variant_data = {}
+
+            correct_answer = variant_data.get('computed_answer', '') or row.get('correct_answer', '')
+            if not correct_answer:
+                continue
 
             # Быстрая строковая проверка
             if user_answer.strip().replace(" ", "").lower() == correct_answer.strip().replace(" ", "").lower():
