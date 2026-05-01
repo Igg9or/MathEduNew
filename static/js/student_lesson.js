@@ -650,8 +650,8 @@ async function checkAnswer(taskCard) {
             (taskCard.dataset.correctAnswer || '') +
             "</span>";
 
-        // ✅ СРАЗУ запускаем ИИ-решение (только в обычном режиме)
-        if (!IS_SELF_WORK) {
+        // ✅ СРАЗУ запускаем ИИ-решение (в самостоятельной работе — только после завершения урока)
+        if (!IS_SELF_WORK || isLessonEnded) {
             fetchAISolution(taskCard, userAnswer);
         }
 
@@ -969,8 +969,8 @@ function removeTypingIndicator(node) {
     // === НОВАЯ ВЕРСИЯ ===
     async function fetchAISolution(taskCard, studentAnswer = '') {
 
-        if (IS_SELF_WORK) {
-    return; // ❌ В самостоятельной работе ИИ-решение не используется
+        if (IS_SELF_WORK && !isLessonEnded) {
+    return; // ❌ ИИ-решение НЕ показываем до завершения урока
   }
   
   // Контейнер решения внутри карточки
@@ -1067,7 +1067,7 @@ const questionText = extractQuestionForAI(taskCard);
     const data = await resp.json();
     let raw = data && data.solution ? data.solution : 'Ошибка получения решения.';
 
-    // ✅ если AI решил, что ученик прав — засчитываем (только в обычном режиме)
+    // ✅ если AI решил, что ученик прав — засчитываем (только в обычном режиме, не в самостоятельной работе)
     if (!IS_SELF_WORK && data && data.ai_verdict && data.ai_verdict.is_student_correct === true) {
     console.log("✅ AI подтвердил правильность ответа ученика");
 
@@ -1326,10 +1326,47 @@ async function checkAnswerSilently(taskCard, studentAnswer) {
     const result = await resp.json();
     if (result.error) throw new Error(result.error);
 
-    await saveAnswerToServer(taskId, studentAnswer, result.is_correct);
+    if (result.is_correct) {
+      await saveAnswerToServer(taskId, studentAnswer, true);
+      return;
+    }
+
+    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ
+    await fallbackToAI(taskCard, studentAnswer);
   } catch (e) {
     console.error('Silent check error:', e);
-    // При ошибке сервера сохраняем как неверный (безопаснее, чем ошибочно засчитать)
+    // При ошибке сервера сохраняем как неверный
+    await saveAnswerToServer(taskId, studentAnswer, false);
+  }
+}
+
+async function fallbackToAI(taskCard, studentAnswer) {
+  const taskId = taskCard.dataset.taskId;
+  const questionText = extractQuestionForAI(taskCard);
+  const correctAnswer = taskCard.dataset.correctAnswer;
+  const studentGrade = taskCard.dataset.grade;
+  const userId = taskCard.dataset.userId;
+
+  try {
+    const resp = await fetch('/api/ai_full_solution', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        task_id: taskId,
+        question: questionText,
+        correct_answer: correctAnswer,
+        student_answer: studentAnswer,
+        student_grade: studentGrade,
+        user_id: userId,
+        silent: true
+      })
+    });
+
+    const data = await resp.json();
+    const isCorrect = data?.ai_verdict?.is_student_correct === true;
+    await saveAnswerToServer(taskId, studentAnswer, isCorrect);
+  } catch (e) {
+    console.error('AI fallback error:', e);
     await saveAnswerToServer(taskId, studentAnswer, false);
   }
 }
