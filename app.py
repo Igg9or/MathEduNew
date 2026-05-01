@@ -1946,6 +1946,247 @@ def insert_mul_sign(expr):
     expr = re.sub(r'(\))([a-zA-Z])', r'\1*\2', expr)
     return expr
 
+
+def _is_fraction(s):
+    return '/' in s and len(s.split('/')) == 2
+
+
+def _to_float(val):
+    try:
+        return float(val.replace(",", "."))
+    except Exception:
+        try:
+            if _is_fraction(val):
+                num, denom = val.split('/')
+                return float(num) / float(denom)
+        except Exception:
+            return None
+    return None
+
+
+def _parse_math_answer(ans):
+    s = ans.replace(",", ".").replace("%", "").strip()
+    if "_" in s:
+        parts = s.split("_")
+        if len(parts) == 2 and "/" in parts[1]:
+            whole = float(parts[0])
+            num, denom = parts[1].split("/")
+            return whole + float(num) / float(denom)
+    if " " in s and "/" in s:
+        parts = s.split(" ")
+        if len(parts) == 2 and "/" in parts[1]:
+            whole = float(parts[0])
+            num, denom = parts[1].split("/")
+            return whole + float(num) / float(denom)
+    if "/" in s:
+        try:
+            num, denom = s.split("/")
+            return float(num) / float(denom)
+        except Exception:
+            pass
+    if s.startswith("sqrt(") and s.endswith(")"):
+        try:
+            return math.sqrt(float(s[5:-1]))
+        except:
+            pass
+    if "^" in s:
+        try:
+            base, exp = s.split("^")
+            return float(base) ** float(exp)
+        except:
+            pass
+    try:
+        return float(s)
+    except Exception:
+        return None
+
+
+def _parse_answer_list(ans):
+    sep = ";" if ";" in ans else ("," if "," in ans else None)
+    if sep:
+        parts = [p.strip() for p in ans.split(sep)]
+    else:
+        parts = [ans.strip()]
+    return [_parse_math_answer(p) for p in parts if p]
+
+
+def _check_equivalent_answers(user, correct, answer_type="string"):
+    user = str(user).replace(" ", "").replace('^', '**')
+    correct = str(correct).replace(" ", "").replace('^', '**')
+    if answer_type in ("numeric", "дробный"):
+        try:
+            if '/' in user or '/' in correct:
+                return Fraction(user) == Fraction(correct)
+            return abs(float(user) - float(correct)) < 1e-6
+        except Exception:
+            pass
+    if (";" in user or "," in user) and (";" in correct or "," in correct):
+        user_parts = re.split(r"[;,]", user)
+        correct_parts = re.split(r"[;,]", correct)
+        if len(user_parts) == len(correct_parts):
+            try:
+                return all(_check_equivalent_answers(u, c, answer_type) for u, c in zip(user_parts, correct_parts))
+            except Exception:
+                return False
+    try:
+        user_expr = simplify(sympify(user))
+        correct_expr = simplify(sympify(correct))
+        return simplify(user_expr - correct_expr) == 0
+    except Exception:
+        return user.lower() == correct.lower()
+
+
+def _check_answer_core(user_answer, correct_answer, answer_type='numeric'):
+    """
+    Ядро проверки ответа. Возвращает True, False или None при ошибке парсинга.
+    """
+    user_answer = str(user_answer).strip()
+    correct_answer = str(correct_answer).strip()
+
+    # --- Интервалы ---
+    if answer_type == "interval" or (
+        ";" in correct_answer and all(
+            "/" in part or "." in part or part.isdigit() or part.lstrip("-").replace(".", "").isdigit()
+            for part in correct_answer.split(";"))
+    ):
+        interval_bounds = _parse_answer_list(correct_answer)
+        if len(interval_bounds) == 2 and None not in interval_bounds:
+            left, right = sorted(interval_bounds)
+            user_val = _parse_math_answer(user_answer)
+            if user_val is not None:
+                return left < user_val < right
+            return False
+
+    # --- Строковые ---
+    if answer_type == 'string':
+        ua = user_answer.replace(" ", "")
+        ca = correct_answer.replace(" ", "")
+        if len(ua) == 1 and len(ca) == 1:
+            return ua == ca
+        def can_parse_as_expr(s):
+            return any(c.isalpha() for c in s) and any(op in s for op in "+-*/^")
+        if can_parse_as_expr(ua) and can_parse_as_expr(ca):
+            try:
+                ua_mod = insert_mul_sign(ua)
+                ca_mod = insert_mul_sign(ca)
+                expr1 = parse_expr(ua_mod.replace("^", "**"))
+                expr2 = parse_expr(ca_mod.replace("^", "**"))
+                return simplify(expr1 - expr2) == 0
+            except Exception:
+                return ua.lower() == ca.lower()
+        else:
+            return ua.lower() == ca.lower()
+
+    # --- Алгебраические ---
+    if answer_type == 'algebraic':
+        try:
+            ua_mod = insert_mul_sign(user_answer)
+            ca_mod = insert_mul_sign(correct_answer)
+            expr1 = simplify(sympify(ua_mod.replace("^", "**")))
+            expr2 = simplify(sympify(ca_mod.replace("^", "**")))
+            return simplify(expr1 - expr2) == 0
+        except Exception:
+            def normalize_string_answer(answer):
+                return re.sub(r'\s+', '', answer).replace('\u200b', '').replace('\xa0', '').strip().lower()
+            return normalize_string_answer(user_answer) == normalize_string_answer(correct_answer)
+
+    # --- Основная проверка: списки дробей и чисел ---
+    user_vals = _parse_answer_list(user_answer)
+    correct_vals = _parse_answer_list(correct_answer)
+    if len(user_vals) != len(correct_vals) or any(v is None for v in user_vals):
+        return False
+    if any(v is None for v in correct_vals):
+        return None
+
+    return all(round(u, 4) == round(c, 4) for u, c in zip(user_vals, correct_vals))
+
+
+@app.route('/api/recheck_lesson/<int:lesson_id>', methods=['POST'])
+def recheck_lesson(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Проверяем, что урок существует
+        cursor.execute(
+            "SELECT * FROM lessons WHERE id = %s AND school_id = %s",
+            (lesson_id, g.school_id)
+        )
+        lesson = cursor.fetchone()
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+
+        # Получаем все ответы учеников для этого урока
+        cursor.execute('''
+            SELECT sa.task_id, sa.user_id, sa.answer, sa.is_correct, lt.answer as correct_answer, tt.answer_type
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            LEFT JOIN task_templates tt ON lt.template_id = tt.id
+            WHERE lt.lesson_id = %s AND sa.school_id = %s
+        ''', (lesson_id, g.school_id))
+
+        answers = cursor.fetchall()
+        updated_count = 0
+        checked_count = 0
+
+        for row in answers:
+            user_answer = row['answer']
+            correct_answer = row['correct_answer']
+            answer_type = row['answer_type'] or 'numeric'
+            old_is_correct = row['is_correct']
+
+            # Быстрая строковая проверка
+            if user_answer.strip().replace(" ", "").lower() == correct_answer.strip().replace(" ", "").lower():
+                new_is_correct = True
+            else:
+                new_is_correct = _check_answer_core(user_answer, correct_answer, answer_type)
+                if new_is_correct is None:
+                    continue
+                checked_count += 1
+
+            if new_is_correct != old_is_correct:
+                cursor.execute('''
+                    UPDATE student_answers
+                    SET is_correct = %s, answered_at = CURRENT_TIMESTAMP
+                    WHERE task_id = %s AND user_id = %s
+                ''', (new_is_correct, row['task_id'], row['user_id']))
+                updated_count += 1
+
+        conn.commit()
+
+        # Пересчитываем прогресс для всех учеников
+        cursor.execute('''
+            SELECT DISTINCT sa.user_id
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = %s
+        ''', (lesson_id,))
+        users = cursor.fetchall()
+
+        cursor.execute('SELECT id FROM lesson_tasks WHERE lesson_id = %s', (lesson_id,))
+        tasks = [r['id'] for r in cursor.fetchall()]
+
+        for user_row in users:
+            for task_id in tasks:
+                _update_student_progress(conn, cursor, user_row['user_id'], task_id)
+
+        return jsonify({
+            'success': True,
+            'total_checked': len(answers),
+            'server_checked': checked_count,
+            'updated': updated_count
+        })
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
 @app.route('/api/check_answer', methods=['POST'])
 def api_check_answer():
     try:

@@ -336,9 +336,35 @@ document.addEventListener('DOMContentLoaded', function() {
     updateAllData();
     document.getElementById('refreshResults').addEventListener('click', updateAllData);
     document.getElementById('endLesson').addEventListener('click', confirmEndLesson);
+    document.getElementById('recheckLesson')?.addEventListener('click', recheckLesson);
     
     // Автообновление каждые 10 секунд
     const updateInterval = setInterval(updateAllData, 10000);
+
+    // Перепроверка ответов урока
+    async function recheckLesson() {
+        if (!confirm('Перепроверить все ответы учеников по точным алгоритмам? Это может изменить результаты.')) {
+            return;
+        }
+        const btn = document.getElementById('recheckLesson');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Перепроверка...';
+        try {
+            const resp = await fetch(`/api/recheck_lesson/${lessonId}`, { method: 'POST' });
+            const data = await resp.json();
+            if (data.success) {
+                alert(`Перепроверка завершена!\nВсего ответов: ${data.total_checked}\nПроверено алгоритмом: ${data.server_checked}\nИзменено вердиктов: ${data.updated}`);
+                updateAllData();
+            } else {
+                alert('Ошибка перепроверки: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        } catch (e) {
+            alert('Ошибка сети при перепроверке');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo"></i> Перепроверить';
+        }
+    }
 
     // Подтверждение завершения урока
     function confirmEndLesson() {
