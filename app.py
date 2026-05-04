@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import  math
 import sympy
-import os, re, json, random
+import os, re, json, random, time
 import datetime
 from datetime import datetime as dt
 from math_engine import MathEngine
@@ -1084,17 +1084,25 @@ def start_lesson(lesson_id):
                         params = json.loads(params)
                     template_dict['parameters'] = params
 
-                    variant = TaskGenerator.generate_task_variant(
-                        template_dict,
-                        band=student_mark
-                    )
+                    # Если задание с фото — статичное, вариант не генерируем
+                    if template_dict.get('photo_path'):
+                        question = template_dict.get('question_template', '')
+                        computed_answer = template_dict.get('answer_template', '')
+                        params = {}
+                        choice_idx = None
+                        answer_type = template_dict.get('answer_type', 'numeric')
+                    else:
+                        variant = TaskGenerator.generate_task_variant(
+                            template_dict,
+                            band=student_mark
+                        )
 
-                    question = variant['question']
-                    computed_answer = variant['correct_answer']
-                    params = variant['params']
-                    choice_idx = variant.get('choice_idx')
+                        question = variant['question']
+                        computed_answer = variant['correct_answer']
+                        params = variant['params']
+                        choice_idx = variant.get('choice_idx')
 
-                    answer_type = template_dict.get('answer_type', 'numeric')
+                        answer_type = template_dict.get('answer_type', 'numeric')
                 else:
                     # старые задания
                     params = {}
@@ -3004,10 +3012,16 @@ def ai_full_solution():
     try:
         if photo_path:
             # Vision-режим: отправляем фото + текст
-            import base64
-            full_img_path = os.path.join(os.path.dirname(__file__), photo_path.lstrip('/'))
-            with open(full_img_path, 'rb') as img_file:
-                image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+            if photo_path.startswith('http'):
+                # Внешний URL — передаём напрямую
+                image_url = photo_path
+            else:
+                # Локальный файл — кодируем в base64
+                import base64
+                full_img_path = os.path.join(os.path.dirname(__file__), photo_path.lstrip('/'))
+                with open(full_img_path, 'rb') as img_file:
+                    image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                image_url = f"data:image/jpeg;base64,{image_base64}"
             
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -3018,7 +3032,7 @@ def ai_full_solution():
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}",
+                                "url": image_url,
                                 "detail": "high"
                             }
                         }

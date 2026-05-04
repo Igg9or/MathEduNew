@@ -16,6 +16,49 @@ let currentRetryTaskId = null;
 // ✅ Кеш сгенерированных заданий "Решить ещё раз": taskId -> { html }
 const retryTaskCache = {};
 
+function _isLinkOnlyQuestion(questionText) {
+    if (!questionText) return false;
+    const q = questionText.trim();
+    return q.startsWith('http') || q.startsWith('<a href=') || (q.includes('http') && q.includes('<a'));
+}
+
+function extractQuestionForAI(taskCard) {
+    const qNode = taskCard.querySelector('.task-question');
+    if (!qNode) return '';
+
+    let raw = qNode.dataset ? qNode.dataset.questionRaw : '';
+    if (raw) {
+        try { raw = JSON.parse(raw); } catch { /* уже строка */ }
+    } else {
+        raw = qNode.innerHTML || '';
+    }
+
+    raw = raw
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<sup>(.*?)<\/sup>/gi, '^$1')
+        .replace(/&times;|×/g, '\\cdot')
+        .replace(/&divide;|÷/g, '\\div');
+
+    return raw.trim();
+}
+
+async function saveAnswerToServer(taskId, answer, isCorrect, retryUsed = false) {
+    try {
+        await fetch('/save_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                task_id: taskId,
+                answer: answer,
+                is_correct: isCorrect,
+                retry_used: retryUsed
+            })
+        });
+    } catch (error) {
+        console.error('Ошибка сохранения:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
 
     if (IS_SELF_WORK) {
@@ -51,35 +94,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 4️⃣ Инициализация модального окна
     initRetryModal();
-
-    function _isLinkOnlyQuestion(questionText) {
-        if (!questionText) return false;
-        const q = questionText.trim();
-        return q.startsWith('http') || q.startsWith('<a href=') || (q.includes('http') && q.includes('<a'));
-    }
-
-    function extractQuestionForAI(taskCard) {
-        const qNode = taskCard.querySelector('.task-question');
-        if (!qNode) return '';
-
-        // 1) Пытаемся взять сырой HTML/LaTeX из data-атрибута
-        let raw = qNode.dataset ? qNode.dataset.questionRaw : '';
-        if (raw) {
-            try { raw = JSON.parse(raw); } catch { /* уже строка */ }
-        } else {
-            // 2) Фоллбэк — берём HTML, а не textContent (так не потеряем дроби/степени)
-            raw = qNode.innerHTML || '';
-        }
-
-        // Лёгкая нормализация (чтобы модель видела операции):
-        raw = raw
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<sup>(.*?)<\/sup>/gi, '^$1')
-            .replace(/&times;|×/g, '\\cdot')
-            .replace(/&divide;|÷/g, '\\div');
-
-        return raw.trim();
-        }
 
 
     
@@ -671,24 +685,6 @@ async function checkAnswer(taskCard) {
     updateProgress();
 }
 
-
-    // Функция сохранения ответа на сервере
-    async function saveAnswerToServer(taskId, answer, isCorrect, retryUsed = false) {
-    try {
-        await fetch('/save_answer', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                task_id: taskId,
-                answer: answer,
-                is_correct: isCorrect,
-                retry_used: retryUsed
-            })
-        });
-    } catch (error) {
-        console.error('Ошибка сохранения:', error);
-    }
-}
 
     // Функция обновления прогресса
     function updateProgress() {
