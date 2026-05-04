@@ -200,7 +200,25 @@ function processTemplate(template) {
       .then(r => r.json())
       .then(v => {
         const textarea = taskCard.querySelector('.task-question');
-        textarea.value = v.question;
+        const answerInput = taskCard.querySelector('.task-answer-input');
+        
+        if (v.has_photo) {
+          // Фото-задание: статичное, вариант не генерируем
+          textarea.value = v.question || '';
+          if (answerInput) answerInput.value = v.correct_answer || '';
+          
+          // Сохраняем путь к фото для отправки на сервер
+          taskCard.dataset.photoPath = v.photo_path || '';
+          
+          // Показываем превью фото
+          const preview = taskCard.querySelector('.task-question-preview');
+          if (preview && v.photo_path) {
+            preview.innerHTML = `<img src="${v.photo_path}" style="max-width:100%;max-height:200px;border-radius:8px;cursor:pointer;" onclick="window.open('${v.photo_path}','_blank')">`;
+          }
+        } else {
+          textarea.value = v.question;
+        }
+        
         renderTaskPreview(taskCard);
       });
   }
@@ -468,7 +486,8 @@ toast.remove();
   question: card.querySelector('.task-question').value,
   answer: card.querySelector('.task-answer').value,
   template_id: card.dataset.templateId || null,
-  position: index + 1
+  position: index + 1,
+  photo_path: card.dataset.photoPath || null
 });
 
     });

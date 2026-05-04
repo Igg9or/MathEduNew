@@ -717,6 +717,43 @@
                 font-size: 16px;
             }
         }
+
+        /* Фото задания */
+        .task-photo {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .task-photo-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius-sm);
+            cursor: zoom-in;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .task-photo-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Lightbox */
+        .photo-lightbox {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+        .photo-lightbox.active {
+            display: flex;
+        }
+        .photo-lightbox img {
+            max-width: 95vw;
+            max-height: 95vh;
+            border-radius: var(--radius-sm);
+        }
     </style>
 </head>
 <body>
@@ -747,7 +784,9 @@
                      data-answer-type="{{ task.answer_type }}"
                      data-template-id="{{ task.template_id }}"
                      data-grade="{{ student_grade }}"
-                     data-params='{{ task.params|tojson|safe }}'>
+                     data-params='{{ task.params|tojson|safe }}'
+                     data-photo-path="{{ task.photo_path or '' }}"
+                     data-has-photo="{{ 'true' if task.photo_path else 'false' }}">
                     
                     <div class="task-header">
                         <div class="task-number">Задание {{ loop.index }}</div>
@@ -755,6 +794,11 @@
                     </div>
                     
                     <div class="task-body">
+                        {% if task.photo_path %}
+                        <div class="task-photo">
+                            <img src="{{ task.photo_path }}" alt="Фото к заданию" class="task-photo-img" onclick="openPhotoLightbox(this.src)">
+                        </div>
+                        {% endif %}
                         <div class="task-question" data-question-raw='{{ task.question|tojson|safe }}'>
                             {{ task.question|safe }}
                         </div>
@@ -843,6 +887,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Lightbox для фото -->
+    <div id="photoLightbox" class="photo-lightbox" onclick="this.classList.remove('active')">
+        <img src="" alt="Увеличенное фото">
+    </div>
+
+    <script>
+        function openPhotoLightbox(src) {
+            const lb = document.getElementById('photoLightbox');
+            lb.querySelector('img').src = src;
+            lb.classList.add('active');
+        }
+    </script>
 
     <script src="/static/js/marked.min.js"></script>
     <script src="{{ url_for('static', filename='js/student_lesson.js') }}?v=8"></script>

@@ -1,5 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import  math
 import sympy
 import os, re, json, random
@@ -378,6 +379,7 @@ def edit_lesson(lesson_id):
                 lt.question,
                 lt.answer,
                 lt.template_id,
+                lt.photo_path,
                 tt.name AS template_name
             FROM lesson_tasks lt
             LEFT JOIN task_templates tt ON lt.template_id = tt.id
@@ -596,7 +598,8 @@ def update_lesson(lesson_id):
         question = %s,
         answer = %s,
         template_id = %s,
-        position = %s
+        position = %s,
+        photo_path = %s
     WHERE id = %s
       AND school_id = %s
 """, (
@@ -604,6 +607,7 @@ def update_lesson(lesson_id):
     task['answer'],
     task.get('template_id'),
     task['position'],
+    task.get('photo_path'),
     task['id'],
     g.school_id
 ))
@@ -611,15 +615,16 @@ def update_lesson(lesson_id):
             else:
                 cursor.execute("""
     INSERT INTO lesson_tasks
-    (lesson_id, question, answer, template_id, position, school_id)
-    VALUES (%s, %s, %s, %s, %s, %s)
+    (lesson_id, question, answer, template_id, position, school_id, photo_path)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
 """, (
     lesson_id,
     task['question'],
     task['answer'],
     task.get('template_id'),
     task['position'],
-    g.school_id
+    g.school_id,
+    task.get('photo_path')
 ))
 
 
@@ -1052,7 +1057,8 @@ def start_lesson(lesson_id):
                 computed_answer = variant_data.get('computed_answer', '')
                 params = variant_data.get('params', {})
                 initial_choice_idx = variant_data.get('initial_choice_idx')
-                current_choice_idx = variant_data.get('current_choice_idx') 
+                current_choice_idx = variant_data.get('current_choice_idx')
+                photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') 
 
                 if task['template_id']:
                     cursor.execute(
@@ -1114,6 +1120,7 @@ def start_lesson(lesson_id):
         'initial_choice_idx': choice_idx,
         'current_choice_idx': choice_idx,
         'is_retry': False,
+        'photo_path': task.get('photo_path', ''),
 
         'retry_generated_question': None,
         'retry_computed_answer': None,
@@ -1129,7 +1136,8 @@ def start_lesson(lesson_id):
                 'question': question,
                 'correct_answer': computed_answer,
                 'params': params,
-                'answer_type': answer_type
+                'answer_type': answer_type,
+                'photo_path': task.get('photo_path', '')
             })
 
         conn.commit()
@@ -2431,6 +2439,16 @@ def generate_from_template(template_id):
         else:
             template_dict['parameters'] = template_dict['parameters']  # может быть уже dict (jsonb)
         
+        # Если шаблон с фото — задание статичное, вариант не генерируем
+        if template_dict.get('has_photo'):
+            return jsonify({
+                'question': template_dict.get('question_template', ''),
+                'correct_answer': template_dict.get('answer_template', ''),
+                'photo_path': template_dict.get('photo_path', ''),
+                'has_photo': True,
+                'answer_type': template_dict.get('answer_type', 'numeric')
+            })
+        
         # Генерируем вариант
         variant = TaskGenerator.generate_task_variant(template_dict)
         print('Сгенерированный вариант:', variant, type(variant))
@@ -2890,7 +2908,36 @@ def ai_full_solution():
     question_hash = hashlib.sha256(question.strip().encode("utf-8")).hexdigest()
 
     # =====================================================
-    # 🔹 1. ПРОВЕРКА КЕША (не старше 4 дней)
+    # 🔹 0. ПРОВЕРКА КЕША УРОВНЯ ЗАДАНИЯ (lesson_tasks.ai_solution)
+    # Для фото-заданий и статичных заданий — одно решение на всех
+    # =====================================================
+    photo_path = None
+    if task_id:
+        conn = get_db()
+        try:
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute(
+                "SELECT photo_path, ai_solution FROM lesson_tasks WHERE id = %s",
+                (task_id,)
+            )
+            lt_row = cursor.fetchone()
+            if lt_row:
+                photo_path = lt_row['photo_path']
+                if lt_row['ai_solution']:
+                    try:
+                        cached = json.loads(lt_row['ai_solution'])
+                        return jsonify({
+                            "solution": cached.get("solution", ""),
+                            "ai_verdict": cached.get("ai_verdict"),
+                            "cached": True
+                        })
+                    except Exception:
+                        pass
+        finally:
+            conn.close()
+
+    # =====================================================
+    # 🔹 1. ПРОВЕРКА КЕША ПОЛЬЗОВАТЕЛЯ (не старше 4 дней)
     # =====================================================
     if user_id and task_id:
         conn = get_db()
@@ -2956,12 +3003,38 @@ def ai_full_solution():
     # 🔹 3. ЗАПРОС К OPENAI
     # =====================================================
     try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=3000,
-            temperature=0.2
-        )
+        if photo_path:
+            # Vision-режим: отправляем фото + текст
+            import base64
+            full_img_path = os.path.join(os.path.dirname(__file__), photo_path.lstrip('/'))
+            with open(full_img_path, 'rb') as img_file:
+                image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}",
+                                "detail": "high"
+                            }
+                        }
+                    ]
+                }],
+                max_tokens=3000,
+                temperature=0.2
+            )
+        else:
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=3000,
+                temperature=0.2
+            )
 
         content = response.choices[0].message.content or ""
 
@@ -2984,7 +3057,27 @@ def ai_full_solution():
                 ai_verdict = None
 
         # =====================================================
-        # 🔹 4. СОХРАНЕНИЕ В КЕШ
+        # 🔹 4. СОХРАНЕНИЕ В КЕШ ЗАДАНИЯ (lesson_tasks.ai_solution)
+        # =====================================================
+        if task_id:
+            conn = get_db()
+            try:
+                cursor = conn.cursor()
+                cursor.execute("""
+    UPDATE lesson_tasks
+    SET ai_solution = %s,
+        ai_solution_created_at = CURRENT_TIMESTAMP
+    WHERE id = %s
+""", (
+    json.dumps({"solution": solution_text, "ai_verdict": ai_verdict}),
+    task_id
+))
+                conn.commit()
+            finally:
+                conn.close()
+
+        # =====================================================
+        # 🔹 5. СОХРАНЕНИЕ В КЕШ ПОЛЬЗОВАТЕЛЯ
         # =====================================================
         if user_id and task_id:
             conn = get_db()
@@ -3653,6 +3746,46 @@ def dev_import_templates():
             conn.close()
 
     return render_template("dev_import_templates.html", result=result)
+
+
+@app.route("/dev/upload-template-photo", methods=["POST"])
+def dev_upload_template_photo():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({"error": "Unauthorized"}), 401
+
+    textbook_id = request.form.get('textbook_id')
+    template_name = request.form.get('template_name')
+    photo = request.files.get('photo')
+
+    if not photo or not template_name or not textbook_id:
+        return jsonify({"error": "Missing file, template name or textbook"}), 400
+
+    upload_dir = os.path.join('static', 'uploads', 'task_photos')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    ext = os.path.splitext(secure_filename(photo.filename))[1] or '.jpg'
+    filename = f"tb{textbook_id}_{secure_filename(template_name)}{ext}"
+    filepath = os.path.join(upload_dir, filename)
+    photo.save(filepath)
+
+    photo_url = f"/static/uploads/task_photos/{filename}"
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE task_templates 
+            SET photo_path = %s, has_photo = TRUE
+            WHERE textbook_id = %s AND name = %s
+        """, (photo_url, textbook_id, template_name))
+        conn.commit()
+        return jsonify({"success": True, "path": photo_url})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        conn.close()
+
 
 @app.route('/teacher/get_seating')
 def get_seating():

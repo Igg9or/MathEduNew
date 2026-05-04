@@ -807,7 +807,8 @@
                 <div class="task-card"
                      data-task-id="{{ task.id }}"
                      data-template-id="{{ task.template_id or '' }}"
-                     data-template-name="{{ task.template_name or '' }}">
+                     data-template-name="{{ task.template_name or '' }}"
+                     data-photo-path="{{ task.photo_path or '' }}">
                     <div class="task-header">
                         <h3>
                             Задание <span class="task-number">{{ loop.index }}</span>
@@ -820,6 +821,11 @@
                         </button>
                     </div>
                     
+                    {% if task.photo_path %}
+                    <div class="task-photo" style="margin-bottom: 12px;">
+                        <img src="{{ task.photo_path }}" style="max-width:100%;max-height:200px;border-radius:8px;cursor:pointer;" onclick="window.open('{{ task.photo_path }}','_blank')">
+                    </div>
+                    {% endif %}
                     <div class="task-question-preview"></div>
                     <textarea class="task-question hidden">{{ task.question|safe }}</textarea>
 

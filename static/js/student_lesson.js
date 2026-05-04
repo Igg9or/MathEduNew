@@ -1337,9 +1337,10 @@ async function checkAnswerSilently(taskCard, studentAnswer) {
       return;
     }
 
-    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ (если задание не ссылка)
+    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ (если задание не ссылка и не фото)
+    const hasPhoto = taskCard.dataset.hasPhoto === 'true';
     const questionText = extractQuestionForAI(taskCard);
-    if (!_isLinkOnlyQuestion(questionText)) {
+    if (!hasPhoto && !_isLinkOnlyQuestion(questionText)) {
       await fallbackToAI(taskCard, studentAnswer);
     } else {
       await saveAnswerToServer(taskId, studentAnswer, false);

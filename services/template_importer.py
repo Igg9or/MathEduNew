@@ -14,14 +14,16 @@ def import_templates_from_json(conn, json_text):
         cursor.execute("""
             INSERT INTO task_templates
             (textbook_id, name, question_template, answer_template,
-             parameters, answer_type, conditions)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+             parameters, answer_type, conditions, photo_path, has_photo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (textbook_id, name) DO UPDATE SET
                 question_template = EXCLUDED.question_template,
                 answer_template = EXCLUDED.answer_template,
                 parameters = EXCLUDED.parameters,
                 answer_type = EXCLUDED.answer_type,
-                conditions = EXCLUDED.conditions
+                conditions = EXCLUDED.conditions,
+                photo_path = EXCLUDED.photo_path,
+                has_photo = EXCLUDED.has_photo
         """, (
             tpl['textbook_id'],
             tpl['name'],
@@ -29,7 +31,9 @@ def import_templates_from_json(conn, json_text):
             tpl.get('answer_template', ''),
             json.dumps(tpl.get('parameters', {})),
             tpl.get('answer_type', 'numeric'),
-            tpl.get('conditions')
+            tpl.get('conditions'),
+            tpl.get('photo_path'),
+            tpl.get('has_photo', False)
         ))
         imported += 1
 
