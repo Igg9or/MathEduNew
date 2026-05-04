@@ -2439,13 +2439,12 @@ def generate_from_template(template_id):
         else:
             template_dict['parameters'] = template_dict['parameters']  # может быть уже dict (jsonb)
         
-        # Если шаблон с фото — задание статичное, вариант не генерируем
-        if template_dict.get('has_photo'):
+        # Если шаблон содержит фото (photo_path) — задание статичное, вариант не генерируем
+        if template_dict.get('photo_path'):
             return jsonify({
                 'question': template_dict.get('question_template', ''),
                 'correct_answer': template_dict.get('answer_template', ''),
                 'photo_path': template_dict.get('photo_path', ''),
-                'has_photo': True,
                 'answer_type': template_dict.get('answer_type', 'numeric')
             })
         
@@ -3748,36 +3747,47 @@ def dev_import_templates():
     return render_template("dev_import_templates.html", result=result)
 
 
-@app.route("/dev/upload-template-photo", methods=["POST"])
-def dev_upload_template_photo():
+@app.route('/api/lesson-tasks/<int:task_id>/photo', methods=['POST', 'DELETE'])
+def lesson_task_photo(task_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({"error": "Unauthorized"}), 401
 
-    textbook_id = request.form.get('textbook_id')
-    template_name = request.form.get('template_name')
-    photo = request.files.get('photo')
-
-    if not photo or not template_name or not textbook_id:
-        return jsonify({"error": "Missing file, template name or textbook"}), 400
-
-    upload_dir = os.path.join('static', 'uploads', 'task_photos')
-    os.makedirs(upload_dir, exist_ok=True)
-
-    ext = os.path.splitext(secure_filename(photo.filename))[1] or '.jpg'
-    filename = f"tb{textbook_id}_{secure_filename(template_name)}{ext}"
-    filepath = os.path.join(upload_dir, filename)
-    photo.save(filepath)
-
-    photo_url = f"/static/uploads/task_photos/{filename}"
-
     conn = get_db()
     try:
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # Проверяем, что задание принадлежит учителю/школе
         cursor.execute("""
-            UPDATE task_templates 
-            SET photo_path = %s, has_photo = TRUE
-            WHERE textbook_id = %s AND name = %s
-        """, (photo_url, textbook_id, template_name))
+            SELECT lt.id FROM lesson_tasks lt
+            JOIN lessons l ON lt.lesson_id = l.id
+            WHERE lt.id = %s AND l.teacher_id = %s AND lt.school_id = %s
+        """, (task_id, session['user_id'], g.school_id))
+        if not cursor.fetchone():
+            return jsonify({"error": "Task not found"}), 404
+
+        if request.method == 'DELETE':
+            cursor.execute("""
+                UPDATE lesson_tasks SET photo_path = NULL WHERE id = %s
+            """, (task_id,))
+            conn.commit()
+            return jsonify({"success": True})
+
+        # POST — загрузка файла
+        photo = request.files.get('photo')
+        if not photo:
+            return jsonify({"error": "No file"}), 400
+
+        upload_dir = os.path.join('static', 'uploads', 'task_photos')
+        os.makedirs(upload_dir, exist_ok=True)
+
+        ext = os.path.splitext(secure_filename(photo.filename))[1] or '.jpg'
+        filename = f"task_{task_id}_{int(time.time())}{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        photo.save(filepath)
+
+        photo_url = f"/static/uploads/task_photos/{filename}"
+        cursor.execute("""
+            UPDATE lesson_tasks SET photo_path = %s WHERE id = %s
+        """, (photo_url, task_id))
         conn.commit()
         return jsonify({"success": True, "path": photo_url})
     except Exception as e:

@@ -1,10 +1,15 @@
 <h1>Импорт шаблонов (JSON)</h1>
 
+<p style="color: #666; margin-bottom: 16px;">
+    Если задание содержит фото, укажите <code>"photo_url"</code> (ссылка на внешнее фото) или <code>"photo_path"</code> (внутренний путь).<br>
+    Также фото можно прикрепить позже — прямо при редактировании урока, кнопкой «📎 Прикрепить фото» у каждого задания.
+</p>
+
 <form method="post">
     <textarea name="json"
               rows="25"
               style="width:100%; font-family: monospace;"
-              placeholder="Вставь массив JSON с шаблонами"></textarea>
+              placeholder='[{"textbook_id":1,"name":"task_01","question_template":"...","answer_template":"...","answer_type":"numeric","parameters":{},"photo_url":"https://example.com/img.jpg"}]'></textarea>
 
     <button type="submit">Импортировать</button>
 </form>
@@ -14,55 +19,3 @@
       {{ result.msg }}
   </p>
 {% endif %}
-
-<hr style="margin: 32px 0;">
-
-<h2>Загрузить фото к шаблону</h2>
-<p style="color: #666; margin-bottom: 16px;">
-    Если задание содержит фото (вместо текста), загрузите его здесь. 
-    Фото будет привязано к шаблону по <code>textbook_id</code> + <code>name</code>.
-</p>
-
-<form id="photoUploadForm" enctype="multipart/form-data">
-    <div style="margin-bottom: 12px;">
-        <label>ID учебника:</label>
-        <input type="number" name="textbook_id" required style="width: 100px;">
-    </div>
-    <div style="margin-bottom: 12px;">
-        <label>Название шаблона:</label>
-        <input type="text" name="template_name" required style="width: 300px;">
-    </div>
-    <div style="margin-bottom: 12px;">
-        <label>Фото задания:</label>
-        <input type="file" name="photo" accept="image/*" required>
-    </div>
-    <button type="submit">Загрузить фото</button>
-    <span id="photoUploadStatus" style="margin-left: 12px;"></span>
-</form>
-
-<script>
-document.getElementById('photoUploadForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const status = document.getElementById('photoUploadStatus');
-    status.textContent = 'Загрузка...';
-    
-    const formData = new FormData(this);
-    try {
-        const resp = await fetch('/dev/upload-template-photo', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await resp.json();
-        if (data.success) {
-            status.textContent = '✅ Фото загружено: ' + data.path;
-            status.style.color = 'green';
-        } else {
-            status.textContent = '❌ Ошибка: ' + (data.error || 'Неизвестная ошибка');
-            status.style.color = 'red';
-        }
-    } catch (err) {
-        status.textContent = '❌ Ошибка сети';
-        status.style.color = 'red';
-    }
-});
-</script>

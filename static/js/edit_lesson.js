@@ -200,21 +200,18 @@ function processTemplate(template) {
       .then(r => r.json())
       .then(v => {
         const textarea = taskCard.querySelector('.task-question');
-        const answerInput = taskCard.querySelector('.task-answer-input');
+        const answerInput = taskCard.querySelector('.task-answer');
         
-        if (v.has_photo) {
+        if (v.photo_path) {
           // Фото-задание: статичное, вариант не генерируем
           textarea.value = v.question || '';
           if (answerInput) answerInput.value = v.correct_answer || '';
           
           // Сохраняем путь к фото для отправки на сервер
-          taskCard.dataset.photoPath = v.photo_path || '';
+          taskCard.dataset.photoPath = v.photo_path;
           
-          // Показываем превью фото
-          const preview = taskCard.querySelector('.task-question-preview');
-          if (preview && v.photo_path) {
-            preview.innerHTML = `<img src="${v.photo_path}" style="max-width:100%;max-height:200px;border-radius:8px;cursor:pointer;" onclick="window.open('${v.photo_path}','_blank')">`;
-          }
+          // Показываем превью фото в специальном блоке
+          setPhotoUI(taskCard, v.photo_path);
         } else {
           textarea.value = v.question;
         }
@@ -234,6 +231,13 @@ function processTemplate(template) {
       <div class="task-header">
         <h3>Задание <span class="task-number"></span></h3>
         <button class="btn btn-danger btn-remove-task">Удалить</button>
+      </div>
+
+      <div class="task-photo-block" style="margin-bottom: 12px;">
+        <div class="task-photo-actions">
+          <button type="button" class="btn btn-small btn-attach-photo">📎 Прикрепить фото</button>
+        </div>
+        <input type="file" class="task-photo-input hidden" accept="image/*">
       </div>
 
       <div class="task-question-preview"></div>
@@ -505,6 +509,104 @@ toast.remove();
     addTask();
     updateTaskNumbers();
   });
+
+  /* ================================
+     ФОТО: загрузка / замена / удаление
+  ================================= */
+  tasksContainer?.addEventListener('click', e => {
+    const card = e.target.closest('.task-card');
+    if (!card) return;
+    const taskId = card.dataset.taskId;
+
+    // Прикрепить / Заменить фото
+    if (e.target.classList.contains('btn-attach-photo') || e.target.classList.contains('btn-replace-photo')) {
+      const fileInput = card.querySelector('.task-photo-input');
+      fileInput?.click();
+    }
+
+    // Удалить фото
+    if (e.target.classList.contains('btn-remove-photo')) {
+      if (!taskId) {
+        // Новое задание, ещё не сохранено — просто очищаем UI
+        clearPhotoUI(card);
+        return;
+      }
+      fetch(`/api/lesson-tasks/${taskId}/photo`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(d => {
+          if (d.success) {
+            clearPhotoUI(card);
+          } else {
+            alert('Ошибка удаления фото');
+          }
+        });
+    }
+  });
+
+  // Обработка выбора файла
+  tasksContainer?.addEventListener('change', e => {
+    if (!e.target.classList.contains('task-photo-input')) return;
+    const card = e.target.closest('.task-card');
+    const taskId = card.dataset.taskId;
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!taskId) {
+      alert('Сначала сохраните урок, чтобы прикрепить фото к заданию.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const actions = card.querySelector('.task-photo-actions');
+    const oldHtml = actions.innerHTML;
+    actions.innerHTML = '<span>Загрузка...</span>';
+
+    fetch(`/api/lesson-tasks/${taskId}/photo`, {
+      method: 'POST',
+      body: formData
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          setPhotoUI(card, d.path);
+          card.dataset.photoPath = d.path;
+        } else {
+          alert('Ошибка загрузки: ' + (d.error || 'Неизвестная ошибка'));
+          actions.innerHTML = oldHtml;
+        }
+      })
+      .catch(() => {
+        alert('Ошибка сети при загрузке фото');
+        actions.innerHTML = oldHtml;
+      });
+  });
+
+  function clearPhotoUI(card) {
+    card.dataset.photoPath = '';
+    const block = card.querySelector('.task-photo-block');
+    block.innerHTML = `
+      <div class="task-photo-actions">
+        <button type="button" class="btn btn-small btn-attach-photo">📎 Прикрепить фото</button>
+      </div>
+      <input type="file" class="task-photo-input hidden" accept="image/*">
+    `;
+  }
+
+  function setPhotoUI(card, path) {
+    const block = card.querySelector('.task-photo-block');
+    block.innerHTML = `
+      <div class="task-photo-preview">
+        <img src="${path}" class="task-photo-img" onclick="window.open('${path}','_blank')">
+      </div>
+      <div class="task-photo-actions">
+        <button type="button" class="btn btn-small btn-replace-photo">🔄 Заменить фото</button>
+        <button type="button" class="btn btn-small btn-remove-photo">🗑 Удалить фото</button>
+      </div>
+      <input type="file" class="task-photo-input hidden" accept="image/*">
+    `;
+  }
 
   /* ================================
      ИНИЦИАЛИЗАЦИЯ

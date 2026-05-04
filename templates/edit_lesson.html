@@ -726,6 +726,33 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Фото в задании */
+        .task-photo-block {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .task-photo-preview {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .task-photo-img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .task-photo-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .task-photo-actions .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -821,11 +848,24 @@
                         </button>
                     </div>
                     
-                    {% if task.photo_path %}
-                    <div class="task-photo" style="margin-bottom: 12px;">
-                        <img src="{{ task.photo_path }}" style="max-width:100%;max-height:200px;border-radius:8px;cursor:pointer;" onclick="window.open('{{ task.photo_path }}','_blank')">
+                    <!-- Блок фото -->
+                    <div class="task-photo-block" style="margin-bottom: 12px;">
+                        {% if task.photo_path %}
+                        <div class="task-photo-preview">
+                            <img src="{{ task.photo_path }}" class="task-photo-img" onclick="window.open('{{ task.photo_path }}','_blank')">
+                        </div>
+                        <div class="task-photo-actions">
+                            <button type="button" class="btn btn-small btn-replace-photo">🔄 Заменить фото</button>
+                            <button type="button" class="btn btn-small btn-remove-photo">🗑 Удалить фото</button>
+                        </div>
+                        {% else %}
+                        <div class="task-photo-actions">
+                            <button type="button" class="btn btn-small btn-attach-photo">📎 Прикрепить фото</button>
+                        </div>
+                        {% endif %}
+                        <input type="file" class="task-photo-input hidden" accept="image/*">
                     </div>
-                    {% endif %}
+
                     <div class="task-question-preview"></div>
                     <textarea class="task-question hidden">{{ task.question|safe }}</textarea>
 

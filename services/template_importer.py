@@ -11,19 +11,21 @@ def import_templates_from_json(conn, json_text):
 
     imported = 0
     for tpl in templates:
+        # Поддержка photo_url из JSON (внешняя ссылка) или photo_path (внутренний путь)
+        photo = tpl.get('photo_url') or tpl.get('photo_path') or None
+
         cursor.execute("""
             INSERT INTO task_templates
             (textbook_id, name, question_template, answer_template,
-             parameters, answer_type, conditions, photo_path, has_photo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+             parameters, answer_type, conditions, photo_path)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (textbook_id, name) DO UPDATE SET
                 question_template = EXCLUDED.question_template,
                 answer_template = EXCLUDED.answer_template,
                 parameters = EXCLUDED.parameters,
                 answer_type = EXCLUDED.answer_type,
                 conditions = EXCLUDED.conditions,
-                photo_path = EXCLUDED.photo_path,
-                has_photo = EXCLUDED.has_photo
+                photo_path = EXCLUDED.photo_path
         """, (
             tpl['textbook_id'],
             tpl['name'],
@@ -32,8 +34,7 @@ def import_templates_from_json(conn, json_text):
             json.dumps(tpl.get('parameters', {})),
             tpl.get('answer_type', 'numeric'),
             tpl.get('conditions'),
-            tpl.get('photo_path'),
-            tpl.get('has_photo', False)
+            photo
         ))
         imported += 1
 
