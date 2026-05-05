@@ -1022,7 +1022,7 @@ def start_lesson(lesson_id):
 
         # 📋 Задания урока (ВАЖНО: position!)
         cursor.execute('''
-    SELECT id, question, answer, template_id
+    SELECT id, question, answer, template_id, photo_path
     FROM lesson_tasks
     WHERE lesson_id = %s
       AND school_id = %s
