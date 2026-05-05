@@ -1058,7 +1058,7 @@ def start_lesson(lesson_id):
                 params = variant_data.get('params', {})
                 initial_choice_idx = variant_data.get('initial_choice_idx')
                 current_choice_idx = variant_data.get('current_choice_idx')
-                photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') 
+                photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') or ''
 
                 if task['template_id']:
                     cursor.execute(
@@ -1110,6 +1110,8 @@ def start_lesson(lesson_id):
                     computed_answer = task['answer']
                     answer_type = 'numeric'
 
+                photo_path = task.get('photo_path', '') or ''
+
                 cursor.execute('''
     INSERT INTO student_task_variants
         (lesson_id, user_id, task_id, variant_data, school_id)
@@ -1128,7 +1130,7 @@ def start_lesson(lesson_id):
         'initial_choice_idx': choice_idx,
         'current_choice_idx': choice_idx,
         'is_retry': False,
-        'photo_path': task.get('photo_path', ''),
+        'photo_path': photo_path,
 
         'retry_generated_question': None,
         'retry_computed_answer': None,
@@ -1145,7 +1147,7 @@ def start_lesson(lesson_id):
                 'correct_answer': computed_answer,
                 'params': params,
                 'answer_type': answer_type,
-                'photo_path': task.get('photo_path', '')
+                'photo_path': photo_path
             })
 
         conn.commit()

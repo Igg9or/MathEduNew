@@ -204,7 +204,8 @@ function processTemplate(template) {
         
         if (v.photo_path) {
           // Фото-задание: статичное, вариант не генерируем
-          textarea.value = v.question || '';
+          // Не затираем текст, если question_template пустой — учитель сам введёт
+          if (v.question) textarea.value = v.question;
           if (answerInput) answerInput.value = v.correct_answer || '';
           
           // Сохраняем путь к фото для отправки на сервер
