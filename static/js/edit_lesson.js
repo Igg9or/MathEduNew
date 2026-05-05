@@ -203,9 +203,8 @@ function processTemplate(template) {
         const answerInput = taskCard.querySelector('.task-answer');
         
         if (v.photo_path) {
-          // Фото-задание: статичное, вариант не генерируем
-          // Не затираем текст, если question_template пустой — учитель сам введёт
-          if (v.question) textarea.value = v.question;
+          // Фото-задание: статичное, вариант не генерируем, текст очищаем
+          textarea.value = v.question || '';
           if (answerInput) answerInput.value = v.correct_answer || '';
           
           // Сохраняем путь к фото для отправки на сервер

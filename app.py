@@ -1109,6 +1109,7 @@ def start_lesson(lesson_id):
                     question = task['question']
                     computed_answer = task['answer']
                     answer_type = 'numeric'
+                    choice_idx = None
 
                 photo_path = task.get('photo_path', '') or ''
 
