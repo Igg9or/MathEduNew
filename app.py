@@ -590,6 +590,7 @@ def update_lesson(lesson_id):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     try:
+        task_ids = []
         for task in data['tasks']:
             if task.get('id'):
                 cursor.execute("""
@@ -611,12 +612,14 @@ def update_lesson(lesson_id):
     task['id'],
     g.school_id
 ))
+                task_ids.append(task['id'])
 
             else:
                 cursor.execute("""
     INSERT INTO lesson_tasks
     (lesson_id, question, answer, template_id, position, school_id, photo_path)
     VALUES (%s, %s, %s, %s, %s, %s, %s)
+    RETURNING id
 """, (
     lesson_id,
     task['question'],
@@ -626,10 +629,12 @@ def update_lesson(lesson_id):
     g.school_id,
     task.get('photo_path')
 ))
+                new_id = cursor.fetchone()[0]
+                task_ids.append(new_id)
 
 
         conn.commit()
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'task_ids': task_ids})
 
     except Exception as e:
         conn.rollback()
@@ -1084,12 +1089,17 @@ def start_lesson(lesson_id):
                         params = json.loads(params)
                     template_dict['parameters'] = params
 
-                    # Если задание с фото — статичное, вариант не генерируем
+                    # Если задание с фото — генерируем вариант для правильного ответа,
+                    # но question оставляем пустым (показывается только фото)
                     if template_dict.get('photo_path'):
-                        question = template_dict.get('question_template', '')
-                        computed_answer = template_dict.get('answer_template', '')
-                        params = {}
-                        choice_idx = None
+                        variant = TaskGenerator.generate_task_variant(
+                            template_dict,
+                            band=student_mark
+                        )
+                        question = ''
+                        computed_answer = variant['correct_answer']
+                        params = variant['params']
+                        choice_idx = variant.get('choice_idx')
                         answer_type = template_dict.get('answer_type', 'numeric')
                     else:
                         variant = TaskGenerator.generate_task_variant(
@@ -1890,7 +1900,8 @@ def get_template(template_id):
 
         cursor.execute("""
             SELECT id, textbook_id, name,
-                   question_template, answer_template, parameters
+                   question_template, answer_template, parameters,
+                   photo_path, answer_type, conditions
             FROM task_templates
             WHERE id = %s
         """, (template_id,))
@@ -2450,11 +2461,13 @@ def generate_from_template(template_id):
         else:
             template_dict['parameters'] = template_dict['parameters']  # может быть уже dict (jsonb)
         
-        # Если шаблон содержит фото (photo_path) — задание статичное, вариант не генерируем
+        # Если шаблон содержит фото (photo_path) — генерируем вариант для ответа,
+        # но question оставляем пустым (показывается только фото)
         if template_dict.get('photo_path'):
+            variant = TaskGenerator.generate_task_variant(template_dict)
             return jsonify({
-                'question': template_dict.get('question_template', ''),
-                'correct_answer': template_dict.get('answer_template', ''),
+                'question': '',
+                'correct_answer': variant['correct_answer'],
                 'photo_path': template_dict.get('photo_path', ''),
                 'answer_type': template_dict.get('answer_type', 'numeric')
             })
@@ -2977,10 +2990,40 @@ def ai_full_solution():
             conn.close()
 
     # =====================================================
-    # 🔹 2. ФОРМИРОВАНИЕ ПРОМПТА (ТВОЙ ИСХОДНЫЙ)
+    # 🔹 2. ФОРМИРОВАНИЕ ПРОМПТА
     # =====================================================
-    prompt = f"""
-Ты — преподаватель математики в российской школе. Учитывай пожалуйста русский ход решения, а не американский и т.д. 
+    if photo_path and not question.strip():
+        prompt = f"""
+Ты — преподаватель математики в российской школе. Учитывай пожалуйста русский ход решения, а не американский и т.д.
+Дай пошаговое объяснение решения задачи для ученика {student_grade} класса.
+Ты объясняешь материал в духе школьных учебников и методических пособий Минпросвещения РФ, но без заумных определений.
+На изображении представлена математическая задача. Реши её.
+
+ТРЕБОВАНИЯ К ОТВЕТУ (ОЧЕНЬ ВАЖНО):
+
+1️⃣ СНАЧАЛА выведи раздел "РЕШЕНИЕ:"
+— только математические действия
+— без слов и комментариев
+— как запись в тетради
+
+2️⃣ ПОТОМ выведи раздел "ПОЯСНЕНИЕ:"
+
+Дай пошаговое объяснение, чтобы ученик понял ход рассуждений.
+В конце обязательно укажи правильный ответ.
+Не упоминай, что ты ИИ.
+Все математические формулы оформляй в LaTeX.
+Не используй одинарные квадратные скобки [ ... ] для формул.
+
+ВАЖНО:
+1) В самом конце (последней строкой) выведи JSON без markdown и без ``` вида:
+{{"final_answer":"...","is_student_correct":true/false}}
+2) final_answer — это итоговый ответ по твоему решению (строкой).
+3) is_student_correct сравнивает final_answer с ответом ученика: "{student_answer}".
+Сравнение делай по смыслу (эквивалентность выражений, степени, дроби), а не только по точному совпадению строк.
+"""
+    else:
+        prompt = f"""
+Ты — преподаватель математики в российской школе. Учитывай пожалуйста русский ход решения, а не американский и т.д.
 Дай пошаговое объяснение решения задачи для ученика {student_grade} класса.
 Ты объясняешь материал в духе школьных учебников и методических пособий Минпросвещения РФ, но без заумных определений.
 Задача:
@@ -2988,12 +3031,12 @@ def ai_full_solution():
 
 ТРЕБОВАНИЯ К ОТВЕТУ (ОЧЕНЬ ВАЖНО):
 
-1️⃣ СНАЧАЛА выведи раздел "РЕШЕНИЕ:"  
-— только математические действия  
-— без слов и комментариев  
-— как запись в тетради  
+1️⃣ СНАЧАЛА выведи раздел "РЕШЕНИЕ:"
+— только математические действия
+— без слов и комментариев
+— как запись в тетради
 
-2️⃣ ПОТОМ выведи раздел "ПОЯСНЕНИЕ:"  
+2️⃣ ПОТОМ выведи раздел "ПОЯСНЕНИЕ:"
 
 Дай пошаговое объяснение, чтобы ученик понял ход рассуждений.
 В конце обязательно укажи правильный ответ.
@@ -3745,13 +3788,15 @@ def dev_import_templates():
         return redirect(url_for("login"))
 
     result = None
+    imported_names = []
+    show_all = request.args.get('show_all', '0') == '1'
 
     if request.method == "POST":
         json_text = request.form.get("json", "")
 
         try:
             conn = get_db()
-            ok, msg = import_templates_from_json(conn, json_text)
+            ok, msg, imported_names = import_templates_from_json(conn, json_text)
             result = {"ok": ok, "msg": msg}
         except Exception as e:
             result = {
@@ -3761,7 +3806,88 @@ def dev_import_templates():
         finally:
             conn.close()
 
-    return render_template("dev_import_templates.html", result=result)
+    # Загружаем шаблоны для отображения
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        if imported_names and not show_all:
+            # Показываем только что импортированные шаблоны
+            cursor.execute("""
+                SELECT tt.*, tb.title as textbook_title, tb.grade
+                FROM task_templates tt
+                LEFT JOIN textbooks tb ON tt.textbook_id = tb.id
+                WHERE tt.school_id IS NULL
+                  AND tt.name = ANY(%s)
+                ORDER BY tt.textbook_id, tt.id
+            """, (imported_names,))
+        else:
+            # Показываем все шаблоны
+            cursor.execute("""
+                SELECT tt.*, tb.title as textbook_title, tb.grade
+                FROM task_templates tt
+                LEFT JOIN textbooks tb ON tt.textbook_id = tb.id
+                WHERE tt.school_id IS NULL
+                ORDER BY tt.textbook_id, tt.id
+            """)
+        templates = cursor.fetchall()
+    except Exception as e:
+        templates = []
+        if not result:
+            result = {"ok": False, "msg": f"Ошибка загрузки шаблонов: {e}"}
+    finally:
+        conn.close()
+
+    return render_template("dev_import_templates.html",
+                           result=result,
+                           templates=[dict(t) for t in templates],
+                           show_all=show_all,
+                           just_imported=bool(imported_names))
+
+
+@app.route('/api/templates/<int:template_id>/photo', methods=['POST', 'DELETE'])
+def template_photo(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        if request.method == 'DELETE':
+            cursor.execute("""
+                UPDATE task_templates SET photo_path = NULL WHERE id = %s
+            """, (template_id,))
+            conn.commit()
+            return jsonify({"success": True})
+
+        # POST — загрузка файла
+        photo = request.files.get('photo')
+        if not photo:
+            return jsonify({"error": "No file"}), 400
+
+        upload_dir = os.path.join('static', 'uploads', 'template_photos')
+        os.makedirs(upload_dir, exist_ok=True)
+
+        ext = os.path.splitext(secure_filename(photo.filename))[1] or '.jpg'
+        filename = f"tpl_{template_id}_{int(time.time())}{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        photo.save(filepath)
+
+        photo_url = f"/static/uploads/template_photos/{filename}"
+        cursor.execute("""
+            UPDATE task_templates
+            SET photo_path = %s,
+                question_template = ''
+            WHERE id = %s
+        """, (photo_url, template_id))
+        conn.commit()
+        return jsonify({"success": True, "path": photo_url})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        conn.close()
 
 
 @app.route('/api/lesson-tasks/<int:task_id>/photo', methods=['POST', 'DELETE'])
@@ -3803,7 +3929,10 @@ def lesson_task_photo(task_id):
 
         photo_url = f"/static/uploads/task_photos/{filename}"
         cursor.execute("""
-            UPDATE lesson_tasks SET photo_path = %s WHERE id = %s
+            UPDATE lesson_tasks
+            SET photo_path = %s,
+                question = ''
+            WHERE id = %s
         """, (photo_url, task_id))
         conn.commit()
         return jsonify({"success": True, "path": photo_url})

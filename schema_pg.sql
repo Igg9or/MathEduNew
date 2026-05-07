@@ -75,6 +75,7 @@ CREATE TABLE task_templates (
     parameters TEXT NOT NULL,
     conditions TEXT,
     answer_type TEXT DEFAULT 'numeric',
+    photo_path TEXT,
     UNIQUE(textbook_id, name)
 );
 

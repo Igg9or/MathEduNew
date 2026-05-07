@@ -799,9 +799,11 @@
                             <img src="{{ task.photo_path }}" alt="Фото к заданию" class="task-photo-img" onclick="openPhotoLightbox(this.src)">
                         </div>
                         {% endif %}
+                        {% if not task.photo_path %}
                         <div class="task-question" data-question-raw='{{ task.question|tojson|safe }}'>
                             {{ task.question|safe }}
                         </div>
+                        {% endif %}
                         
                         <div class="task-answer">
                             <input type="text" class="answer-input" placeholder="Введите ваш ответ">

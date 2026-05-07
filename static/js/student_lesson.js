@@ -612,7 +612,19 @@ async function checkAnswer(taskCard) {
             return;
         }
 
-        // ❌ Неправильно
+        // ❌ Не сошёлся с шаблоном — пробуем ИИ-fallback
+        const questionText = extractQuestionForAI(taskCard);
+        if (!_isLinkOnlyQuestion(questionText)) {
+            const isCorrect = await fallbackToAI(taskCard, userAnswer);
+            if (isCorrect) {
+                showResult(taskCard, true, userAnswer);
+                taskCard.querySelector('.answer-input').disabled = true;
+                taskCard.querySelector('.btn-check').disabled = true;
+                return;
+            }
+        }
+
+        // ❌ ИИ не подтвердил или не вызвался
         taskCard.querySelector('.answer-input').disabled = true;
         taskCard.querySelector('.btn-check').disabled = true;
 
@@ -1333,10 +1345,9 @@ async function checkAnswerSilently(taskCard, studentAnswer) {
       return;
     }
 
-    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ (если задание не ссылка и не фото)
-    const hasPhoto = taskCard.dataset.hasPhoto === 'true';
+    // 3️⃣ Не сошёлся с шаблоном — fallback на ИИ (если задание не ссылка)
     const questionText = extractQuestionForAI(taskCard);
-    if (!hasPhoto && !_isLinkOnlyQuestion(questionText)) {
+    if (!_isLinkOnlyQuestion(questionText)) {
       await fallbackToAI(taskCard, studentAnswer);
     } else {
       await saveAnswerToServer(taskId, studentAnswer, false);
@@ -1373,9 +1384,11 @@ async function fallbackToAI(taskCard, studentAnswer) {
     const data = await resp.json();
     const isCorrect = data?.ai_verdict?.is_student_correct === true;
     await saveAnswerToServer(taskId, studentAnswer, isCorrect);
+    return isCorrect;
   } catch (e) {
     console.error('AI fallback error:', e);
     await saveAnswerToServer(taskId, studentAnswer, false);
+    return false;
   }
 }
 

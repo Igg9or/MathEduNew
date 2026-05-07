@@ -479,30 +479,55 @@ toast.remove();
      СОХРАНЕНИЕ
   ================================= */
 
-  saveLessonBtn?.addEventListener('click', () => {
+  saveLessonBtn?.addEventListener('click', async () => {
+    if (saveLessonBtn.disabled) return;
 
     //syncPreviewToTextarea();
 
     const tasks = [];
-    document.querySelectorAll('.task-card').forEach((card, index) => {
+    const cards = document.querySelectorAll('.task-card');
+    cards.forEach((card, index) => {
       tasks.push({
-  id: card.dataset.taskId || null,
-  question: card.querySelector('.task-question').value,
-  answer: card.querySelector('.task-answer').value,
-  template_id: card.dataset.templateId || null,
-  position: index + 1,
-  photo_path: card.dataset.photoPath || null
-});
-
+        id: card.dataset.taskId || null,
+        question: card.querySelector('.task-question').value,
+        answer: card.querySelector('.task-answer').value,
+        template_id: card.dataset.templateId || null,
+        position: index + 1,
+        photo_path: card.dataset.photoPath || null
+      });
     });
 
-    fetch(`/teacher/update_lesson/${lessonId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasks })
-    })
-    .then(r => r.json())
-    .then(d => d.success && alert('Изменения сохранены'));
+    saveLessonBtn.disabled = true;
+    const originalHtml = saveLessonBtn.innerHTML;
+    saveLessonBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+
+    try {
+      const response = await fetch(`/teacher/update_lesson/${lessonId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tasks })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        // Обновляем data-task-id у новых карточек чтобы не дублировать при повторном сохранении
+        if (data.task_ids && data.task_ids.length === cards.length) {
+          cards.forEach((card, index) => {
+            if (!card.dataset.taskId && data.task_ids[index]) {
+              card.dataset.taskId = data.task_ids[index];
+            }
+          });
+        }
+        alert('Изменения сохранены');
+      } else {
+        alert('Ошибка сохранения: ' + (data.error || ''));
+      }
+    } catch (err) {
+      alert('Ошибка сети при сохранении');
+    } finally {
+      saveLessonBtn.disabled = false;
+      saveLessonBtn.innerHTML = originalHtml;
+    }
   });
 
   addTaskBtn?.addEventListener('click', () => {
@@ -572,6 +597,13 @@ toast.remove();
         if (d.success) {
           setPhotoUI(card, d.path);
           card.dataset.photoPath = d.path;
+          // Очищаем текст задания — при фото остаётся только фотография
+          const textarea = card.querySelector('.task-question');
+          const preview = card.querySelector('.task-question-preview');
+          if (textarea) textarea.value = '';
+          if (preview) preview.innerHTML = '<em style="color:#999">Нет текста задания</em>';
+          const textBlock = card.querySelector('.task-text-block');
+          if (textBlock) textBlock.style.display = 'none';
         } else {
           alert('Ошибка загрузки: ' + (d.error || 'Неизвестная ошибка'));
           actions.innerHTML = oldHtml;
@@ -592,6 +624,8 @@ toast.remove();
       </div>
       <input type="file" class="task-photo-input hidden" accept="image/*">
     `;
+    const textBlock = card.querySelector('.task-text-block');
+    if (textBlock) textBlock.style.display = '';
   }
 
   function setPhotoUI(card, path) {

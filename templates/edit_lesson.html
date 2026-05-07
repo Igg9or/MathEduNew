@@ -866,8 +866,10 @@
                         <input type="file" class="task-photo-input hidden" accept="image/*">
                     </div>
 
-                    <div class="task-question-preview"></div>
-                    <textarea class="task-question hidden">{{ task.question|safe }}</textarea>
+                    <div class="task-text-block" {% if task.photo_path %}style="display:none"{% endif %}>
+                        <div class="task-question-preview"></div>
+                        <textarea class="task-question hidden">{{ task.question|safe }}</textarea>
+                    </div>
 
                     <div class="answer-section">
                         <label>Формула ответа</label>

@@ -1,21 +1,465 @@
-<h1>Импорт шаблонов (JSON)</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Импорт шаблонов | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$','$$']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
 
-<p style="color: #666; margin-bottom: 16px;">
-    Если задание содержит фото, укажите <code>"photo_url"</code> (ссылка на внешнее фото) или <code>"photo_path"</code> (внутренний путь).<br>
-    Также фото можно прикрепить позже — прямо при редактировании урока, кнопкой «📎 Прикрепить фото» у каждого задания.
-</p>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<form method="post">
-    <textarea name="json"
-              rows="25"
-              style="width:100%; font-family: monospace;"
-              placeholder='[{"textbook_id":1,"name":"task_01","question_template":"...","answer_template":"...","answer_type":"numeric","parameters":{},"photo_url":"https://example.com/img.jpg"}]'></textarea>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    <button type="submit">Импортировать</button>
-</form>
+        .dashboard-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
 
-{% if result %}
-  <p class="{{ 'success' if result.ok else 'error' }}">
-      {{ result.msg }}
-  </p>
-{% endif %}
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+
+        .header-logo {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 24px; font-weight: 700;
+        }
+
+        .header-left h1 { font-size: 18px; font-weight: 600; }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover { background: var(--border); transform: translateY(-1px); }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* === Блок импорта === */
+        .import-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .import-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .import-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .import-form textarea {
+            flex: 1;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        .import-form button {
+            padding: 12px 24px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .import-form button:hover { background: #059669; }
+
+        .import-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .result-msg {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .result-msg.success { background: var(--success-light); color: #065f46; }
+        .result-msg.error { background: var(--error-light); color: #991b1b; }
+
+        /* === Панель фильтров === */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .toolbar h2 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .badge.info { background: var(--primary-light); color: var(--primary-dark); }
+        .badge.success { background: var(--success-light); color: #065f46; }
+
+        /* === Сетка шаблонов === */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .templates-grid { grid-template-columns: 1fr; }
+        }
+
+        .template-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .template-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .template-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .template-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .template-body {
+            flex: 1;
+        }
+
+        .template-preview {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1px solid var(--border);
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 60px;
+        }
+
+        .template-preview.empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .template-photo {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .template-photo img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .template-answer {
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--bg);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        .template-answer label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+
+        /* === Кнопки фото === */
+        .photo-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-photo {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-photo.attach {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-photo.attach:hover { background: var(--primary-dark); }
+
+        .btn-photo.replace {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-photo.replace:hover { background: var(--border); }
+
+        .btn-photo.remove {
+            background: var(--error-light);
+            color: var(--error);
+        }
+        .btn-photo.remove:hover { background: var(--error); color: white; }
+
+        .btn-save:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo">M</div>
+                <h1>Импорт шаблонов заданий</h1>
+            </div>
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Блок импорта -->
+        <div class="import-section">
+            <h2><i class="fas fa-file-import" style="color: var(--primary);"></i> Вставьте JSON и нажмите «Импортировать»</h2>
+            <form method="post" class="import-form">
+                <textarea name="json" placeholder='[
+  {
+    "textbook_id": 8,
+    "name": "6.304а",
+    "question_template": "...",
+    "answer_template": "{answer}",
+    "answer_type": "string",
+    "parameters": { ... },
+    "conditions": []
+  }
+]'></textarea>
+                <button type="submit">
+                    <i class="fas fa-upload"></i> Импортировать
+                </button>
+            </form>
+            <p class="import-hint">
+                Подсказка: после импорта шаблоны появятся ниже. Нажмите «📎 Загрузить фото» у нужного шаблона, чтобы прикрепить картинку.
+                Фото можно добавить позже — не обязательно указывать в JSON.
+            </p>
+            {% if result %}
+            <div class="result-msg {{ 'success' if result.ok else 'error' }}">
+                {{ result.msg }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Тулбар -->
+        <div class="toolbar">
+            <h2><i class="fas fa-tasks" style="color: var(--primary);"></i> Шаблоны</h2>
+            <div class="toolbar-actions">
+                {% if just_imported and not show_all %}
+                    <span class="badge success">Только что импортировано</span>
+                    <a href="{{ url_for('dev_import_templates') }}?show_all=1" class="btn-secondary" style="font-size: 13px; padding: 6px 14px;">
+                        <i class="fas fa-list"></i> Показать все
+                    </a>
+                {% elif show_all %}
+                    <span class="badge info">Все шаблоны</span>
+                    <a href="{{ url_for('dev_import_templates') }}" class="btn-secondary" style="font-size: 13px; padding: 6px 14px;">
+                        <i class="fas fa-filter"></i> Только импортированные
+                    </a>
+                {% endif %}
+                <span style="color: var(--text-muted); font-size: 14px;">Всего: <strong>{{ templates|length }}</strong></span>
+                <button type="button" id="btnSaveTemplates" class="btn-save" style="padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+            </div>
+        </div>
+
+        <!-- Сетка шаблонов -->
+        <div id="templatesContainer" class="templates-grid">
+            {% for tpl in templates %}
+            <div class="template-card"
+                 data-template-id="{{ tpl.id }}"
+                 data-photo-path="{{ tpl.photo_path or '' }}">
+
+                <div class="template-header">
+                    <h3>{{ tpl.name }}</h3>
+                    <span class="template-meta">{{ tpl.grade }} кл. · {{ tpl.answer_type }}</span>
+                </div>
+
+                <div class="template-body">
+                    {% if tpl.photo_path %}
+                    <div class="template-photo">
+                        <img src="{{ tpl.photo_path }}" alt="Фото задания" onclick="window.open('{{ tpl.photo_path }}','_blank')">
+                    </div>
+                    {% endif %}
+
+                    <div class="template-text-block" {% if tpl.photo_path %}style="display:none"{% endif %}>
+                        {% if tpl.question_template %}
+                        <div class="template-preview">{{ tpl.question_template|safe }}</div>
+                        {% else %}
+                        <div class="template-preview empty">Нет текста задания (фото-задание)</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="template-answer">
+                        <label>Ответ</label>
+                        {{ tpl.answer_template }}
+                    </div>
+                </div>
+
+                <div class="photo-actions">
+                    {% if tpl.photo_path %}
+                        <button type="button" class="btn-photo replace btn-replace-photo">
+                            <i class="fas fa-sync-alt"></i> Заменить фото
+                        </button>
+                        <button type="button" class="btn-photo remove btn-remove-photo">
+                            <i class="fas fa-trash"></i> Удалить фото
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn-photo attach btn-attach-photo">
+                            <i class="fas fa-camera"></i> Загрузить фото
+                        </button>
+                    {% endif %}
+                    <input type="file" class="template-photo-input hidden" accept="image/*">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dev_import_templates.js') }}"></script>
+</body>
+</html>
