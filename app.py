@@ -103,7 +103,7 @@ def get_db():
 
 def cleanup_guest_students():
 
-    print("🧹 Cleaning old guest students...")
+    print("[CLEANUP] Cleaning old guest students...")
 
     conn = psycopg2.connect(
         dbname=os.getenv("DB_NAME"),
@@ -152,7 +152,7 @@ def cleanup_guest_students():
 
         conn.commit()
 
-        print("✅ Guest cleanup finished")
+        print("[OK] Guest cleanup finished")
 
     finally:
         conn.close()
@@ -347,7 +347,7 @@ def edit_lesson(lesson_id):
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # --------------------------------------------------
-        # 1️⃣ Информация об уроке (добавили room_code)
+        # 1️⃣ Информация об уроке (добавили room_code + is_duel)
         # --------------------------------------------------
         cursor.execute('''
             SELECT 
@@ -355,7 +355,8 @@ def edit_lesson(lesson_id):
                 l.title,
                 l.date,
                 l.join_token,
-                l.room_code,          -- ✅ ВОТ ЭТО ДОБАВИЛИ
+                l.room_code,
+                l.is_duel,
                 c.grade,
                 c.letter
             FROM lessons l
@@ -415,18 +416,100 @@ def edit_lesson(lesson_id):
         lesson_templates = cursor.fetchall()
 
         # --------------------------------------------------
-        # 5️⃣ Рендер страницы
+        # 5️⃣ Раунды дуэли (если это дуэльный урок)
+        # --------------------------------------------------
+        duel_rounds = []
+        if lesson.get('is_duel'):
+            cursor.execute('''
+                SELECT id, round_number, round_name, time_seconds, status
+                FROM duel_rounds
+                WHERE lesson_id = %s
+                ORDER BY round_number
+            ''', (lesson_id,))
+            duel_rounds = [dict(r) for r in cursor.fetchall()]
+
+            for r in duel_rounds:
+                cursor.execute('''
+                    SELECT drt.task_id, lt.question, lt.answer, lt.template_id, lt.photo_path
+                    FROM duel_round_tasks drt
+                    JOIN lesson_tasks lt ON lt.id = drt.task_id
+                    WHERE drt.round_id = %s
+                    ORDER BY drt.position
+                ''', (r['id'],))
+                r['tasks'] = [dict(t) for t in cursor.fetchall()]
+
+        # --------------------------------------------------
+        # 6️⃣ Рендер страницы
         # --------------------------------------------------
         return render_template(
             'edit_lesson.html',
-            lesson=dict(lesson),  # 👈 теперь тут есть lesson['room_code']
+            lesson=dict(lesson),
             tasks=[dict(t) for t in tasks],
             textbooks=[dict(tb) for tb in textbooks],
-            lesson_templates=[dict(tpl) for tpl in lesson_templates]
+            lesson_templates=[dict(tpl) for tpl in lesson_templates],
+            duel_rounds=duel_rounds
         )
 
     finally:
         conn.close()
+
+
+@app.route('/teacher/duel_bracket/<int:lesson_id>')
+def duel_bracket(lesson_id):
+    """Полноэкранная турнирная сетка дуэли."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT id, title, is_duel FROM lessons
+            WHERE id = %s AND teacher_id = %s AND school_id = %s
+        ''', (lesson_id, session['user_id'], g.school_id))
+        lesson = cursor.fetchone()
+        if not lesson:
+            return redirect(url_for('teacher_dashboard'))
+        return render_template('duel_bracket.html', lesson=dict(lesson))
+    finally:
+        conn.close()
+
+
+@app.route('/duel_bracket/<int:lesson_id>')
+def public_duel_bracket(lesson_id):
+    """Турнирная сетка дуэли для всех (учеников и учителей)."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT id, title, is_duel, teacher_id, class_id FROM lessons
+            WHERE id = %s AND school_id = %s
+        ''', (lesson_id, g.school_id))
+        lesson = cursor.fetchone()
+        if not lesson or not lesson['is_duel']:
+            return redirect(url_for('login'))
+
+        user_id = session['user_id']
+        role = session['role']
+
+        if role == 'teacher':
+            if lesson['teacher_id'] != user_id:
+                return redirect(url_for('teacher_dashboard'))
+        else:
+            cursor.execute('''
+                SELECT 1 FROM users
+                WHERE id = %s AND class_id = %s AND school_id = %s
+            ''', (user_id, lesson['class_id'], g.school_id))
+            if not cursor.fetchone():
+                return redirect(url_for('student_lessons'))
+
+        return render_template('duel_bracket.html', lesson=dict(lesson), current_user_id=user_id, user_role=role)
+    finally:
+        conn.close()
+
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):
@@ -496,9 +579,10 @@ def create_lesson():
     
     data = request.get_json()
 
-    # 🔹 НОВОЕ: режим самостоятельной + без retry
+    # 🔹 НОВОЕ: режим самостоятельной + без retry + дуэль
     is_self_work = data.get('is_self_work', False)
     disable_retry = data.get('disable_retry', False)
+    is_duel = data.get('is_duel', False)
 
     class_full = data['grade']  # Формат "6В"
     
@@ -537,11 +621,12 @@ title,
 date,
 is_self_work,
 disable_retry,
+is_duel,
 school_id,
 join_token,
 room_code
 )
-VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
 RETURNING id, join_token, room_code
         ''', (
 session['user_id'],
@@ -550,6 +635,7 @@ data['title'],
 data['date'],
 is_self_work,
 disable_retry,
+is_duel,
 g.school_id,
 join_token,
 room_code
@@ -1005,14 +1091,16 @@ def start_lesson(lesson_id):
             if not cursor.fetchone():
                 return redirect(url_for('student_lessons'))
 
-        # 📘 Информация об уроке (+ is_self_work + ended + disable_retry)
+        # 📘 Информация об уроке (+ is_self_work + ended + disable_retry + is_duel)
         cursor.execute('''
     SELECT 
+        l.id,
         l.title,
         l.date,
         l.is_self_work,
         l.ended,
         l.disable_retry,
+        l.is_duel,
         u.full_name AS teacher_name
     FROM lessons l
     JOIN users u ON l.teacher_id = u.id
@@ -1175,6 +1263,167 @@ def start_lesson(lesson_id):
 
         grade_row = cursor.fetchone()
         student_grade = grade_row['grade'] if grade_row else None
+
+        # 🎮 Если это дуэльный урок — рендерим специальный шаблон
+        if lesson.get('is_duel'):
+            # Получаем текущий матч ученика
+            cursor.execute('''
+                SELECT dm.id AS match_id, dm.player1_id, dm.player2_id,
+                       p1.full_name AS player1_name, p2.full_name AS player2_name,
+                       dm.player1_score, dm.player2_score, dm.status,
+                       dr.id AS round_id, dr.round_number, dr.round_name, dr.time_seconds
+                FROM duel_rounds dr
+                LEFT JOIN duel_matches dm ON dm.round_id = dr.id
+                    AND (dm.player1_id = %s OR dm.player2_id = %s)
+                LEFT JOIN users p1 ON p1.id = dm.player1_id
+                LEFT JOIN users p2 ON p2.id = dm.player2_id
+                WHERE dr.lesson_id = %s
+                ORDER BY dr.round_number
+            ''', (user_id, user_id, lesson_id))
+            duel_rows = cursor.fetchall()
+            active_match = None
+            current_round = None
+            # Берём последний раунд, в котором у ученика есть матч (active или completed)
+            for row in reversed(duel_rows):
+                if row['round_id'] and row['match_id'] and row['status'] in ('active', 'completed'):
+                    active_match = {
+                        'id': row['match_id'],
+                        'player1_id': row['player1_id'],
+                        'player2_id': row['player2_id'],
+                        'player1_name': row['player1_name'],
+                        'player2_name': row['player2_name'],
+                        'player1_score': row['player1_score'],
+                        'player2_score': row['player2_score'],
+                        'status': row['status']
+                    }
+                    current_round = {
+                        'id': row['round_id'],
+                        'round_number': row['round_number'],
+                        'round_name': row['round_name'],
+                        'time_seconds': row['time_seconds']
+                    }
+                    break
+
+            opponent_name = None
+            my_score = 0
+            opponent_score = 0
+            if active_match:
+                if active_match['player1_id'] == user_id:
+                    opponent_name = active_match['player2_name']
+                    my_score = active_match['player1_score'] or 0
+                    opponent_score = active_match['player2_score'] or 0
+                else:
+                    opponent_name = active_match['player1_name']
+                    my_score = active_match['player2_score'] or 0
+                    opponent_score = active_match['player1_score'] or 0
+
+            # 📋 Генерируем варианты заданий текущего раунда
+            duel_tasks = []
+            if current_round:
+                cursor.execute('''
+                    SELECT lt.id, lt.question, lt.answer, lt.template_id, lt.photo_path
+                    FROM duel_round_tasks drt
+                    JOIN lesson_tasks lt ON lt.id = drt.task_id
+                    WHERE drt.round_id = %s
+                    ORDER BY drt.position
+                ''', (current_round['id'],))
+                base_tasks = cursor.fetchall()
+
+                for task in base_tasks:
+                    cursor.execute('''
+                        SELECT variant_data FROM student_task_variants
+                        WHERE lesson_id = %s AND user_id = %s AND task_id = %s AND school_id = %s
+                    ''', (lesson_id, user_id, task['id'], g.school_id))
+                    variant_row = cursor.fetchone()
+
+                    if variant_row:
+                        raw = variant_row['variant_data']
+                        if isinstance(raw, str):
+                            variant_data = json.loads(raw)
+                        else:
+                            variant_data = raw or {}
+                        question = variant_data.get('generated_question', task['question'])
+                        computed_answer = variant_data.get('computed_answer', '')
+                        photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') or ''
+                        answer_type = 'numeric'
+                        if task['template_id']:
+                            cursor.execute('SELECT answer_type FROM task_templates WHERE id = %s', (task['template_id'],))
+                            r = cursor.fetchone()
+                            answer_type = r['answer_type'] if r else 'numeric'
+                    else:
+                        if task['template_id']:
+                            cursor.execute('SELECT * FROM task_templates WHERE id = %s', (task['template_id'],))
+                            template = cursor.fetchone()
+                            template_dict = dict(template)
+                            params = template_dict['parameters']
+                            if isinstance(params, str):
+                                params = json.loads(params)
+                            template_dict['parameters'] = params
+
+                            if template_dict.get('photo_path'):
+                                variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+                                question = ''
+                                computed_answer = variant['correct_answer']
+                                answer_type = template_dict.get('answer_type', 'numeric')
+                            else:
+                                variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+                                question = variant['question']
+                                computed_answer = variant['correct_answer']
+                                answer_type = template_dict.get('answer_type', 'numeric')
+                        else:
+                            question = task['question']
+                            computed_answer = task['answer']
+                            answer_type = 'numeric'
+
+                        photo_path = task.get('photo_path', '') or ''
+
+                        cursor.execute('''
+                            INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
+                            VALUES (%s, %s, %s, %s, %s)
+                            ON CONFLICT (lesson_id, user_id, task_id)
+                            DO UPDATE SET variant_data = EXCLUDED.variant_data, created_at = CURRENT_TIMESTAMP
+                        ''', (
+                            lesson_id, user_id, task['id'],
+                            json.dumps({
+                                'params': variant.get('params', {}) if task['template_id'] else {},
+                                'generated_question': question,
+                                'computed_answer': computed_answer,
+                                'photo_path': photo_path,
+                                'initial_choice_idx': variant.get('choice_idx') if task['template_id'] else None,
+                                'current_choice_idx': variant.get('choice_idx') if task['template_id'] else None,
+                                'is_retry': False,
+                                'retry_generated_question': None,
+                                'retry_computed_answer': None,
+                                'retry_params': None,
+                                'retry_choice_idx': None
+                            }),
+                            g.school_id
+                        ))
+
+                    duel_tasks.append({
+                        'id': task['id'],
+                        'question': question,
+                        'correct_answer': computed_answer,
+                        'answer_type': answer_type,
+                        'photo_path': photo_path,
+                        'template_id': task['template_id'],
+                        'params': variant.get('params', {}) if task['template_id'] and 'variant' in locals() else {}
+                    })
+
+            conn.commit()
+
+            return render_template(
+                'student_duel.html',
+                lesson=dict(lesson),
+                tasks=duel_tasks,
+                user_id=user_id,
+                student_grade=student_grade,
+                match=active_match,
+                current_round=current_round,
+                opponent_name=opponent_name,
+                my_score=my_score,
+                opponent_score=opponent_score
+            )
 
         return render_template(
             'student_lesson.html',
@@ -4196,6 +4445,1152 @@ def join_by_code(code):
 
     return redirect(url_for('join_lesson', token=lesson['join_token']))
 
+
+# =============================================================================
+# DUEL / TOURNAMENT MODE API
+# =============================================================================
+
+def _json_safe(value):
+    """Преобразует datetime в строки для JSON-сериализации."""
+    import datetime
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    elif isinstance(value, list):
+        return [_json_safe(v) for v in value]
+    elif isinstance(value, datetime.datetime):
+        return value.isoformat()
+    return value
+
+@app.route('/api/duel/<int:lesson_id>/rounds', methods=['GET'])
+def get_duel_rounds(lesson_id):
+    """Получить список раундов дуэли для урока."""
+    if 'user_id' not in session or session['role'] not in ('teacher', 'student'):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT id, round_number, round_name, time_seconds, status, started_at, ended_at
+            FROM duel_rounds
+            WHERE lesson_id = %s
+            ORDER BY round_number
+        ''', (lesson_id,))
+        rounds = [dict(r) for r in cursor.fetchall()]
+
+        # Загружаем задания для каждого раунда
+        for r in rounds:
+            cursor.execute('''
+                SELECT drt.task_id, lt.question, lt.answer, lt.template_id, lt.photo_path
+                FROM duel_round_tasks drt
+                JOIN lesson_tasks lt ON lt.id = drt.task_id
+                WHERE drt.round_id = %s
+                ORDER BY drt.position
+            ''', (r['id'],))
+            r['tasks'] = [dict(t) for t in cursor.fetchall()]
+
+        return jsonify({'rounds': _json_safe(rounds)})
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/rounds', methods=['POST'])
+def create_duel_rounds(lesson_id):
+    """Создать или пересоздать раунды дуэли в зависимости от числа участников."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Проверяем, что урок принадлежит учителю
+        cursor.execute('''
+            SELECT class_id FROM lessons
+            WHERE id = %s AND teacher_id = %s AND school_id = %s
+        ''', (lesson_id, session['user_id'], g.school_id))
+        lesson = cursor.fetchone()
+        if not lesson:
+            return jsonify({'error': 'Lesson not found'}), 404
+
+        # Считаем число учеников в классе
+        cursor.execute('''
+            SELECT COUNT(*) FROM users
+            WHERE class_id = %s AND role = 'student' AND school_id = %s
+        ''', (lesson['class_id'], g.school_id))
+        student_count = cursor.fetchone()[0]
+
+        # Удаляем старые раунды (каскадно удалит duel_round_tasks)
+        cursor.execute('DELETE FROM duel_rounds WHERE lesson_id = %s', (lesson_id,))
+
+        round_configs = _get_duel_round_configs(student_count)
+
+        created = []
+        for num, name, default_time in round_configs:
+            cursor.execute('''
+                INSERT INTO duel_rounds (lesson_id, round_number, round_name, time_seconds, status)
+                VALUES (%s, %s, %s, %s, 'pending')
+                RETURNING id
+            ''', (lesson_id, num, name, default_time))
+            rid = cursor.fetchone()[0]
+            created.append({'id': rid, 'round_number': num, 'round_name': name, 'time_seconds': default_time})
+
+        conn.commit()
+        return jsonify({'success': True, 'rounds': created})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/rounds/<int:round_id>/tasks', methods=['POST'])
+def set_duel_round_tasks(round_id):
+    """Назначить задания к раунду (список task_ids)."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    task_ids = data.get('task_ids', [])
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        # Проверяем владение через lesson
+        cursor.execute('''
+            SELECT dr.lesson_id FROM duel_rounds dr
+            JOIN lessons l ON l.id = dr.lesson_id
+            WHERE dr.id = %s AND l.teacher_id = %s AND l.school_id = %s
+        ''', (round_id, session['user_id'], g.school_id))
+        if not cursor.fetchone():
+            return jsonify({'error': 'Not found'}), 404
+
+        # Удаляем старые связи
+        cursor.execute('DELETE FROM duel_round_tasks WHERE round_id = %s', (round_id,))
+
+        # Добавляем новые
+        for pos, tid in enumerate(task_ids, start=1):
+            cursor.execute('''
+                INSERT INTO duel_round_tasks (round_id, task_id, position)
+                VALUES (%s, %s, %s)
+            ''', (round_id, tid, pos))
+
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/rounds/<int:round_id>/time', methods=['POST'])
+def set_duel_round_time(round_id):
+    """Установить время раунда (секунды)."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    time_seconds = data.get('time_seconds', 300)
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE duel_rounds dr
+            SET time_seconds = %s
+            FROM lessons l
+            WHERE dr.id = %s AND dr.lesson_id = l.id
+              AND l.teacher_id = %s AND l.school_id = %s
+        ''', (time_seconds, round_id, session['user_id'], g.school_id))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/start', methods=['POST'])
+def start_duel(lesson_id):
+    """Старт дуэли: создание первой сетки, жеребьёвка, матчи 1-го раунда."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Проверяем урок
+        cursor.execute('''
+            SELECT class_id FROM lessons
+            WHERE id = %s AND teacher_id = %s AND school_id = %s AND is_duel = TRUE
+        ''', (lesson_id, session['user_id'], g.school_id))
+        lesson = cursor.fetchone()
+        if not lesson:
+            return jsonify({'error': 'Duel lesson not found'}), 404
+
+        class_id = lesson['class_id']
+
+        # Получаем учеников класса
+        cursor.execute('''
+            SELECT id, full_name FROM users
+            WHERE class_id = %s AND role = 'student' AND school_id = %s
+            ORDER BY id
+        ''', (class_id, g.school_id))
+        students = cursor.fetchall()
+
+        if len(students) < 2:
+            return jsonify({'error': 'Недостаточно учеников для дуэли (минимум 2)'}), 400
+
+        # Перемешиваем для случайной жеребьёвки
+        random.shuffle(students)
+
+        # Создаём первую сетку (верхняя)
+        cursor.execute('''
+            INSERT INTO duel_brackets (lesson_id, bracket_number, bracket_name)
+            VALUES (%s, 1, 'Верхняя сетка')
+            RETURNING id
+        ''', (lesson_id,))
+        bracket_id = cursor.fetchone()[0]
+
+        # Создаём раунды если их ещё нет
+        cursor.execute('SELECT id, round_number FROM duel_rounds WHERE lesson_id = %s ORDER BY round_number', (lesson_id,))
+        existing_rounds = cursor.fetchall()
+        if not existing_rounds:
+            round_configs = _get_duel_round_configs(len(students))
+            for num, name, t in round_configs:
+                cursor.execute('''
+                    INSERT INTO duel_rounds (lesson_id, round_number, round_name, time_seconds, status)
+                    VALUES (%s, %s, %s, %s, 'pending')
+                    RETURNING id
+                ''', (lesson_id, num, name, t))
+            cursor.execute('SELECT id, round_number FROM duel_rounds WHERE lesson_id = %s ORDER BY round_number', (lesson_id,))
+            existing_rounds = cursor.fetchall()
+
+        rounds_by_num = {r['round_number']: r['id'] for r in existing_rounds}
+        round1_id = rounds_by_num.get(1)
+
+        # Создаём пары для 1-го раунда
+        match_number = 1
+        for i in range(0, len(students), 2):
+            p1 = students[i]['id']
+            p2 = students[i + 1]['id'] if i + 1 < len(students) else None
+            cursor.execute('''
+                INSERT INTO duel_matches
+                (lesson_id, round_id, bracket_id, match_number, player1_id, player2_id, status)
+                VALUES (%s, %s, %s, %s, %s, %s, 'active')
+            ''', (lesson_id, round1_id, bracket_id, match_number, p1, p2))
+            match_number += 1
+
+        # Активируем 1-й раунд
+        cursor.execute('''
+            UPDATE duel_rounds SET status = 'active', started_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        ''', (round1_id,))
+
+        conn.commit()
+        return jsonify({'success': True, 'bracket_id': bracket_id, 'matches_created': match_number - 1})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/my_match', methods=['GET'])
+def get_my_duel_match(lesson_id):
+    """Получить текущий или последний завершённый матч ученика в дуэли."""
+    if 'user_id' not in session or session['role'] != 'student':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user_id = session['user_id']
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Находим активный раунд
+        cursor.execute('''
+            SELECT id, round_number, round_name, time_seconds, status
+            FROM duel_rounds
+            WHERE lesson_id = %s AND status = 'active'
+            ORDER BY round_number
+            LIMIT 1
+        ''', (lesson_id,))
+        current_round = cursor.fetchone()
+
+        # Если нет активного — берём последний завершённый
+        if not current_round:
+            cursor.execute('''
+                SELECT id, round_number, round_name, time_seconds, status
+                FROM duel_rounds
+                WHERE lesson_id = %s AND status = 'completed'
+                ORDER BY round_number DESC
+                LIMIT 1
+            ''', (lesson_id,))
+            current_round = cursor.fetchone()
+
+        if not current_round:
+            return jsonify({'error': 'Нет активного или завершённого раунда'}), 404
+
+        # Находим матч ученика в этом раунде
+        cursor.execute('''
+            SELECT dm.*,
+                   p1.full_name AS player1_name,
+                   p2.full_name AS player2_name
+            FROM duel_matches dm
+            LEFT JOIN users p1 ON p1.id = dm.player1_id
+            LEFT JOIN users p2 ON p2.id = dm.player2_id
+            WHERE dm.round_id = %s
+              AND (dm.player1_id = %s OR dm.player2_id = %s)
+        ''', (current_round['id'], user_id, user_id))
+        match = cursor.fetchone()
+        if not match:
+            return jsonify({'error': 'Матч не найден'}), 404
+
+            # Задания раунда — генерируем варианты для ученика
+        cursor.execute('''
+            SELECT lt.id, lt.question, lt.answer, lt.template_id, lt.photo_path
+            FROM duel_round_tasks drt
+            JOIN lesson_tasks lt ON lt.id = drt.task_id
+            WHERE drt.round_id = %s
+            ORDER BY drt.position
+        ''', (current_round['id'],))
+        base_tasks = cursor.fetchall()
+
+        tasks = []
+        for task in base_tasks:
+            # Проверяем сохранённый вариант
+            cursor.execute('''
+                SELECT variant_data FROM student_task_variants
+                WHERE lesson_id = %s AND user_id = %s AND task_id = %s AND school_id = %s
+            ''', (lesson_id, user_id, task['id'], g.school_id))
+            variant_row = cursor.fetchone()
+
+            if variant_row:
+                raw = variant_row['variant_data']
+                if isinstance(raw, str):
+                    variant_data = json.loads(raw)
+                else:
+                    variant_data = raw or {}
+                question = variant_data.get('generated_question', task['question'])
+                computed_answer = variant_data.get('computed_answer', '')
+                photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') or ''
+                answer_type = 'numeric'
+                if task['template_id']:
+                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = %s', (task['template_id'],))
+                    r = cursor.fetchone()
+                    answer_type = r['answer_type'] if r else 'numeric'
+            else:
+                # Генерируем новый вариант
+                if task['template_id']:
+                    cursor.execute('SELECT * FROM task_templates WHERE id = %s', (task['template_id'],))
+                    template = cursor.fetchone()
+                    template_dict = dict(template)
+                    params = template_dict['parameters']
+                    if isinstance(params, str):
+                        params = json.loads(params)
+                    template_dict['parameters'] = params
+
+                    student_mark = infer_student_mark(user_id)
+                    if template_dict.get('photo_path'):
+                        variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+                        question = ''
+                        computed_answer = variant['correct_answer']
+                        answer_type = template_dict.get('answer_type', 'numeric')
+                    else:
+                        variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+                        question = variant['question']
+                        computed_answer = variant['correct_answer']
+                        answer_type = template_dict.get('answer_type', 'numeric')
+                else:
+                    question = task['question']
+                    computed_answer = task['answer']
+                    answer_type = 'numeric'
+
+                photo_path = task.get('photo_path', '') or ''
+
+                cursor.execute('''
+                    INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (lesson_id, user_id, task_id)
+                    DO UPDATE SET variant_data = EXCLUDED.variant_data, created_at = CURRENT_TIMESTAMP
+                ''', (
+                    lesson_id, user_id, task['id'],
+                    json.dumps({
+                        'params': variant.get('params', {}) if task['template_id'] else {},
+                        'generated_question': question,
+                        'computed_answer': computed_answer,
+                        'photo_path': photo_path,
+                        'initial_choice_idx': variant.get('choice_idx') if task['template_id'] else None,
+                        'current_choice_idx': variant.get('choice_idx') if task['template_id'] else None,
+                        'is_retry': False,
+                        'retry_generated_question': None,
+                        'retry_computed_answer': None,
+                        'retry_params': None,
+                        'retry_choice_idx': None
+                    }),
+                    g.school_id
+                ))
+
+            tasks.append({
+                'id': task['id'],
+                'question': question,
+                'answer': computed_answer,
+                'answer_type': answer_type,
+                'photo_path': photo_path,
+                'template_id': task['template_id']
+            })
+
+        # Ищем следующий матч ученика (для показа следующего соперника)
+        next_match = None
+        cursor.execute('''
+            SELECT dr.id FROM duel_rounds dr
+            WHERE dr.lesson_id = %s AND dr.round_number = %s
+        ''', (lesson_id, current_round['round_number'] + 1))
+        next_round_row = cursor.fetchone()
+        if next_round_row:
+            cursor.execute('''
+                SELECT dm.*,
+                       p1.full_name AS player1_name,
+                       p2.full_name AS player2_name
+                FROM duel_matches dm
+                LEFT JOIN users p1 ON p1.id = dm.player1_id
+                LEFT JOIN users p2 ON p2.id = dm.player2_id
+                WHERE dm.round_id = %s
+                  AND (dm.player1_id = %s OR dm.player2_id = %s)
+            ''', (next_round_row['id'], user_id, user_id))
+            next_match = cursor.fetchone()
+
+        conn.commit()
+
+        return jsonify(_json_safe({
+            'match': dict(match),
+            'round': dict(current_round),
+            'tasks': tasks,
+            'next_match': dict(next_match) if next_match else None
+        }))
+    except Exception as e:
+        conn.rollback()
+        print(f"Error in get_my_duel_match: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/match/<int:match_id>/answer', methods=['POST'])
+def submit_duel_answer(match_id):
+    """Ученик отправляет ответ в матче."""
+    if 'user_id' not in session or session['role'] != 'student':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user_id = session['user_id']
+    data = request.get_json()
+    task_id = data.get('task_id')
+    answer = data.get('answer', '')
+    is_correct = data.get('is_correct', False)
+    ai_solution = data.get('ai_solution', '')
+    print(f"[DUEL ANSWER] match_id={match_id} user_id={user_id} task_id={task_id} is_correct={is_correct}")
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+
+        # Проверяем, что матч активен и ученик в нём участвует
+        cursor.execute('''
+            SELECT status, player1_id, player2_id, round_id FROM duel_matches
+            WHERE id = %s AND (player1_id = %s OR player2_id = %s)
+        ''', (match_id, user_id, user_id))
+        row = cursor.fetchone()
+        if not row:
+            print(f"[DUEL ANSWER] Match not found: match_id={match_id} user_id={user_id}")
+            return jsonify({'error': 'Match not found'}), 404
+        if row[0] != 'active':
+            print(f"[DUEL ANSWER] Match not active: match_id={match_id} status={row[0]}")
+            return jsonify({'error': 'Матч не активен'}), 400
+
+        # Сохраняем ответ
+        cursor.execute('''
+            INSERT INTO duel_match_answers (match_id, user_id, task_id, answer, is_correct, ai_solution)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT DO NOTHING
+        ''', (match_id, user_id, task_id, answer, is_correct, ai_solution))
+        print(f"[DUEL ANSWER] Saved answer for match_id={match_id} user_id={user_id} task_id={task_id}")
+
+        # Обновляем счёт матча и время первого правильного ответа
+        if is_correct:
+            if user_id == row[1]:  # player1
+                cursor.execute('''
+                    UPDATE duel_matches
+                    SET player1_score = player1_score + 1,
+                        player1_first_correct_at = COALESCE(player1_first_correct_at, CURRENT_TIMESTAMP)
+                    WHERE id = %s
+                ''', (match_id,))
+            elif user_id == row[2]:  # player2
+                cursor.execute('''
+                    UPDATE duel_matches
+                    SET player2_score = player2_score + 1,
+                        player2_first_correct_at = COALESCE(player2_first_correct_at, CURRENT_TIMESTAMP)
+                    WHERE id = %s
+                ''', (match_id,))
+
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/match/<int:match_id>/my_answers', methods=['GET'])
+def get_duel_my_answers(match_id):
+    """Получить все ответы ученика в матче (для показа после раунда)."""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT dma.task_id, dma.answer, dma.is_correct, dma.ai_solution,
+                   lt.question, lt.answer AS correct_answer
+            FROM duel_match_answers dma
+            JOIN lesson_tasks lt ON lt.id = dma.task_id
+            WHERE dma.match_id = %s AND dma.user_id = %s
+            ORDER BY dma.answered_at
+        ''', (match_id, user_id))
+        rows = cursor.fetchall()
+        answers = []
+        for r in rows:
+            answers.append({
+                'task_id': r['task_id'],
+                'answer': r['answer'],
+                'is_correct': r['is_correct'],
+                'ai_solution': r['ai_solution'],
+                'question': r['question'],
+                'correct_answer': r['correct_answer']
+            })
+        return jsonify({'answers': answers})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/match/<int:match_id>/complete', methods=['POST'])
+def complete_duel_match(match_id):
+    """Завершить матч (по таймауту или когда оба ответили). Определить победителя."""
+    if 'user_id' not in session or session['role'] not in ('teacher', 'student'):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cursor.execute('''
+            SELECT * FROM duel_matches WHERE id = %s
+        ''', (match_id,))
+        match = cursor.fetchone()
+        if not match:
+            return jsonify({'error': 'Match not found'}), 404
+        if match['status'] == 'completed':
+            return jsonify({'success': True, 'winner_id': match['winner_id']})
+
+        p1_score = match['player1_score'] or 0
+        p2_score = match['player2_score'] or 0
+        p1_first = match['player1_first_correct_at']
+        p2_first = match['player2_first_correct_at']
+        p1_id = match['player1_id']
+        p2_id = match['player2_id']
+
+        winner_id = None
+        loser_id = None
+        tie_reason = ''
+
+        if p1_score > p2_score:
+            winner_id = p1_id
+            loser_id = p2_id
+            tie_reason = 'score'
+        elif p2_score > p1_score:
+            winner_id = p2_id
+            loser_id = p1_id
+            tie_reason = 'score'
+        else:
+            # Ничья — побеждает тот, кто первым дал правильный ответ
+            if p1_first and p2_first:
+                if p1_first < p2_first:
+                    winner_id = p1_id
+                    loser_id = p2_id
+                    tie_reason = 'first_correct'
+                elif p2_first < p1_first:
+                    winner_id = p2_id
+                    loser_id = p1_id
+                    tie_reason = 'first_correct'
+                else:
+                    # Одинаковое время — случайный выбор
+                    import random
+                    winner_id = random.choice([p1_id, p2_id])
+                    loser_id = p2_id if winner_id == p1_id else p1_id
+                    tie_reason = 'random'
+            elif p1_first:
+                winner_id = p1_id
+                loser_id = p2_id
+                tie_reason = 'first_correct'
+            elif p2_first:
+                winner_id = p2_id
+                loser_id = p1_id
+                tie_reason = 'first_correct'
+            else:
+                # Никто не ответил — случайный победитель
+                import random
+                winner_id = random.choice([p1_id, p2_id])
+                loser_id = p2_id if winner_id == p1_id else p1_id
+                tie_reason = 'random'
+
+        cursor.execute('''
+            UPDATE duel_matches
+            SET winner_id = %s, loser_id = %s, status = 'completed', ended_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        ''', (winner_id, loser_id, match_id))
+
+        conn.commit()
+        return jsonify({'success': True, 'winner_id': winner_id, 'loser_id': loser_id,
+                        'player1_score': p1_score, 'player2_score': p2_score})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/next-round', methods=['POST'])
+def advance_duel_round(lesson_id):
+    """Переход к следующему раунду. Требует, чтобы текущий раунд был остановлен."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Текущий раунд (active или completed)
+        cursor.execute('''
+            SELECT id, round_number, status FROM duel_rounds
+            WHERE lesson_id = %s AND status IN ('active', 'completed')
+            ORDER BY round_number DESC LIMIT 1
+        ''', (lesson_id,))
+        current_round = cursor.fetchone()
+        if not current_round:
+            return jsonify({'error': 'Нет активного раунда'}), 400
+
+        current_round_id = current_round['id']
+        current_round_num = current_round['round_number']
+
+        # Если текущий раунд ещё не остановлен — сообщаем
+        if current_round['status'] == 'active':
+            return jsonify({'error': 'Сначала остановите текущий раунд'}), 400
+
+        # Определяем, является ли текущий раунд финалом (последним)
+        cursor.execute('''
+            SELECT MAX(round_number) as max_round FROM duel_rounds WHERE lesson_id = %s
+        ''', (lesson_id,))
+        max_round_row = cursor.fetchone()
+        max_round = max_round_row['max_round'] or current_round_num
+
+        # Если это был финал — формируем leaderboard
+        if current_round_num >= max_round:
+            _finalize_duel_leaderboard(conn, cursor, lesson_id)
+            conn.commit()
+            return jsonify({'success': True, 'finished': True})
+
+        # Следующий раунд
+        next_round_num = current_round_num + 1
+        cursor.execute('''
+            SELECT id FROM duel_rounds
+            WHERE lesson_id = %s AND round_number = %s
+        ''', (lesson_id, next_round_num))
+        next_round = cursor.fetchone()
+        if not next_round:
+            return jsonify({'error': 'Следующий раунд не найден'}), 400
+        next_round_id = next_round['id']
+
+        # Получаем все сетки урока
+        cursor.execute('''
+            SELECT id, bracket_number, bracket_name FROM duel_brackets
+            WHERE lesson_id = %s ORDER BY bracket_number
+        ''', (lesson_id,))
+        brackets = {b['bracket_number']: dict(b) for b in cursor.fetchall()}
+
+        # Собираем победителей и проигравших по сеткам
+        participants_by_bracket = {}  # bnum -> [user_ids]
+
+        for bnum, bracket in sorted(brackets.items()):
+            cursor.execute('''
+                SELECT match_number, winner_id, loser_id
+                FROM duel_matches
+                WHERE round_id = %s AND bracket_id = %s AND status = 'completed'
+                ORDER BY match_number
+            ''', (current_round_id, bracket['id']))
+            matches = cursor.fetchall()
+            if not matches:
+                continue
+
+            winners = [m['winner_id'] for m in matches if m['winner_id']]
+            losers = [m['loser_id'] for m in matches if m['loser_id']]
+
+            # Победители остаются в той же сетке
+            if bnum not in participants_by_bracket:
+                participants_by_bracket[bnum] = []
+            participants_by_bracket[bnum].extend(winners)
+
+            # Проигравшие падают в сетку +1
+            lower_bnum = bnum + 1
+            if lower_bnum not in participants_by_bracket:
+                participants_by_bracket[lower_bnum] = []
+            participants_by_bracket[lower_bnum].extend(losers)
+
+        # Создаём матчи для каждой сетки
+        match_num = 1
+        for bnum in sorted(participants_by_bracket.keys()):
+            participants = participants_by_bracket[bnum]
+            if not participants:
+                continue
+
+            # Создаём/получаем брэкет
+            if bnum not in brackets:
+                cursor.execute('''
+                    INSERT INTO duel_brackets (lesson_id, bracket_number, bracket_name)
+                    VALUES (%s, %s, %s)
+                    RETURNING id
+                ''', (lesson_id, bnum, f'Сетка {bnum}'))
+                bracket_id = cursor.fetchone()['id']
+                brackets[bnum] = {'id': bracket_id, 'bracket_number': bnum}
+            else:
+                bracket_id = brackets[bnum]['id']
+
+            # Формируем пары: (1+2), (3+4), ...
+            for i in range(0, len(participants), 2):
+                if i + 1 < len(participants):
+                    cursor.execute('''
+                        INSERT INTO duel_matches
+                        (lesson_id, round_id, bracket_id, match_number, player1_id, player2_id, status)
+                        VALUES (%s, %s, %s, %s, %s, %s, 'active')
+                    ''', (lesson_id, next_round_id, bracket_id, match_num, participants[i], participants[i + 1]))
+                    match_num += 1
+                else:
+                    # Бай — автоматически проходит дальше (completed матч)
+                    cursor.execute('''
+                        INSERT INTO duel_matches
+                        (lesson_id, round_id, bracket_id, match_number, player1_id, player2_id, winner_id, loser_id, status)
+                        VALUES (%s, %s, %s, %s, %s, NULL, %s, NULL, 'completed')
+                    ''', (lesson_id, next_round_id, bracket_id, match_num, participants[i], participants[i]))
+                    match_num += 1
+
+        # Активируем следующий раунд
+        cursor.execute('''
+            UPDATE duel_rounds SET status = 'active', started_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        ''', (next_round_id,))
+
+        conn.commit()
+        return jsonify({'success': True, 'next_round': next_round_num})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+def _get_duel_round_configs(student_count):
+    """Возвращает список (round_number, round_name, time_seconds) в зависимости от числа участников."""
+    if student_count < 2:
+        return []
+    num_rounds = max(1, math.ceil(math.log2(student_count)))
+    configs = []
+    for i in range(1, num_rounds + 1):
+        if i == num_rounds:
+            name = 'Финал'
+        elif i == num_rounds - 1:
+            name = '1/2'
+        elif i == num_rounds - 2:
+            name = '1/4'
+        elif i == num_rounds - 3:
+            name = '1/8'
+        elif i == num_rounds - 4:
+            name = '1/16'
+        elif i == num_rounds - 5:
+            name = '1/32'
+        elif i == num_rounds - 6:
+            name = '1/64'
+        else:
+            name = f'Раунд {i}'
+        configs.append((i, name, 300))
+    return configs
+
+
+def _finalize_duel_leaderboard(conn, cursor, lesson_id):
+    """Формирует итоговую таблицу лидеров после финала."""
+    # Определяем номера финального и полуфинального раундов
+    cursor.execute('''
+        SELECT MAX(round_number) as max_round FROM duel_rounds WHERE lesson_id = %s
+    ''', (lesson_id,))
+    max_round = cursor.fetchone()['max_round'] or 1
+    semi_round = max_round - 1 if max_round > 1 else 1
+
+    # Получаем финальный матч
+    cursor.execute('''
+        SELECT winner_id, loser_id, player1_score, player2_score
+        FROM duel_matches dm
+        JOIN duel_rounds dr ON dr.id = dm.round_id
+        WHERE dr.lesson_id = %s AND dr.round_number = %s
+        LIMIT 1
+    ''', (lesson_id, max_round))
+    final = cursor.fetchone()
+
+    # Собираем статистику по всем матчам
+    cursor.execute('''
+        SELECT winner_id, loser_id FROM duel_matches dm
+        JOIN duel_rounds dr ON dr.id = dm.round_id
+        WHERE dr.lesson_id = %s AND dm.status = 'completed'
+    ''', (lesson_id,))
+    all_matches = cursor.fetchall()
+
+    stats = {}
+    for m in all_matches:
+        for uid, key in [(m['winner_id'], 'wins'), (m['loser_id'], 'losses')]:
+            if uid:
+                if uid not in stats:
+                    stats[uid] = {'wins': 0, 'losses': 0, 'total_score': 0}
+                stats[uid][key] += 1
+
+    # Определяем места
+    places = []
+    if final:
+        places.append((1, final['winner_id']))
+        places.append((2, final['loser_id']))
+        # 3 место — лучший из проигравших в полуфинале (предпоследний раунд)
+        if semi_round >= 1:
+            cursor.execute('''
+                SELECT loser_id FROM duel_matches dm
+                JOIN duel_rounds dr ON dr.id = dm.round_id
+                WHERE dr.lesson_id = %s AND dr.round_number = %s AND dm.status = 'completed'
+                ORDER BY dm.player1_score + dm.player2_score DESC
+                LIMIT 1
+            ''', (lesson_id, semi_round))
+            third = cursor.fetchone()
+            if third and third['loser_id']:
+                places.append((3, third['loser_id']))
+
+    # Остальные — по количеству побед
+    placed_uids = {uid for _, uid in places}
+    remaining = [(uid, s['wins']) for uid, s in stats.items() if uid not in placed_uids]
+    remaining.sort(key=lambda x: -x[1])
+    place = 4
+    for uid, _ in remaining:
+        places.append((place, uid))
+        place += 1
+
+    # Сохраняем
+    cursor.execute('DELETE FROM duel_leaderboard WHERE lesson_id = %s', (lesson_id,))
+    for place, uid in places:
+        s = stats.get(uid, {'wins': 0, 'losses': 0, 'total_score': 0})
+        cursor.execute('''
+            INSERT INTO duel_leaderboard (lesson_id, user_id, final_place, wins, losses, total_score)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (lesson_id, uid, place, s['wins'], s['losses'], s['total_score']))
+
+    # Отмечаем урок как ended
+    cursor.execute('UPDATE lessons SET ended = TRUE WHERE id = %s', (lesson_id,))
+
+
+def _resolve_match_winner(p1_id, p2_id, p1_score, p2_score, p1_first, p2_first):
+    """Определить победителя матча. Возвращает (winner_id, loser_id, tie_reason)."""
+    p1_score = p1_score or 0
+    p2_score = p2_score or 0
+
+    if p1_score > p2_score:
+        return p1_id, p2_id, 'score'
+    elif p2_score > p1_score:
+        return p2_id, p1_id, 'score'
+    else:
+        # Ничья — по времени первого правильного ответа
+        if p1_first and p2_first:
+            if p1_first < p2_first:
+                return p1_id, p2_id, 'first_correct'
+            elif p2_first < p1_first:
+                return p2_id, p1_id, 'first_correct'
+            else:
+                import random
+                winner = random.choice([p1_id, p2_id])
+                return winner, (p2_id if winner == p1_id else p1_id), 'random'
+        elif p1_first:
+            return p1_id, p2_id, 'first_correct'
+        elif p2_first:
+            return p2_id, p1_id, 'first_correct'
+        else:
+            import random
+            winner = random.choice([p1_id, p2_id])
+            return winner, (p2_id if winner == p1_id else p1_id), 'random'
+
+
+def _complete_all_matches_in_round(conn, cursor, round_id):
+    """Завершить все незавершённые матчи в раунде."""
+    cursor.execute('''
+        SELECT id, player1_id, player2_id, player1_score, player2_score,
+               player1_first_correct_at, player2_first_correct_at, status
+        FROM duel_matches
+        WHERE round_id = %s AND status != 'completed'
+    ''', (round_id,))
+    for m in cursor.fetchall():
+        w, l, reason = _resolve_match_winner(
+            m['player1_id'], m['player2_id'],
+            m['player1_score'], m['player2_score'],
+            m['player1_first_correct_at'], m['player2_first_correct_at']
+        )
+        cursor.execute('''
+            UPDATE duel_matches
+            SET winner_id = %s, loser_id = %s, status = 'completed', ended_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        ''', (w, l, m['id']))
+
+
+@app.route('/api/duel/<int:lesson_id>/stop-round', methods=['POST'])
+def stop_duel_round(lesson_id):
+    """Остановить текущий раунд досрочно. Завершает все матчи и показывает результаты ученикам."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cursor.execute('''
+            SELECT id, round_number FROM duel_rounds
+            WHERE lesson_id = %s AND status = 'active'
+            ORDER BY round_number DESC LIMIT 1
+        ''', (lesson_id,))
+        current_round = cursor.fetchone()
+        if not current_round:
+            return jsonify({'error': 'Нет активного раунда'}), 400
+
+        _complete_all_matches_in_round(conn, cursor, current_round['id'])
+
+        cursor.execute('''
+            UPDATE duel_rounds SET status = 'completed', ended_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        ''', (current_round['id'],))
+
+        conn.commit()
+        return jsonify({'success': True, 'round_number': current_round['round_number']})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/leaderboard', methods=['GET'])
+def get_duel_leaderboard(lesson_id):
+    """Получить таблицу лидеров дуэли (динамически, даже если финал ещё не состоялся)."""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Проверяем, есть ли уже финальная таблица
+        cursor.execute('''
+            SELECT dl.*, u.full_name
+            FROM duel_leaderboard dl
+            JOIN users u ON u.id = dl.user_id
+            WHERE dl.lesson_id = %s
+            ORDER BY dl.final_place
+        ''', (lesson_id,))
+        rows = cursor.fetchall()
+        if rows:
+            return jsonify({'leaderboard': _json_safe([dict(r) for r in rows])})
+
+        # Динамический расчёт из матчей
+        cursor.execute('''
+            SELECT dm.player1_id, dm.player2_id, dm.winner_id, dm.loser_id,
+                   dm.player1_score, dm.player2_score,
+                   u1.full_name as p1_name, u2.full_name as p2_name
+            FROM duel_matches dm
+            JOIN duel_rounds dr ON dr.id = dm.round_id
+            LEFT JOIN users u1 ON u1.id = dm.player1_id
+            LEFT JOIN users u2 ON u2.id = dm.player2_id
+            WHERE dr.lesson_id = %s AND dm.status = 'completed'
+        ''', (lesson_id,))
+        matches = cursor.fetchall()
+
+        stats = {}
+        for m in matches:
+            p1 = m['player1_id']
+            p2 = m['player2_id']
+            if p1:
+                if p1 not in stats:
+                    stats[p1] = {'wins': 0, 'losses': 0, 'total_score': 0, 'tasks_solved': 0, 'full_name': m['p1_name'] or '—'}
+                stats[p1]['total_score'] += m['player1_score'] or 0
+                if m['winner_id'] == p1:
+                    stats[p1]['wins'] += 1
+                elif m['loser_id'] == p1:
+                    stats[p1]['losses'] += 1
+            if p2:
+                if p2 not in stats:
+                    stats[p2] = {'wins': 0, 'losses': 0, 'total_score': 0, 'tasks_solved': 0, 'full_name': m['p2_name'] or '—'}
+                stats[p2]['total_score'] += m['player2_score'] or 0
+                if m['winner_id'] == p2:
+                    stats[p2]['wins'] += 1
+                elif m['loser_id'] == p2:
+                    stats[p2]['losses'] += 1
+
+        # Считаем tasks_solved из duel_match_answers
+        cursor.execute('''
+            SELECT dma.user_id, COUNT(*) as solved
+            FROM duel_match_answers dma
+            JOIN duel_matches dm ON dm.id = dma.match_id
+            JOIN duel_rounds dr ON dr.id = dm.round_id
+            WHERE dr.lesson_id = %s AND dma.is_correct = TRUE
+            GROUP BY dma.user_id
+        ''', (lesson_id,))
+        for row in cursor.fetchall():
+            uid = row['user_id']
+            if uid in stats:
+                stats[uid]['tasks_solved'] = row['solved']
+
+        # Формируем leaderboard с сортировкой: победы > total_score > tasks_solved
+        leaderboard = []
+        for uid, s in stats.items():
+            leaderboard.append({
+                'user_id': uid,
+                'full_name': s['full_name'],
+                'wins': s['wins'],
+                'losses': s['losses'],
+                'total_score': s['total_score'],
+                'tasks_solved': s['tasks_solved'],
+                'matches_played': s['wins'] + s['losses']
+            })
+        leaderboard.sort(key=lambda x: (-x['wins'], -x['total_score'], -x['tasks_solved']))
+
+        # Добавляем place
+        for i, row in enumerate(leaderboard, start=1):
+            row['final_place'] = i
+
+        return jsonify({'leaderboard': _json_safe(leaderboard)})
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/bracket', methods=['GET'])
+def get_duel_bracket(lesson_id):
+    """Получить полную структуру турнирной сетки с детальной статистикой."""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Все раунды
+        cursor.execute('''
+            SELECT id, round_number, round_name, status, time_seconds
+            FROM duel_rounds WHERE lesson_id = %s ORDER BY round_number
+        ''', (lesson_id,))
+        rounds = [dict(r) for r in cursor.fetchall()]
+
+        # Все матчи с именами
+        cursor.execute('''
+            SELECT dm.*,
+                   p1.full_name AS player1_name,
+                   p2.full_name AS player2_name,
+                   w.full_name AS winner_name,
+                   l.full_name AS loser_name,
+                   db.bracket_number, db.bracket_name
+            FROM duel_matches dm
+            LEFT JOIN users p1 ON p1.id = dm.player1_id
+            LEFT JOIN users p2 ON p2.id = dm.player2_id
+            LEFT JOIN users w ON w.id = dm.winner_id
+            LEFT JOIN users l ON l.id = dm.loser_id
+            JOIN duel_brackets db ON db.id = dm.bracket_id
+            WHERE dm.lesson_id = %s
+            ORDER BY dm.round_id, dm.match_number
+        ''', (lesson_id,))
+        matches = [dict(m) for m in cursor.fetchall()]
+
+        # Статистика ответов по каждому матчу
+        match_ids = [m['id'] for m in matches]
+        answer_stats = {}
+        if match_ids:
+            cursor.execute('''
+                SELECT match_id, user_id,
+                       COUNT(*) FILTER (WHERE is_correct = TRUE) AS correct_count,
+                       COUNT(*) AS total_answers
+                FROM duel_match_answers
+                WHERE match_id = ANY(%s)
+                GROUP BY match_id, user_id
+            ''', (match_ids,))
+            for row in cursor.fetchall():
+                mid = row['match_id']
+                if mid not in answer_stats:
+                    answer_stats[mid] = {}
+                answer_stats[mid][row['user_id']] = {
+                    'correct_count': row['correct_count'] or 0,
+                    'total_answers': row['total_answers'] or 0
+                }
+
+        for m in matches:
+            mid = m['id']
+            stats = answer_stats.get(mid, {})
+            m['player1_stats'] = stats.get(m['player1_id'], {'correct_count': 0, 'total_answers': 0})
+            m['player2_stats'] = stats.get(m['player2_id'], {'correct_count': 0, 'total_answers': 0})
+            m['player1_score'] = m['player1_score'] or 0
+            m['player2_score'] = m['player2_score'] or 0
+
+        return jsonify(_json_safe({'rounds': rounds, 'matches': matches}))
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/status', methods=['GET'])
+def get_duel_status(lesson_id):
+    """Получить статус дуэли (активный раунд, завершена ли)."""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT ended, is_duel FROM lessons WHERE id = %s
+        ''', (lesson_id,))
+        lesson = cursor.fetchone()
+
+        cursor.execute('''
+            SELECT * FROM duel_rounds
+            WHERE lesson_id = %s ORDER BY round_number
+        ''', (lesson_id,))
+        rounds = [dict(r) for r in cursor.fetchall()]
+
+        active_round = next((r for r in rounds if r['status'] == 'active'), None)
+        completed_rounds = [r for r in rounds if r['status'] == 'completed']
+        last_completed = max(completed_rounds, key=lambda r: r['round_number']) if completed_rounds else None
+
+        return jsonify(_json_safe({
+            'is_duel': bool(lesson['is_duel']) if lesson else False,
+            'ended': bool(lesson['ended']) if lesson else False,
+            'active_round': dict(active_round) if active_round else None,
+            'last_completed_round': dict(last_completed) if last_completed else None,
+            'rounds': rounds
+        }))
+    finally:
+        conn.close()
+
+
+# =============================================================================
 
 if __name__ == '__main__':
     cleanup_guest_students()

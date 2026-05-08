@@ -229,7 +229,8 @@ function processTemplate(template) {
     card.className = 'task-card';
     card.innerHTML = `
       <div class="task-header">
-        <h3>Задание <span class="task-number"></span></h3>
+        <span class="task-drag-handle" title="Перетащить в раунд" style="cursor: grab; color: var(--text-muted); font-size: 18px; padding: 4px; user-select: none;">☰</span>
+        <h3 style="flex:1; margin-left: 8px;">Задание <span class="task-number"></span></h3>
         <button class="btn btn-danger btn-remove-task">Удалить</button>
       </div>
 
@@ -252,6 +253,7 @@ function processTemplate(template) {
     tasksContainer.appendChild(card);
     updateTaskNumbers();
     renderTaskPreview(card);
+    initTaskDragSources();
   }
 
   function updateTaskNumbers() {
@@ -517,6 +519,7 @@ toast.remove();
               card.dataset.taskId = data.task_ids[index];
             }
           });
+          initTaskDragSources();
         }
         alert('Изменения сохранены');
       } else {
@@ -694,5 +697,366 @@ if (closeQrModal) {
   })
 
 }
+
+  /* ================================
+     DUEL ROUNDS MANAGEMENT
+  ================================= */
+
+  const createDuelRoundsBtn = document.getElementById('createDuelRoundsBtn');
+  const startDuelBtn = document.getElementById('startDuelBtn');
+  const stopRoundBtn = document.getElementById('stopRoundBtn');
+  const nextRoundBtn = document.getElementById('nextRoundBtn');
+  const duelRoundsContainer = document.getElementById('duelRoundsContainer');
+
+  // Создание 5 раундов
+  createDuelRoundsBtn?.addEventListener('click', async () => {
+    if (!confirm('Создать 5 раундов дуэли (1/16 → Финал)?')) return;
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/rounds`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        location.reload();
+      } else {
+        alert('Ошибка: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  });
+
+  // Начать дуэль (жеребьёвка)
+  startDuelBtn?.addEventListener('click', async () => {
+    if (!confirm('Начать дуэль? Будет произведена случайная жеребьёвка пар.')) return;
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/start`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Дуэль начата! Создано матчей: ${data.matches_created}`);
+        location.reload();
+      } else {
+        alert('Ошибка: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  });
+
+  // Остановить раунд
+  stopRoundBtn?.addEventListener('click', async () => {
+    if (!confirm('Остановить текущий раунд? Ученики увидят результаты.')) return;
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/stop-round`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert('Раунд остановлен!');
+        location.reload();
+      } else {
+        alert('Ошибка: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  });
+
+  // Следующий раунд
+  nextRoundBtn?.addEventListener('click', async () => {
+    if (!confirm('Перейти к следующему раунду?')) return;
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/next-round`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        if (data.finished) {
+          alert('Дуэль завершена!');
+        } else {
+          alert(`Переход к раунду ${data.next_round}`);
+        }
+        location.reload();
+      } else {
+        alert('Ошибка: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  });
+
+  // Изменение времени раунда
+  document.querySelectorAll('.round-time-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const roundId = e.target.dataset.roundId;
+      const seconds = parseInt(e.target.value, 10);
+      if (!seconds || seconds < 10) {
+        alert('Минимум 10 секунд');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/duel/rounds/${roundId}/time`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ time_seconds: seconds })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert('Ошибка: ' + (data.error || ''));
+        }
+      } catch (err) {
+        alert('Ошибка сети');
+      }
+    });
+  });
+
+  // ================================
+  // DRAG & DROP + TASK PICKER (DUEL)
+  // ================================
+
+  let draggedTaskId = null;
+
+  // Drag-источники — только через ручку ☰
+  function initTaskDragSources() {
+    document.querySelectorAll('.task-card').forEach(card => {
+      const taskId = card.dataset.taskId;
+      if (!taskId) return;
+      const handle = card.querySelector('.task-drag-handle');
+      if (!handle) return;
+      handle.draggable = true;
+      handle.addEventListener('dragstart', (e) => {
+        draggedTaskId = taskId;
+        e.dataTransfer.setData('text/plain', taskId);
+        e.dataTransfer.effectAllowed = 'copy';
+        card.style.opacity = '0.5';
+      });
+      handle.addEventListener('dragend', () => {
+        card.style.opacity = '';
+        draggedTaskId = null;
+      });
+    });
+  }
+
+  initTaskDragSources();
+
+  // Цели drop
+  document.querySelectorAll('.duel-round-tasks').forEach(zone => {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      zone.closest('.duel-round-card').classList.add('drag-over');
+    });
+
+    zone.addEventListener('dragleave', (e) => {
+      zone.closest('.duel-round-card').classList.remove('drag-over');
+    });
+
+    zone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      zone.closest('.duel-round-card').classList.remove('drag-over');
+      const taskId = e.dataTransfer.getData('text/plain') || draggedTaskId;
+      if (!taskId) return;
+      const roundCard = zone.closest('.duel-round-card');
+      await addTaskToRound(roundCard, taskId);
+    });
+  });
+
+  // Удаление задания из раунда (клик по тегу)
+  document.querySelectorAll('.round-task-tag').forEach(tag => {
+    tag.addEventListener('click', async () => {
+      if (!confirm('Удалить задание из раунда?')) return;
+      const roundCard = tag.closest('.duel-round-card');
+      const roundId = roundCard.dataset.roundId;
+      tag.remove();
+      await saveRoundTasks(roundId, getRoundTaskIds(roundCard));
+    });
+  });
+
+  function getRoundTaskIds(roundCard) {
+    return Array.from(roundCard.querySelectorAll('.round-task-tag')).map(t => t.dataset.taskId);
+  }
+
+  async function saveRoundTasks(roundId, taskIds) {
+    try {
+      const res = await fetch(`/api/duel/rounds/${roundId}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_ids: taskIds })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert('Ошибка сохранения: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  }
+
+  async function addTaskToRound(roundCard, taskId) {
+    const roundId = roundCard.dataset.roundId;
+    const taskList = roundCard.querySelector('.round-task-list');
+    const existing = taskList.querySelector(`[data-task-id="${taskId}"]`);
+    if (existing) {
+      alert('Это задание уже добавлено в раунд');
+      return;
+    }
+    const tag = document.createElement('span');
+    tag.className = 'round-task-tag';
+    tag.dataset.taskId = taskId;
+    tag.style.cssText = 'background: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;';
+    tag.textContent = `Задание ${taskId}`;
+    tag.addEventListener('click', () => {
+      if (confirm('Удалить задание из раунда?')) {
+        tag.remove();
+        saveRoundTasks(roundId, getRoundTaskIds(roundCard));
+      }
+    });
+    taskList.appendChild(tag);
+    await saveRoundTasks(roundId, getRoundTaskIds(roundCard));
+  }
+
+  // ================================
+  // МОДАЛКА ВЫБОРА ЗАДАНИЙ
+  // ================================
+  const taskPickerModal = document.getElementById('taskPickerModal');
+  const taskPickerList = document.getElementById('taskPickerList');
+  const closeTaskPickerModal = document.getElementById('closeTaskPickerModal');
+  const cancelTaskPicker = document.getElementById('cancelTaskPicker');
+  const confirmTaskPicker = document.getElementById('confirmTaskPicker');
+  let activeRoundCardForPicker = null;
+
+  // Открытие модалки при клике на "Добавить задания"
+  document.querySelectorAll('.btn-add-tasks').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const roundCard = btn.closest('.duel-round-card');
+      activeRoundCardForPicker = roundCard;
+      openTaskPicker(roundCard);
+    });
+  });
+
+  function openTaskPicker(roundCard) {
+    const existingIds = new Set(getRoundTaskIds(roundCard));
+    const cards = Array.from(document.querySelectorAll('.task-card'));
+    taskPickerList.innerHTML = '';
+
+    if (cards.length === 0) {
+      taskPickerList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Нет заданий в уроке. Сначала создайте задания.</p>';
+    } else {
+      cards.forEach((card, idx) => {
+        const taskId = card.dataset.taskId;
+        if (!taskId) return; // пропускаем несохранённые
+        const isAlready = existingIds.has(taskId);
+        const questionPreview = card.querySelector('.task-question-preview')?.textContent?.substring(0, 80) || '';
+        const item = document.createElement('label');
+        item.className = 'task-picker-item';
+        item.innerHTML = `
+          <input type="checkbox" value="${taskId}" ${isAlready ? 'checked disabled' : ''}>
+          <span class="task-preview-text"><strong>№${idx + 1}</strong> — ${escapeHtml(questionPreview || 'Задание ' + taskId)}</span>
+          ${isAlready ? '<span style="font-size: 12px; color: var(--success);">✓ в раунде</span>' : ''}
+        `;
+        taskPickerList.appendChild(item);
+      });
+    }
+
+    taskPickerModal.classList.remove('hidden');
+  }
+
+  function closeTaskPicker() {
+    taskPickerModal.classList.add('hidden');
+    activeRoundCardForPicker = null;
+  }
+
+  closeTaskPickerModal?.addEventListener('click', closeTaskPicker);
+  cancelTaskPicker?.addEventListener('click', closeTaskPicker);
+  taskPickerModal?.addEventListener('click', (e) => {
+    if (e.target === taskPickerModal) closeTaskPicker();
+  });
+
+  confirmTaskPicker?.addEventListener('click', async () => {
+    if (!activeRoundCardForPicker) return;
+    const checkboxes = taskPickerList.querySelectorAll('input[type="checkbox"]:not([disabled])');
+    let added = 0;
+    for (const cb of checkboxes) {
+      if (cb.checked) {
+        await addTaskToRound(activeRoundCardForPicker, cb.value);
+        added++;
+      }
+    }
+    closeTaskPicker();
+    if (added > 0) {
+      showToast(`Добавлено заданий: ${added}`);
+    }
+  });
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.innerText = message;
+    toast.style.cssText = 'position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2e7d32; color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 9999;';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
+
+  // ================================
+  // ИНФОРМАЦИОННАЯ ПАНЕЛЬ ДУЭЛИ
+  // ================================
+  const duelInfoPanel = document.getElementById('duelInfoPanel');
+  const duelInfoRound = document.getElementById('duelInfoRound');
+  const duelInfoMatches = document.getElementById('duelInfoMatches');
+  const duelInfoTimer = document.getElementById('duelInfoTimer');
+
+  async function loadDuelInfo() {
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/status`);
+      const data = await res.json();
+      if (!data.is_duel) return;
+
+      if (data.active_round) {
+        duelInfoPanel.style.display = 'block';
+        duelInfoRound.textContent = `${data.active_round.round_name} (${data.active_round.status})`;
+
+        // Загружаем матчи раунда
+        const matchesRes = await fetch(`/api/duel/${lessonId}/bracket`);
+        const bracketData = await matchesRes.json();
+        const roundMatches = bracketData.matches?.filter(m => m.round_id === data.active_round.id) || [];
+        const completed = roundMatches.filter(m => m.status === 'completed').length;
+        duelInfoMatches.textContent = `${completed} / ${roundMatches.length}`;
+
+        // Таймер
+        const timeLeft = data.active_round.time_seconds || 0;
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        duelInfoTimer.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      } else if (data.rounds && data.rounds.some(r => r.status === 'completed')) {
+        duelInfoPanel.style.display = 'block';
+        const lastCompleted = [...data.rounds].reverse().find(r => r.status === 'completed');
+        duelInfoRound.textContent = `${lastCompleted.round_name} (завершён)`;
+        duelInfoMatches.textContent = '—';
+        duelInfoTimer.textContent = '00:00';
+      } else {
+        duelInfoPanel.style.display = 'none';
+      }
+
+      // Управление кнопками в зависимости от статуса
+      if (data.active_round) {
+        // Раунд идёт — показываем "Остановить", скрываем "Следующий"
+        if (stopRoundBtn) stopRoundBtn.style.display = '';
+        if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        if (startDuelBtn) startDuelBtn.style.display = 'none';
+      } else if (data.rounds && data.rounds.some(r => r.status === 'completed')) {
+        // Есть завершённые раунды — показываем "Следующий", скрываем "Остановить"
+        if (stopRoundBtn) stopRoundBtn.style.display = 'none';
+        if (nextRoundBtn) nextRoundBtn.style.display = '';
+        if (startDuelBtn) startDuelBtn.style.display = 'none';
+      } else {
+        // Ничего не начато — показываем "Начать дуэль"
+        if (stopRoundBtn) stopRoundBtn.style.display = 'none';
+        if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        if (startDuelBtn) startDuelBtn.style.display = '';
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  loadDuelInfo();
+  setInterval(loadDuelInfo, 5000);
 
 });

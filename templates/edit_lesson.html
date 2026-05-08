@@ -733,6 +733,26 @@
             border-radius: 8px;
             padding: 12px;
         }
+
+        /* Duel rounds */
+        .duel-round-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .duel-round-card.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .round-task-tag {
+            transition: all 0.2s;
+        }
+        .round-task-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
         .task-photo-preview {
             text-align: center;
             margin-bottom: 8px;
@@ -752,6 +772,68 @@
         .task-photo-actions .btn-small {
             padding: 6px 12px;
             font-size: 13px;
+        }
+        .task-drag-handle {
+            cursor: grab;
+            color: var(--text-muted);
+            font-size: 18px;
+            padding: 4px;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .task-drag-handle:hover {
+            color: var(--primary);
+        }
+        .task-drag-handle:active {
+            cursor: grabbing;
+        }
+        .duel-round-card .btn-add-tasks {
+            padding: 6px 12px;
+            font-size: 13px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .duel-round-card .btn-add-tasks:hover {
+            background: var(--primary);
+            color: white;
+        }
+        /* Модалка выбора заданий */
+        .task-picker-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 16px 0;
+        }
+        .task-picker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+        .task-picker-item:hover {
+            background: var(--bg);
+            border-color: var(--border);
+        }
+        .task-picker-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+        .task-picker-item .task-preview-text {
+            font-size: 14px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
         }
     </style>
 </head>
@@ -837,7 +919,8 @@
                      data-template-name="{{ task.template_name or '' }}"
                      data-photo-path="{{ task.photo_path or '' }}">
                     <div class="task-header">
-                        <h3>
+                        <span class="task-drag-handle" title="Перетащить в раунд" style="cursor: grab; color: var(--text-muted); font-size: 18px; padding: 4px; user-select: none;">☰</span>
+                        <h3 style="flex:1; margin-left: 8px;">
                             Задание <span class="task-number">{{ loop.index }}</span>
                             {% if task.template_name %}
                             <span class="task-template-name">— {{ task.template_name }}</span>
@@ -878,6 +961,86 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- 🎮 Панель раундов дуэли -->
+            {% if lesson.is_duel %}
+            <div id="duelRoundsPanel" style="margin-top: 32px;">
+                <!-- Информационная панель дуэли -->
+                <div id="duelInfoPanel" class="duel-info-panel" style="display: none; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">Статус дуэли</div>
+                            <div id="duelInfoRound" style="font-size: 18px; font-weight: 700;">—</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">Матчи</div>
+                            <div id="duelInfoMatches" style="font-size: 18px; font-weight: 700;">—</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">Время раунда</div>
+                            <div id="duelInfoTimer" style="font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; background: rgba(255,255,255,0.15); padding: 4px 16px; border-radius: var(--radius-sm);">—:—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-toolbar" style="flex-wrap: wrap;">
+                    <h2><i class="fas fa-gamepad" style="color: var(--primary);"></i> Раунды дуэли</h2>
+                    <div class="toolbar-actions">
+                        <a href="/teacher/duel_bracket/{{ lesson.id }}" target="_blank" class="btn btn-primary" style="text-decoration:none;">
+                            <i class="fas fa-sitemap"></i> Полная сетка
+                        </a>
+                        <button id="createDuelRoundsBtn" class="btn btn-primary" {% if duel_rounds %}style="display:none"{% endif %}>
+                            <i class="fas fa-plus"></i> Создать раунды
+                        </button>
+                        <button id="startDuelBtn" class="btn btn-save" {% if not duel_rounds %}style="display:none"{% endif %}>
+                            <i class="fas fa-play"></i> Начать дуэль
+                        </button>
+                        <button id="stopRoundBtn" class="btn btn-danger" style="display:none;">
+                            <i class="fas fa-stop"></i> Остановить раунд
+                        </button>
+                        <button id="nextRoundBtn" class="btn btn-primary" style="display:none;">
+                            <i class="fas fa-forward"></i> Следующий раунд
+                        </button>
+                    </div>
+                </div>
+
+                <div id="duelRoundsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for round in duel_rounds %}
+                    <div class="duel-round-card" data-round-id="{{ round.id }}" data-round-number="{{ round.round_number }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-size: 16px; font-weight: 600;">
+                                Раунд {{ round.round_number }} — {{ round.round_name }}
+                                <span class="duel-round-status" style="font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 12px; background: var(--bg); color: var(--text-muted);">
+                                    {{ round.status }}
+                                </span>
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-size: 13px; color: var(--text-muted);">Время (сек):</label>
+                                <input type="number" class="round-time-input" value="{{ round.time_seconds }}"
+                                    style="width: 70px; padding: 6px 10px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;"
+                                    data-round-id="{{ round.id }}">
+                            </div>
+                        </div>
+                        <div class="duel-round-tasks" style="min-height: 60px; background: var(--bg); border-radius: var(--radius-sm); padding: 12px; border: 2px dashed var(--border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <p style="font-size: 13px; color: var(--text-muted);">Перетащите сюда задания или выберите из списка</p>
+                                <button type="button" class="btn-add-tasks" data-round-id="{{ round.id }}">
+                                    ➕ Добавить задания
+                                </button>
+                            </div>
+                            <div class="round-task-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                {% for t in round.tasks %}
+                                <span class="round-task-tag" data-task-id="{{ t.id }}" style="background: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                    Задание {{ t.id }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Правая панель: Индекс заданий -->
@@ -930,6 +1093,24 @@
     </div>
 
 </div>
+        </div>
+    </div>
+
+    <!-- Модалка выбора заданий для раунда -->
+    <div id="taskPickerModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
+            <button class="close" id="closeTaskPickerModal">&times;</button>
+            <h2><i class="fas fa-list-check" style="color: var(--primary);"></i> Выберите задания</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                Отмеченные задания будут добавлены в раунд.
+            </p>
+            <div class="task-picker-list" id="taskPickerList">
+                <!-- JS заполняет -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px;">
+                <button type="button" class="btn btn-secondary" id="cancelTaskPicker">Отмена</button>
+                <button type="button" class="btn btn-primary" id="confirmTaskPicker">Добавить выбранные</button>
+            </div>
         </div>
     </div>
 

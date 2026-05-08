@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сетка дуэли — {{ lesson.title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .page-header .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-top: 4px;
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Bracket sections */
+        .bracket-section {
+            margin-bottom: 48px;
+        }
+        .bracket-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bracket-title.upper { color: var(--primary); border-color: var(--primary); }
+        .bracket-title.lower { color: var(--warning); border-color: var(--warning); }
+
+        /* Rounds grid */
+        .rounds-row {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+        }
+        .round-column {
+            min-width: 280px;
+            flex: 0 0 280px;
+        }
+        .round-header {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            text-align: center;
+            padding: 8px;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .round-header.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Match card */
+        .match-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .match-card.completed::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--success);
+        }
+        .match-card.active {
+            border: 2px solid var(--primary);
+        }
+        .match-card.pending {
+            opacity: 0.7;
+        }
+        .match-number {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 8px 16px 0;
+        }
+        .player-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            gap: 12px;
+            position: relative;
+        }
+        .player-row.winner {
+            background: linear-gradient(to right, #ecfdf5 0%, transparent 100%);
+        }
+        .player-row.loser {
+            background: linear-gradient(to right, #fef2f2 0%, transparent 100%);
+        }
+        .player-row + .player-row {
+            border-top: 1px solid var(--border);
+        }
+        .player-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .player-name {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .player-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            min-width: 32px;
+            text-align: right;
+        }
+        .player-row.winner .player-score {
+            color: var(--success);
+        }
+        .winner-icon {
+            color: var(--success);
+            font-size: 14px;
+            margin-left: 4px;
+        }
+        .match-footer {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Tooltip */
+        .match-card:hover .match-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .match-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .match-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .tooltip-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 4px;
+        }
+        .tooltip-line:last-child { margin-bottom: 0; }
+        .tooltip-label { color: #94a3b8; }
+
+        /* Empty state */
+        .empty-bracket {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-bracket i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        /* Bracket subsections inside round column */
+        .bracket-subsection {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        .bracket-subsection:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Scrollbar */
+        .rounds-row::-webkit-scrollbar {
+            height: 8px;
+        }
+        .rounds-row::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        .rounds-row::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 4px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .legend-dot.active { background: var(--primary); }
+        .legend-dot.completed { background: var(--success); }
+        .legend-dot.pending { background: var(--border); border: 1px solid var(--text-muted); }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .back-link:hover { color: var(--primary); }
+
+        /* Drag scroll */
+        .rounds-row {
+            cursor: grab;
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-muted) var(--border);
+        }
+        .rounds-row:active {
+            cursor: grabbing;
+        }
+
+        /* Leaderboard */
+        .leaderboard-section {
+            margin-top: 48px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .leaderboard-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .leaderboard-table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        .leaderboard-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .leaderboard-table tr:hover {
+            background: #f8fafc;
+        }
+        .place-1 { color: #f59e0b; font-weight: 700; }
+        .place-2 { color: #64748b; font-weight: 700; }
+        .place-3 { color: #b45309; font-weight: 700; }
+
+        /* Bracket filter */
+        .bracket-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .bracket-filter-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .bracket-filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .bracket-filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .bracket-filter-btn.my-bracket {
+            box-shadow: 0 0 0 2px var(--warning);
+        }
+
+        /* Highlight my matches */
+        .match-card.my-match {
+            box-shadow: 0 0 0 3px var(--primary), var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if user_role == 'teacher' %}
+        <a href="/teacher/edit_lesson/{{ lesson.id }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Назад к уроку
+        </a>
+        {% else %}
+        <a href="/start_lesson/{{ lesson.id }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Назад к уроку
+        </a>
+        {% endif %}
+
+        <div class="page-header">
+            <div>
+                <h1>{{ lesson.title }}</h1>
+                <div class="subtitle">Турнирная сетка дуэли</div>
+            </div>
+            <div class="live-badge">Live</div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot active"></div> Активный раунд</div>
+            <div class="legend-item"><div class="legend-dot completed"></div> Завершен</div>
+            <div class="legend-item"><div class="legend-dot pending"></div> Ожидает</div>
+        </div>
+
+        <div id="bracketFilter" class="bracket-filter"></div>
+        <div id="bracketContainer">
+            <div class="empty-bracket">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <p>Загрузка сетки...</p>
+            </div>
+        </div>
+
+        <div class="leaderboard-section">
+            <div class="leaderboard-title">Рейтинговая таблица</div>
+            <div id="leaderboardContainer">
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Загрузка таблицы...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var lessonId = {{ lesson.id }};
+            var container = document.getElementById('bracketContainer');
+            var filterContainer = document.getElementById('bracketFilter');
+            var currentUserId = {{ current_user_id | default('null') }};
+            var userRole = '{{ user_role | default('') }}';
+            var selectedBracket = 'all';
+            var myBracket = null;
+
+            function renderBracket(data) {
+                if (!data.rounds || !data.matches) {
+                    container.innerHTML = '<div class="empty-bracket"><i class="fas fa-exclamation-circle"></i><p>Нет данных о сетке</p></div>';
+                    return;
+                }
+
+                // Сохраняем позицию прокрутки
+                var oldSlider = document.querySelector('.rounds-row');
+                var oldScroll = oldSlider ? oldSlider.scrollLeft : 0;
+
+                // Group matches by round, then by bracket
+                var roundBrackets = {};
+                data.matches.forEach(function(m) {
+                    var rid = m.round_id;
+                    var bnum = m.bracket_number || 1;
+                    if (!roundBrackets[rid]) roundBrackets[rid] = {};
+                    if (!roundBrackets[rid][bnum]) roundBrackets[rid][bnum] = [];
+                    roundBrackets[rid][bnum].push(m);
+                });
+
+                // Build bracket name map
+                var bracketNames = {};
+                var bracketNumbers = new Set();
+                data.matches.forEach(function(m) {
+                    if (m.bracket_number) {
+                        bracketNames[m.bracket_number] = m.bracket_name || 'Сетка ' + m.bracket_number;
+                        bracketNumbers.add(m.bracket_number);
+                    }
+                });
+
+                // Определяем сетку текущего пользователя (в активном или последнем раунде)
+                if (currentUserId) {
+                    myBracket = null;
+                    var checkRounds = data.rounds.slice().reverse();
+                    for (var ri = 0; ri < checkRounds.length; ri++) {
+                        var r = checkRounds[ri];
+                        var rb = roundBrackets[r.id];
+                        if (!rb) continue;
+                        Object.keys(rb).forEach(function(bnum) {
+                            rb[bnum].forEach(function(m) {
+                                if (m.player1_id === currentUserId || m.player2_id === currentUserId) {
+                                    myBracket = parseInt(bnum);
+                                }
+                            });
+                        });
+                        if (myBracket !== null) break;
+                    }
+                }
+
+                // Рендерим кнопки фильтрации
+                renderFilter(Array.from(bracketNumbers).sort(function(a,b){return a-b;}), myBracket);
+
+                // Фильтруем раунды: показываем только предыдущий, текущий и следующий
+                var activeIdx = data.rounds.findIndex(function(r) { return r.status === 'active'; });
+                if (activeIdx === -1) {
+                    for (var i = data.rounds.length - 1; i >= 0; i--) {
+                        if (data.rounds[i].status === 'completed') { activeIdx = i; break; }
+                    }
+                }
+                if (activeIdx === -1) activeIdx = 0;
+                var startIdx = Math.max(0, activeIdx - 1);
+                var endIdx = Math.min(data.rounds.length - 1, activeIdx + 1);
+                var visibleRounds = data.rounds.slice(startIdx, endIdx + 1);
+
+                var html = '<div class="rounds-row">';
+
+                visibleRounds.forEach(function(round) {
+                    var rb = roundBrackets[round.id];
+                    if (!rb) return;
+
+                    var isActive = (round.status === 'active');
+                    html += '<div class="round-column">';
+                    html += '<div class="round-header ' + (isActive ? 'active' : '') + '">';
+                    html += round.round_name;
+                    if (round.time_seconds && isActive) {
+                        html += ' <span style="opacity:0.8;">(' + Math.floor(round.time_seconds/60) + ' мин)</span>';
+                    }
+                    html += '</div>';
+
+                    Object.keys(rb).sort(function(a,b){return a-b;}).forEach(function(bnum) {
+                        if (selectedBracket !== 'all' && parseInt(bnum) !== parseInt(selectedBracket)) return;
+
+                        var matches = rb[bnum];
+                        var isUpper = (bnum == 1);
+                        html += '<div class="bracket-subsection" style="margin-bottom: 16px;">';
+                        html += '<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; padding: 4px 8px; background: ' + (isUpper ? '#dbeafe' : '#fef3c7') + '; border-radius: 6px; display: inline-block;">';
+                        html += isUpper ? 'Верхняя сетка' : bracketNames[bnum];
+                        html += '</div>';
+
+                        matches.forEach(function(m) {
+                            var isMyMatch = currentUserId && (m.player1_id === currentUserId || m.player2_id === currentUserId);
+                            var statusClass = m.status === 'completed' ? 'completed' : (m.status === 'active' ? 'active' : 'pending');
+                            var p1Winner = m.winner_id && m.winner_id === m.player1_id;
+                            var p2Winner = m.winner_id && m.winner_id === m.player2_id;
+                            var p1Loser = m.loser_id && m.loser_id === m.player1_id;
+                            var p2Loser = m.loser_id && m.loser_id === m.player2_id;
+
+                            html += '<div class="match-card ' + statusClass + (isMyMatch ? ' my-match' : '') + '">';
+
+                            // Tooltip
+                            html += '<div class="match-tooltip">';
+                            html += '<div class="tooltip-line"><span class="tooltip-label">' + (m.player1_name || '—') + '</span><span>' + (m.player1_stats.correct_count || 0) + ' из ' + (m.player1_stats.total_answers || 0) + ' правильно</span></div>';
+                            html += '<div class="tooltip-line"><span class="tooltip-label">' + (m.player2_name || '—') + '</span><span>' + (m.player2_stats.correct_count || 0) + ' из ' + (m.player2_stats.total_answers || 0) + ' правильно</span></div>';
+                            if (m.status === 'completed') {
+                                html += '<div class="tooltip-line" style="margin-top:6px;border-top:1px solid #334155;padding-top:4px;"><span class="tooltip-label">Победитель:</span><span>' + (m.winner_name || '—') + '</span></div>';
+                            }
+                            html += '</div>';
+
+                            html += '<div class="match-number">Матч #' + m.match_number + '</div>';
+
+                            // Player 1
+                            html += '<div class="player-row ' + (p1Winner ? 'winner' : (p1Loser ? 'loser' : '')) + '">';
+                            html += '<div class="player-avatar">' + ((m.player1_name || '?').charAt(0)) + '</div>';
+                            html += '<div class="player-info">';
+                            html += '<div class="player-name">' + (m.player1_name || '—') + (p1Winner ? ' <span class="winner-icon"><i class="fas fa-crown"></i></span>' : '') + '</div>';
+                            html += '</div>';
+                            html += '<div class="player-score">' + (m.player1_score || 0) + '</div>';
+                            html += '</div>';
+
+                            // Player 2
+                            html += '<div class="player-row ' + (p2Winner ? 'winner' : (p2Loser ? 'loser' : '')) + '">';
+                            html += '<div class="player-avatar">' + ((m.player2_name || '?').charAt(0)) + '</div>';
+                            html += '<div class="player-info">';
+                            html += '<div class="player-name">' + (m.player2_name || '—') + (p2Winner ? ' <span class="winner-icon"><i class="fas fa-crown"></i></span>' : '') + '</div>';
+                            html += '</div>';
+                            html += '<div class="player-score">' + (m.player2_score || 0) + '</div>';
+                            html += '</div>';
+
+                            html += '<div class="match-footer">';
+                            html += '<span>' + (m.status === 'completed' ? 'Завершен' : (m.status === 'active' ? 'В процессе' : 'Ожидает')) + '</span>';
+                            if (m.status === 'completed' && m.winner_name) {
+                                html += '<span style="color:var(--success);font-weight:600;">Победитель: ' + m.winner_name + '</span>';
+                            } else if (m.status === 'completed') {
+                                html += '<span style="color:var(--warning);">Ничья (случайный выбор)</span>';
+                            }
+                            html += '</div>';
+
+                            html += '</div>';
+                        });
+
+                        html += '</div>';
+                    });
+
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Восстанавливаем позицию прокрутки
+                requestAnimationFrame(function() {
+                    var newSlider = document.querySelector('.rounds-row');
+                    if (newSlider) newSlider.scrollLeft = oldScroll;
+                });
+            }
+
+            function renderFilter(bracketNumbers, myBracketNum) {
+                if (!filterContainer) return;
+                var html = '';
+                html += '<button class="bracket-filter-btn ' + (selectedBracket === 'all' ? 'active' : '') + '" data-bnum="all">Все сетки</button>';
+                bracketNumbers.forEach(function(bnum) {
+                    var isMy = (myBracketNum !== null && parseInt(bnum) === myBracketNum);
+                    html += '<button class="bracket-filter-btn ' + (selectedBracket === String(bnum) ? 'active' : '') + (isMy ? ' my-bracket' : '') + '" data-bnum="' + bnum + '">';
+                    html += (bnum == 1 ? 'Верхняя сетка' : 'Сетка ' + bnum);
+                    if (isMy) html += ' <i class="fas fa-user"></i>';
+                    html += '</button>';
+                });
+                filterContainer.innerHTML = html;
+
+                filterContainer.querySelectorAll('.bracket-filter-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        selectedBracket = this.dataset.bnum;
+                        loadBracket();
+                    });
+                });
+            }
+
+            async function loadBracket() {
+                try {
+                    var res = await fetch('/api/duel/' + lessonId + '/bracket');
+                    var data = await res.json();
+                    renderBracket(data);
+                } catch (e) {
+                    console.error(e);
+                    container.innerHTML = '<div class="empty-bracket"><i class="fas fa-exclamation-triangle"></i><p>Ошибка загрузки сетки</p></div>';
+                }
+            }
+
+            loadBracket();
+            setInterval(loadBracket, 3000);
+
+            // ====== DRAG TO SCROLL ======
+            var isDown = false;
+            var startX;
+            var scrollLeft;
+            var slider = null;
+
+            function initDragScroll() {
+                slider = document.querySelector('.rounds-row');
+                if (!slider) return;
+                slider.addEventListener('mousedown', function(e) {
+                    isDown = true;
+                    slider.classList.add('active');
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', function() {
+                    isDown = false;
+                    slider.classList.remove('active');
+                });
+                slider.addEventListener('mouseup', function() {
+                    isDown = false;
+                    slider.classList.remove('active');
+                });
+                slider.addEventListener('mousemove', function(e) {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    var x = e.pageX - slider.offsetLeft;
+                    var walk = (x - startX) * 2;
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            }
+            setTimeout(initDragScroll, 500);
+            setInterval(initDragScroll, 3000);
+
+            // ====== LEADERBOARD ======
+            var lbContainer = document.getElementById('leaderboardContainer');
+
+            function renderLeaderboard(data) {
+                if (!data.leaderboard || data.leaderboard.length === 0) {
+                    lbContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Нет данных</p>';
+                    return;
+                }
+                var html = '<table class="leaderboard-table"><thead><tr>';
+                html += '<th>#</th><th>Ученик</th><th>Матчей</th><th>Побед</th><th>Поражений</th><th>Баллов</th><th>Заданий решено</th>';
+                html += '</tr></thead><tbody>';
+                data.leaderboard.forEach(function(row) {
+                    var placeClass = '';
+                    if (row.final_place === 1) placeClass = 'place-1';
+                    else if (row.final_place === 2) placeClass = 'place-2';
+                    else if (row.final_place === 3) placeClass = 'place-3';
+                    html += '<tr>';
+                    html += '<td class="' + placeClass + '">' + row.final_place + '</td>';
+                    html += '<td><strong>' + (row.full_name || '—') + '</strong></td>';
+                    html += '<td>' + (row.matches_played || 0) + '</td>';
+                    html += '<td style="color: var(--success); font-weight: 600;">' + (row.wins || 0) + '</td>';
+                    html += '<td style="color: var(--error);">' + (row.losses || 0) + '</td>';
+                    html += '<td>' + (row.total_score || 0) + '</td>';
+                    html += '<td>' + (row.tasks_solved || 0) + '</td>';
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                lbContainer.innerHTML = html;
+            }
+
+            async function loadLeaderboard() {
+                try {
+                    var res = await fetch('/api/duel/' + lessonId + '/leaderboard');
+                    var data = await res.json();
+                    renderLeaderboard(data);
+                } catch (e) {
+                    console.error(e);
+                    lbContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Ошибка загрузки таблицы</p>';
+                }
+            }
+
+            loadLeaderboard();
+            setInterval(loadLeaderboard, 5000);
+        })();
+    </script>
+</body>
+</html>

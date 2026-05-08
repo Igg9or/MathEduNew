@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import requests
 from task_generator import TaskGenerator
 
-print("🔥 playground_routes.py LOADED")
+print("[LOADED] playground_routes.py")
 # Blueprint
 playground_bp = Blueprint("template_playground", __name__)
 
