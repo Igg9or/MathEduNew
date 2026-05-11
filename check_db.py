@@ -10,24 +10,15 @@ conn = psycopg2.connect(
 )
 c = conn.cursor()
 
-print("=== duel_matches columns ===")
-c.execute("""
-    SELECT column_name, data_type 
-    FROM information_schema.columns 
-    WHERE table_name = 'duel_matches' 
-    ORDER BY ordinal_position
-""")
-for r in c.fetchall():
-    print(f"  {r[0]}: {r[1]}")
-
-print("\n=== duel_rounds columns ===")
-c.execute("""
-    SELECT column_name, data_type 
-    FROM information_schema.columns 
-    WHERE table_name = 'duel_rounds' 
-    ORDER BY ordinal_position
-""")
-for r in c.fetchall():
-    print(f"  {r[0]}: {r[1]}")
+for table in ['task_templates', 'textbooks', 'lesson_templates']:
+    print(f"\n=== {table} columns ===")
+    c.execute(f"""
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = '{table}' 
+        ORDER BY ordinal_position
+    """)
+    for r in c.fetchall():
+        print(f"  {r[0]}: {r[1]}")
 
 conn.close()

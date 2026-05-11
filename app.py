@@ -3181,21 +3181,25 @@ def ai_full_solution():
 
     # =====================================================
     # 🔹 0. ПРОВЕРКА КЕША УРОВНЯ ЗАДАНИЯ (lesson_tasks.ai_solution)
-    # Для фото-заданий и статичных заданий — одно решение на всех
+    # Только для фото-заданий и статичных заданий (template_id IS NULL).
+    # Для шаблонных заданий с вариантами — кэш по (user_id, task_id, question_hash).
     # =====================================================
     photo_path = None
+    template_id = None
     if task_id:
         conn = get_db()
         try:
             cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cursor.execute(
-                "SELECT photo_path, ai_solution FROM lesson_tasks WHERE id = %s",
+                "SELECT photo_path, template_id, ai_solution FROM lesson_tasks WHERE id = %s",
                 (task_id,)
             )
             lt_row = cursor.fetchone()
             if lt_row:
                 photo_path = lt_row['photo_path']
-                if lt_row['ai_solution']:
+                template_id = lt_row['template_id']
+                # Кэш уровня задания только для статичных/фото-заданий
+                if template_id is None and lt_row['ai_solution']:
                     try:
                         cached = json.loads(lt_row['ai_solution'])
                         return jsonify({
@@ -3366,8 +3370,10 @@ def ai_full_solution():
 
         # =====================================================
         # 🔹 4. СОХРАНЕНИЕ В КЕШ ЗАДАНИЯ (lesson_tasks.ai_solution)
+        # Только для статичных/фото-заданий (template_id IS NULL).
+        # Шаблонные задания кэшируются только в ai_solution_cache по question_hash.
         # =====================================================
-        if task_id:
+        if task_id and template_id is None:
             conn = get_db()
             try:
                 cursor = conn.cursor()
@@ -3570,15 +3576,8 @@ def generate_retry_task(task_id):
                 'choice_idx': existing_retry_idx
             })
 
-        # 4. Берём ИСХОДНЫЙ индекс
+        # 4. Берём ИСХОДНЫЙ индекс (для старых заданий может отсутствовать)
         original_idx = saved_variant.get('initial_choice_idx')
-        if original_idx is None:
-            return jsonify({
-                'error': 'У исходного задания не сохранён initial_choice_idx. '
-                         'Нужно один раз пересоздать варианты после обновления кода.'
-            }), 400
-
-        original_idx = int(original_idx)
 
         # 6. Подготавливаем template_dict
         params = task['parameters']
@@ -3591,12 +3590,15 @@ def generate_retry_task(task_id):
             params = {}
 
         # 5. Вычисляем retry-индекс на основе реальной длины choice-массива
-        choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
-        if choice_keys:
-            choice_len = len(params[choice_keys[0]]['values'])
-            retry_idx = (original_idx + choice_len // 2) % choice_len
-        else:
-            retry_idx = original_idx
+        retry_idx = None
+        if original_idx is not None:
+            original_idx = int(original_idx)
+            choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
+            if choice_keys:
+                choice_len = len(params[choice_keys[0]]['values'])
+                retry_idx = (original_idx + choice_len // 2) % choice_len
+            else:
+                retry_idx = original_idx
 
         template_dict = {
             'id': task['template_id'],

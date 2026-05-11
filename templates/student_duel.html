@@ -547,11 +547,6 @@
                         var result = await resp.json();
                         if (result.is_correct) {
                             isCorrect = true;
-                        } else {
-                            var questionText = extractQuestionForAI(taskCard);
-                            if (!_isLinkOnlyQuestion(questionText)) {
-                                isCorrect = await fallbackToAI(taskCard, userAnswer);
-                            }
                         }
                     } catch (e) {
                         console.error('Check error:', e);
@@ -564,11 +559,15 @@
                 feedback.classList.remove('hidden');
                 savedFb.classList.remove('hidden');
 
-                // Fetch AI explanation if incorrect
+                // Fetch AI explanation and semantic check
                 var aiSolution = '';
                 if (!isCorrect) {
                     try {
-                        aiSolution = await fetchAIExplanation(taskCard, userAnswer);
+                        var aiData = await fetchAIExplanation(taskCard, userAnswer);
+                        if (aiData.ai_verdict && aiData.ai_verdict.is_student_correct === true) {
+                            isCorrect = true;
+                        }
+                        aiSolution = aiData.solution || '';
                     } catch (e) {
                         console.error('AI error:', e);
                     }
@@ -619,34 +618,13 @@
                         })
                     });
                     var data = await response.json();
-                    return data.solution || '';
+                    return {
+                        solution: data.solution || '',
+                        ai_verdict: data.ai_verdict || null
+                    };
                 } catch (e) {
                     console.error('AI explanation error:', e);
-                    return '';
-                }
-            }
-
-            async function fallbackToAI(taskCard, studentAnswer) {
-                var questionText = extractQuestionForAI(taskCard);
-                var correctAnswer = taskCard.dataset.correctAnswer;
-                try {
-                    var response = await fetch('/api/ai_full_solution', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            task_id: taskCard.dataset.taskId,
-                            user_id: userId,
-                            question: questionText,
-                            correct_answer: correctAnswer,
-                            student_answer: studentAnswer,
-                            grade: taskCard.dataset.grade || 5
-                        })
-                    });
-                    var data = await response.json();
-                    return data.ai_verdict && data.ai_verdict.is_student_correct === true;
-                } catch (e) {
-                    console.error('AI fallback error:', e);
-                    return false;
+                    return { solution: '', ai_verdict: null };
                 }
             }
 
