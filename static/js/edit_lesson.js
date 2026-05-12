@@ -706,6 +706,8 @@ if (closeQrModal) {
   const startDuelBtn = document.getElementById('startDuelBtn');
   const stopRoundBtn = document.getElementById('stopRoundBtn');
   const nextRoundBtn = document.getElementById('nextRoundBtn');
+  const startOvertimeBtn = document.getElementById('startOvertimeBtn');
+  const overtimeSeconds = document.getElementById('overtimeSeconds');
   const duelRoundsContainer = document.getElementById('duelRoundsContainer');
 
   // Создание 5 раундов
@@ -748,7 +750,36 @@ if (closeQrModal) {
       const res = await fetch(`/api/duel/${lessonId}/stop-round`, { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        alert('Раунд остановлен!');
+        if (data.needs_overtime) {
+          alert('Раунд остановлен! Есть матчи 0-0 — нужно запустить доп. время.');
+          if (stopRoundBtn) stopRoundBtn.style.display = 'none';
+          if (startOvertimeBtn) { startOvertimeBtn.style.display = ''; overtimeSeconds.style.display = ''; }
+          if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        } else {
+          alert('Раунд остановлен!');
+          location.reload();
+        }
+      } else {
+        alert('Ошибка: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('Ошибка сети');
+    }
+  });
+
+  // Запустить доп. время
+  startOvertimeBtn?.addEventListener('click', async () => {
+    const seconds = parseInt(overtimeSeconds?.value || '300', 10);
+    if (!confirm(`Запустить дополнительное время на ${seconds} секунд?`)) return;
+    try {
+      const res = await fetch(`/api/duel/${lessonId}/start-overtime`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time_seconds: seconds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Доп. время запущено!');
         location.reload();
       } else {
         alert('Ошибка: ' + (data.error || ''));
@@ -1012,7 +1043,8 @@ if (closeQrModal) {
 
       if (data.active_round) {
         duelInfoPanel.style.display = 'block';
-        duelInfoRound.textContent = `${data.active_round.round_name} (${data.active_round.status})`;
+        const statusLabel = data.active_round.status === 'overtime' ? 'доп. время' : data.active_round.status;
+        duelInfoRound.textContent = `${data.active_round.round_name} (${statusLabel})`;
 
         // Загружаем матчи раунда
         const matchesRes = await fetch(`/api/duel/${lessonId}/bracket`);
@@ -1038,19 +1070,28 @@ if (closeQrModal) {
 
       // Управление кнопками в зависимости от статуса
       if (data.active_round) {
-        // Раунд идёт — показываем "Остановить", скрываем "Следующий"
+        // Раунд идёт — показываем "Остановить", скрываем остальное
         if (stopRoundBtn) stopRoundBtn.style.display = '';
         if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        if (startOvertimeBtn) { startOvertimeBtn.style.display = 'none'; overtimeSeconds.style.display = 'none'; }
+        if (startDuelBtn) startDuelBtn.style.display = 'none';
+      } else if (data.needs_overtime) {
+        // Нужно доп. время
+        if (stopRoundBtn) stopRoundBtn.style.display = 'none';
+        if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        if (startOvertimeBtn) { startOvertimeBtn.style.display = ''; overtimeSeconds.style.display = ''; }
         if (startDuelBtn) startDuelBtn.style.display = 'none';
       } else if (data.rounds && data.rounds.some(r => r.status === 'completed')) {
-        // Есть завершённые раунды — показываем "Следующий", скрываем "Остановить"
+        // Есть завершённые раунды — показываем "Следующий"
         if (stopRoundBtn) stopRoundBtn.style.display = 'none';
         if (nextRoundBtn) nextRoundBtn.style.display = '';
+        if (startOvertimeBtn) { startOvertimeBtn.style.display = 'none'; overtimeSeconds.style.display = 'none'; }
         if (startDuelBtn) startDuelBtn.style.display = 'none';
       } else {
         // Ничего не начато — показываем "Начать дуэль"
         if (stopRoundBtn) stopRoundBtn.style.display = 'none';
         if (nextRoundBtn) nextRoundBtn.style.display = 'none';
+        if (startOvertimeBtn) { startOvertimeBtn.style.display = 'none'; overtimeSeconds.style.display = 'none'; }
         if (startDuelBtn) startDuelBtn.style.display = '';
       }
     } catch (e) { /* ignore */ }
@@ -1058,5 +1099,57 @@ if (closeQrModal) {
 
   loadDuelInfo();
   setInterval(loadDuelInfo, 5000);
+
+  // ====== DUEL PARTICIPANTS MODAL ======
+  const manageParticipantsBtn = document.getElementById('manageParticipantsBtn');
+  const participantsModal = document.getElementById('participantsModal');
+  if (manageParticipantsBtn && participantsModal) {
+    manageParticipantsBtn.addEventListener('click', function() {
+      participantsModal.style.display = 'flex';
+    });
+    participantsModal.addEventListener('click', function(e) {
+      if (e.target === participantsModal) {
+        participantsModal.style.display = 'none';
+      }
+    });
+  }
+
+  // ====== DUEL PARTICIPANTS CHECKBOXES ======
+  document.querySelectorAll('.duel-participant-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', async function() {
+      const userId = this.dataset.userId;
+      const included = this.checked;
+      const label = this.closest('label');
+      const badge = label.querySelector('.excluded-badge, .included-badge');
+      try {
+        const url = included
+          ? `/api/duel/${lessonId}/include/${userId}`
+          : `/api/duel/${lessonId}/exclude/${userId}`;
+        const res = await fetch(url, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          if (badge) {
+            if (included) {
+              badge.textContent = 'Участвует';
+              badge.className = 'included-badge';
+              badge.style.color = 'var(--success)';
+              badge.style.background = 'var(--success-light)';
+            } else {
+              badge.textContent = 'Исключён';
+              badge.className = 'excluded-badge';
+              badge.style.color = 'var(--error)';
+              badge.style.background = 'var(--error-light)';
+            }
+          }
+        } else {
+          alert('Ошибка: ' + (data.error || ''));
+          this.checked = !included; // revert
+        }
+      } catch (e) {
+        alert('Ошибка сети');
+        this.checked = !included; // revert
+      }
+    });
+  });
 
 });

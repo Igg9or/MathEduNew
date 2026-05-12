@@ -419,6 +419,8 @@ def edit_lesson(lesson_id):
         # 5️⃣ Раунды дуэли (если это дуэльный урок)
         # --------------------------------------------------
         duel_rounds = []
+        class_students = []
+        excluded_students = []
         if lesson.get('is_duel'):
             cursor.execute('''
                 SELECT id, round_number, round_name, time_seconds, status
@@ -438,6 +440,22 @@ def edit_lesson(lesson_id):
                 ''', (r['id'],))
                 r['tasks'] = [dict(t) for t in cursor.fetchall()]
 
+            # Ученики класса для управления участием
+            cursor.execute('''
+                SELECT u.id, u.full_name
+                FROM users u
+                JOIN lessons l ON l.class_id = u.class_id
+                WHERE l.id = %s AND u.role = 'student' AND u.school_id = %s
+                ORDER BY u.full_name
+            ''', (lesson_id, g.school_id))
+            class_students = [dict(s) for s in cursor.fetchall()]
+
+            cursor.execute('''
+                SELECT user_id FROM duel_excluded_students
+                WHERE lesson_id = %s
+            ''', (lesson_id,))
+            excluded_students = [r['user_id'] for r in cursor.fetchall()]
+
         # --------------------------------------------------
         # 6️⃣ Рендер страницы
         # --------------------------------------------------
@@ -447,7 +465,9 @@ def edit_lesson(lesson_id):
             tasks=[dict(t) for t in tasks],
             textbooks=[dict(tb) for tb in textbooks],
             lesson_templates=[dict(tpl) for tpl in lesson_templates],
-            duel_rounds=duel_rounds
+            duel_rounds=duel_rounds,
+            class_students=class_students,
+            excluded_students=excluded_students
         )
 
     finally:
@@ -1271,6 +1291,7 @@ def start_lesson(lesson_id):
                 SELECT dm.id AS match_id, dm.player1_id, dm.player2_id,
                        p1.full_name AS player1_name, p2.full_name AS player2_name,
                        dm.player1_score, dm.player2_score, dm.status,
+                       dm.overtime_active,
                        dr.id AS round_id, dr.round_number, dr.round_name, dr.time_seconds
                 FROM duel_rounds dr
                 LEFT JOIN duel_matches dm ON dm.round_id = dr.id
@@ -1294,7 +1315,8 @@ def start_lesson(lesson_id):
                         'player2_name': row['player2_name'],
                         'player1_score': row['player1_score'],
                         'player2_score': row['player2_score'],
-                        'status': row['status']
+                        'status': row['status'],
+                        'overtime_active': row.get('overtime_active', False)
                     }
                     current_round = {
                         'id': row['round_id'],
@@ -1316,6 +1338,16 @@ def start_lesson(lesson_id):
                     opponent_name = active_match['player1_name']
                     my_score = active_match['player2_score'] or 0
                     opponent_score = active_match['player1_score'] or 0
+
+            # Задания, решенные верно в основное время (не нужны в overtime)
+            solved_in_main_ids = []
+            if active_match and active_match.get('overtime_active'):
+                cursor.execute('''
+                    SELECT task_id FROM duel_match_answers
+                    WHERE match_id = %s AND user_id = %s AND is_correct = TRUE
+                      AND (is_overtime = FALSE OR is_overtime IS NULL)
+                ''', (active_match['id'], user_id))
+                solved_in_main_ids = [r['task_id'] for r in cursor.fetchall()]
 
             # 📋 Генерируем варианты заданий текущего раунда
             duel_tasks = []
@@ -1422,7 +1454,8 @@ def start_lesson(lesson_id):
                 current_round=current_round,
                 opponent_name=opponent_name,
                 my_score=my_score,
-                opponent_score=opponent_score
+                opponent_score=opponent_score,
+                solved_in_main_ids=solved_in_main_ids
             )
 
         return render_template(
@@ -3561,25 +3594,7 @@ def generate_retry_task(task_id):
         else:
             saved_variant = raw_variant or {}
 
-        # 3. Если retry уже был ранее сгенерирован — возвращаем его,
-        #    а не создаём заново и не трогаем основной вариант
-        existing_retry_question = saved_variant.get('retry_generated_question')
-        existing_retry_answer = saved_variant.get('retry_computed_answer')
-        existing_retry_params = saved_variant.get('retry_params')
-        existing_retry_idx = saved_variant.get('retry_choice_idx')
-
-        if existing_retry_question and existing_retry_answer:
-            return jsonify({
-                'question': existing_retry_question,
-                'correct_answer': existing_retry_answer,
-                'params': existing_retry_params or {},
-                'choice_idx': existing_retry_idx
-            })
-
-        # 4. Берём ИСХОДНЫЙ индекс (для старых заданий может отсутствовать)
-        original_idx = saved_variant.get('initial_choice_idx')
-
-        # 6. Подготавливаем template_dict
+        # 3. Подготавливаем template_dict
         params = task['parameters']
         if isinstance(params, str):
             try:
@@ -3588,17 +3603,6 @@ def generate_retry_task(task_id):
                 params = {}
         elif not isinstance(params, dict):
             params = {}
-
-        # 5. Вычисляем retry-индекс на основе реальной длины choice-массива
-        retry_idx = None
-        if original_idx is not None:
-            original_idx = int(original_idx)
-            choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
-            if choice_keys:
-                choice_len = len(params[choice_keys[0]]['values'])
-                retry_idx = (original_idx + choice_len // 2) % choice_len
-            else:
-                retry_idx = original_idx
 
         template_dict = {
             'id': task['template_id'],
@@ -3609,22 +3613,18 @@ def generate_retry_task(task_id):
             'answer_type': task['answer_type'] or 'numeric'
         }
 
-        # 7. Генерируем retry-вариант
-        variant = TaskGenerator.generate_task_variant(
-            template_dict,
-            forced_choice_idx=retry_idx
-        )
+        # 4. Генерируем полностью новый случайный вариант
+        student_mark = infer_student_mark(user_id)
+        variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
 
         if not variant:
             return jsonify({'error': 'Не удалось сгенерировать retry-вариант'}), 500
 
-        # 8. ВАЖНО:
-        # НЕ перетираем основной вариант,
-        # а сохраняем retry отдельно
+        # 5. Сохраняем retry поверх предыдущего (каждый раз новый)
         saved_variant['retry_generated_question'] = variant['question']
         saved_variant['retry_computed_answer'] = variant['correct_answer']
         saved_variant['retry_params'] = variant['params']
-        saved_variant['retry_choice_idx'] = retry_idx
+        saved_variant['retry_choice_idx'] = variant.get('choice_idx')
 
         cursor.execute('''
             UPDATE student_task_variants
@@ -3648,7 +3648,7 @@ def generate_retry_task(task_id):
             'question': variant['question'],
             'correct_answer': variant['correct_answer'],
             'params': variant['params'],
-            'choice_idx': retry_idx
+            'choice_idx': variant.get('choice_idx')
         })
 
     except Exception as e:
@@ -4635,12 +4635,15 @@ def start_duel(lesson_id):
 
         class_id = lesson['class_id']
 
-        # Получаем учеников класса
+        # Получаем учеников класса, исключая тех, кто исключён из дуэли
         cursor.execute('''
             SELECT id, full_name FROM users
             WHERE class_id = %s AND role = 'student' AND school_id = %s
+              AND id NOT IN (
+                  SELECT user_id FROM duel_excluded_students WHERE lesson_id = %s
+              )
             ORDER BY id
-        ''', (class_id, g.school_id))
+        ''', (class_id, g.school_id, lesson_id))
         students = cursor.fetchall()
 
         if len(students) < 2:
@@ -4716,7 +4719,7 @@ def get_my_duel_match(lesson_id):
         cursor.execute('''
             SELECT id, round_number, round_name, time_seconds, status
             FROM duel_rounds
-            WHERE lesson_id = %s AND status = 'active'
+            WHERE lesson_id = %s AND status IN ('active', 'overtime')
             ORDER BY round_number
             LIMIT 1
         ''', (lesson_id,))
@@ -4871,7 +4874,9 @@ def get_my_duel_match(lesson_id):
             'match': dict(match),
             'round': dict(current_round),
             'tasks': tasks,
-            'next_match': dict(next_match) if next_match else None
+            'next_match': dict(next_match) if next_match else None,
+            'overtime_active': bool(match.get('overtime_active')),
+            'overtime_ends_at': match['overtime_ended_at'].isoformat() if match.get('overtime_ended_at') else None
         }))
     except Exception as e:
         conn.rollback()
@@ -4893,7 +4898,8 @@ def submit_duel_answer(match_id):
     answer = data.get('answer', '')
     is_correct = data.get('is_correct', False)
     ai_solution = data.get('ai_solution', '')
-    print(f"[DUEL ANSWER] match_id={match_id} user_id={user_id} task_id={task_id} is_correct={is_correct}")
+    is_overtime = data.get('is_overtime', False)
+    print(f"[DUEL ANSWER] match_id={match_id} user_id={user_id} task_id={task_id} is_correct={is_correct} is_overtime={is_overtime}")
 
     conn = get_db()
     try:
@@ -4901,7 +4907,7 @@ def submit_duel_answer(match_id):
 
         # Проверяем, что матч активен и ученик в нём участвует
         cursor.execute('''
-            SELECT status, player1_id, player2_id, round_id FROM duel_matches
+            SELECT status, player1_id, player2_id, round_id, overtime_active FROM duel_matches
             WHERE id = %s AND (player1_id = %s OR player2_id = %s)
         ''', (match_id, user_id, user_id))
         row = cursor.fetchone()
@@ -4912,30 +4918,38 @@ def submit_duel_answer(match_id):
             print(f"[DUEL ANSWER] Match not active: match_id={match_id} status={row[0]}")
             return jsonify({'error': 'Матч не активен'}), 400
 
+        # Автоопределяем overtime по флагу матча, если клиент не прислал
+        if not is_overtime and row[4]:
+            is_overtime = True
+
         # Сохраняем ответ
         cursor.execute('''
-            INSERT INTO duel_match_answers (match_id, user_id, task_id, answer, is_correct, ai_solution)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO duel_match_answers (match_id, user_id, task_id, answer, is_correct, ai_solution, is_overtime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT DO NOTHING
-        ''', (match_id, user_id, task_id, answer, is_correct, ai_solution))
+        ''', (match_id, user_id, task_id, answer, is_correct, ai_solution, is_overtime))
         print(f"[DUEL ANSWER] Saved answer for match_id={match_id} user_id={user_id} task_id={task_id}")
 
-        # Обновляем счёт матча и время первого правильного ответа
+        # Обновляем счёт матча, время первого и последнего правильного ответа
         if is_correct:
             if user_id == row[1]:  # player1
                 cursor.execute('''
                     UPDATE duel_matches
                     SET player1_score = player1_score + 1,
-                        player1_first_correct_at = COALESCE(player1_first_correct_at, CURRENT_TIMESTAMP)
+                        player1_first_correct_at = COALESCE(player1_first_correct_at, CURRENT_TIMESTAMP),
+                        player1_last_correct_at = CURRENT_TIMESTAMP
                     WHERE id = %s
                 ''', (match_id,))
+                print(f"[DUEL ANSWER] Updated p1_score for match_id={match_id}")
             elif user_id == row[2]:  # player2
                 cursor.execute('''
                     UPDATE duel_matches
                     SET player2_score = player2_score + 1,
-                        player2_first_correct_at = COALESCE(player2_first_correct_at, CURRENT_TIMESTAMP)
+                        player2_first_correct_at = COALESCE(player2_first_correct_at, CURRENT_TIMESTAMP),
+                        player2_last_correct_at = CURRENT_TIMESTAMP
                     WHERE id = %s
                 ''', (match_id,))
+                print(f"[DUEL ANSWER] Updated p2_score for match_id={match_id}")
 
         conn.commit()
         return jsonify({'success': True})
@@ -5078,10 +5092,10 @@ def advance_duel_round(lesson_id):
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # Текущий раунд (active или completed)
+        # Текущий раунд (active, overtime или completed)
         cursor.execute('''
             SELECT id, round_number, status FROM duel_rounds
-            WHERE lesson_id = %s AND status IN ('active', 'completed')
+            WHERE lesson_id = %s AND status IN ('active', 'overtime', 'completed')
             ORDER BY round_number DESC LIMIT 1
         ''', (lesson_id,))
         current_round = cursor.fetchone()
@@ -5092,7 +5106,7 @@ def advance_duel_round(lesson_id):
         current_round_num = current_round['round_number']
 
         # Если текущий раунд ещё не остановлен — сообщаем
-        if current_round['status'] == 'active':
+        if current_round['status'] in ('active', 'overtime'):
             return jsonify({'error': 'Сначала остановите текущий раунд'}), 400
 
         # Определяем, является ли текущий раунд финалом (последним)
@@ -5308,8 +5322,9 @@ def _finalize_duel_leaderboard(conn, cursor, lesson_id):
     cursor.execute('UPDATE lessons SET ended = TRUE WHERE id = %s', (lesson_id,))
 
 
-def _resolve_match_winner(p1_id, p2_id, p1_score, p2_score, p1_first, p2_first):
-    """Определить победителя матча. Возвращает (winner_id, loser_id, tie_reason)."""
+def _resolve_match_winner(p1_id, p2_id, p1_score, p2_score, p1_first, p2_first, p1_last, p2_last):
+    """Определить победителя матча. Возвращает (winner_id, loser_id, tie_reason).
+    Иерархия: score -> first_correct -> last_correct -> random."""
     p1_score = p1_score or 0
     p2_score = p2_score or 0
 
@@ -5318,39 +5333,53 @@ def _resolve_match_winner(p1_id, p2_id, p1_score, p2_score, p1_first, p2_first):
     elif p2_score > p1_score:
         return p2_id, p1_id, 'score'
     else:
-        # Ничья — по времени первого правильного ответа
+        # Ничья — сначала по first_correct (кто раньше начал)
         if p1_first and p2_first:
             if p1_first < p2_first:
                 return p1_id, p2_id, 'first_correct'
             elif p2_first < p1_first:
                 return p2_id, p1_id, 'first_correct'
-            else:
-                import random
-                winner = random.choice([p1_id, p2_id])
-                return winner, (p2_id if winner == p1_id else p1_id), 'random'
+            # одинаковое first_correct — переходим к last_correct
         elif p1_first:
             return p1_id, p2_id, 'first_correct'
         elif p2_first:
             return p2_id, p1_id, 'first_correct'
-        else:
-            import random
-            winner = random.choice([p1_id, p2_id])
-            return winner, (p2_id if winner == p1_id else p1_id), 'random'
+
+        # last_correct (кто раньше закончил)
+        if p1_last and p2_last:
+            if p1_last < p2_last:
+                return p1_id, p2_id, 'last_correct'
+            elif p2_last < p1_last:
+                return p2_id, p1_id, 'last_correct'
+        elif p1_last:
+            return p1_id, p2_id, 'last_correct'
+        elif p2_last:
+            return p2_id, p1_id, 'last_correct'
+
+        import random
+        winner = random.choice([p1_id, p2_id])
+        return winner, (p2_id if winner == p1_id else p1_id), 'random'
 
 
 def _complete_all_matches_in_round(conn, cursor, round_id):
-    """Завершить все незавершённые матчи в раунде."""
+    """Завершить все незавершённые матчи в раунде. Учитывает overtime очки."""
     cursor.execute('''
         SELECT id, player1_id, player2_id, player1_score, player2_score,
-               player1_first_correct_at, player2_first_correct_at, status
+               player1_first_correct_at, player2_first_correct_at,
+               player1_last_correct_at, player2_last_correct_at, status,
+               overtime_active
         FROM duel_matches
         WHERE round_id = %s AND status != 'completed'
     ''', (round_id,))
     for m in cursor.fetchall():
+        p1_score = m['player1_score'] or 0
+        p2_score = m['player2_score'] or 0
+
         w, l, reason = _resolve_match_winner(
             m['player1_id'], m['player2_id'],
-            m['player1_score'], m['player2_score'],
-            m['player1_first_correct_at'], m['player2_first_correct_at']
+            p1_score, p2_score,
+            m['player1_first_correct_at'], m['player2_first_correct_at'],
+            m['player1_last_correct_at'], m['player2_last_correct_at']
         )
         cursor.execute('''
             UPDATE duel_matches
@@ -5371,7 +5400,7 @@ def stop_duel_round(lesson_id):
 
         cursor.execute('''
             SELECT id, round_number FROM duel_rounds
-            WHERE lesson_id = %s AND status = 'active'
+            WHERE lesson_id = %s AND status IN ('active', 'overtime')
             ORDER BY round_number DESC LIMIT 1
         ''', (lesson_id,))
         current_round = cursor.fetchone()
@@ -5385,8 +5414,173 @@ def stop_duel_round(lesson_id):
             WHERE id = %s
         ''', (current_round['id'],))
 
+        # Проверяем, можно ли запустить overtime (есть следующий раунд и не было overtime)
+        cursor.execute('''
+            SELECT COUNT(*) as cnt
+            FROM duel_matches
+            WHERE round_id = %s AND overtime_active = TRUE
+        ''', (current_round['id'],))
+        had_overtime = cursor.fetchone()['cnt'] > 0
+
+        cursor.execute('''
+            SELECT COUNT(*) as cnt
+            FROM duel_rounds
+            WHERE lesson_id = %s AND round_number > %s
+        ''', (lesson_id, current_round['round_number']))
+        has_next_round = cursor.fetchone()['cnt'] > 0
+        needs_overtime = has_next_round and not had_overtime
+
         conn.commit()
-        return jsonify({'success': True, 'round_number': current_round['round_number']})
+        return jsonify({'success': True, 'round_number': current_round['round_number'], 'needs_overtime': needs_overtime})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/start-overtime', methods=['POST'])
+def start_overtime(lesson_id):
+    """Запустить дополнительное время для матчей 0-0 в текущем раунде."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    time_seconds = int(data.get('time_seconds', 300))
+    if time_seconds < 10:
+        return jsonify({'error': 'Минимум 10 секунд'}), 400
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cursor.execute('''
+            SELECT id FROM duel_rounds
+            WHERE lesson_id = %s AND status = 'completed'
+            ORDER BY round_number DESC LIMIT 1
+        ''', (lesson_id,))
+        current_round = cursor.fetchone()
+        if not current_round:
+            return jsonify({'error': 'Нет завершенного раунда'}), 400
+
+        # Сбрасываем ВСЕ матчи раунда для overtime (сохраняем текущие очки)
+        cursor.execute('''
+            UPDATE duel_matches
+            SET status = 'active',
+                winner_id = NULL,
+                loser_id = NULL,
+                overtime_active = TRUE,
+                overtime_started_at = CURRENT_TIMESTAMP,
+                overtime_ended_at = CURRENT_TIMESTAMP + INTERVAL '%s seconds'
+            WHERE round_id = %s
+        ''', (time_seconds, current_round['id']))
+
+        # Переводим раунд в статус overtime, чтобы ученики видели активный раунд
+        cursor.execute('''
+            UPDATE duel_rounds
+            SET status = 'overtime',
+                time_seconds = %s,
+                started_at = CURRENT_TIMESTAMP,
+                ended_at = CURRENT_TIMESTAMP + INTERVAL '%s seconds'
+            WHERE id = %s
+        ''', (time_seconds, time_seconds, current_round['id']))
+
+        # ==== Генерация новых вариантов задач для ВСЕХ учеников ====
+        cursor.execute('''
+            SELECT lt.id, lt.question, lt.answer, lt.template_id, lt.photo_path
+            FROM lesson_tasks lt
+            JOIN duel_round_tasks drt ON drt.task_id = lt.id
+            WHERE drt.round_id = %s
+            ORDER BY drt.position
+        ''', (current_round['id'],))
+        round_tasks = cursor.fetchall()
+
+        # Кэшируем шаблоны
+        template_cache = {}
+        for t in round_tasks:
+            if t['template_id'] and t['template_id'] not in template_cache:
+                cursor.execute('SELECT * FROM task_templates WHERE id = %s', (t['template_id'],))
+                tmpl = cursor.fetchone()
+                if tmpl:
+                    td = dict(tmpl)
+                    p = td.get('parameters', '{}')
+                    if isinstance(p, str):
+                        try:
+                            p = json.loads(p)
+                        except Exception:
+                            p = {}
+                    td['parameters'] = p
+                    template_cache[t['template_id']] = td
+
+        cursor.execute('''
+            SELECT id, player1_id, player2_id FROM duel_matches
+            WHERE round_id = %s
+        ''', (current_round['id'],))
+        round_matches = cursor.fetchall()
+
+        print(f"[OVERTIME] Generating ALL new variants for round={current_round['id']} tasks={len(round_tasks)} matches={len(round_matches)}")
+        for m in round_matches:
+            for player_id in (m['player1_id'], m['player2_id']):
+                if not player_id:
+                    continue
+                try:
+                    student_mark = infer_student_mark(player_id)
+                    for t in round_tasks:
+                        # Генерируем НОВЫЙ вариант для ВСЕХ задач (независимо от предыдущих ответов)
+                        variant = None
+                        if t['template_id'] and t['template_id'] in template_cache:
+                            td = template_cache[t['template_id']]
+                            variant = TaskGenerator.generate_task_variant(td, band=student_mark)
+                            if variant:
+                                if td.get('photo_path'):
+                                    question = ''
+                                    computed_answer = variant['correct_answer']
+                                    answer_type = td.get('answer_type', 'numeric')
+                                else:
+                                    question = variant['question']
+                                    computed_answer = variant['correct_answer']
+                                    answer_type = td.get('answer_type', 'numeric')
+                            else:
+                                question = t['question']
+                                computed_answer = t['answer']
+                                answer_type = 'numeric'
+                        else:
+                            question = t['question']
+                            computed_answer = t['answer']
+                            answer_type = 'numeric'
+
+                        photo_path = t.get('photo_path', '') or ''
+
+                        cursor.execute('''
+                            INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
+                            VALUES (%s, %s, %s, %s, %s)
+                            ON CONFLICT (lesson_id, user_id, task_id)
+                            DO UPDATE SET variant_data = EXCLUDED.variant_data, created_at = CURRENT_TIMESTAMP
+                        ''', (
+                            lesson_id, player_id, t['id'],
+                            json.dumps({
+                                'params': variant.get('params', {}) if variant else {},
+                                'generated_question': question,
+                                'computed_answer': computed_answer,
+                                'photo_path': photo_path,
+                                'initial_choice_idx': variant.get('choice_idx') if variant else None,
+                                'current_choice_idx': variant.get('choice_idx') if variant else None,
+                                'is_retry': False,
+                                'retry_generated_question': None,
+                                'retry_computed_answer': None,
+                                'retry_params': None,
+                                'retry_choice_idx': None
+                            }),
+                            g.school_id
+                        ))
+                        print(f"[OVERTIME] New variant task={t['id']} player={player_id} answer={computed_answer}")
+                except Exception as e:
+                    print(f"[OVERTIME] Error generating variant for match={m['id']} player={player_id}: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+        conn.commit()
+        return jsonify({'success': True, 'time_seconds': time_seconds})
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -5487,6 +5681,70 @@ def get_duel_leaderboard(lesson_id):
         conn.close()
 
 
+@app.route('/api/duel/<int:lesson_id>/excluded_students', methods=['GET'])
+def get_excluded_students(lesson_id):
+    """Получить список учеников, исключённых из дуэли."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_db()
+    try:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('''
+            SELECT des.user_id, u.full_name
+            FROM duel_excluded_students des
+            JOIN users u ON u.id = des.user_id
+            WHERE des.lesson_id = %s
+            ORDER BY u.full_name
+        ''', (lesson_id,))
+        rows = cursor.fetchall()
+        return jsonify({'excluded': [{'user_id': r['user_id'], 'full_name': r['full_name']} for r in rows]})
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/exclude/<int:student_id>', methods=['POST'])
+def exclude_student_from_duel(lesson_id, student_id):
+    """Исключить ученика из дуэли."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO duel_excluded_students (lesson_id, user_id)
+            VALUES (%s, %s)
+            ON CONFLICT DO NOTHING
+        ''', (lesson_id, student_id))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/duel/<int:lesson_id>/include/<int:student_id>', methods=['POST'])
+def include_student_in_duel(lesson_id, student_id):
+    """Вернуть ученика в дуэль."""
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            DELETE FROM duel_excluded_students
+            WHERE lesson_id = %s AND user_id = %s
+        ''', (lesson_id, student_id))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
 @app.route('/api/duel/<int:lesson_id>/bracket', methods=['GET'])
 def get_duel_bracket(lesson_id):
     """Получить полную структуру турнирной сетки с детальной статистикой."""
@@ -5577,15 +5835,33 @@ def get_duel_status(lesson_id):
         ''', (lesson_id,))
         rounds = [dict(r) for r in cursor.fetchall()]
 
-        active_round = next((r for r in rounds if r['status'] == 'active'), None)
+        active_round = next((r for r in rounds if r['status'] in ('active', 'overtime')), None)
         completed_rounds = [r for r in rounds if r['status'] == 'completed']
         last_completed = max(completed_rounds, key=lambda r: r['round_number']) if completed_rounds else None
+
+        # Overtime доступен для завершённого раунда, если есть следующий и не было overtime
+        needs_overtime = False
+        if last_completed and not active_round:
+            cursor.execute('''
+                SELECT COUNT(*) as cnt
+                FROM duel_matches
+                WHERE round_id = %s AND overtime_active = TRUE
+            ''', (last_completed['id'],))
+            had_overtime = cursor.fetchone()['cnt'] > 0
+
+            cursor.execute('''
+                SELECT COUNT(*) as cnt
+                FROM duel_rounds
+                WHERE lesson_id = %s AND round_number > %s
+            ''', (lesson_id, last_completed['round_number']))
+            needs_overtime = cursor.fetchone()['cnt'] > 0 and not had_overtime
 
         return jsonify(_json_safe({
             'is_duel': bool(lesson['is_duel']) if lesson else False,
             'ended': bool(lesson['ended']) if lesson else False,
             'active_round': dict(active_round) if active_round else None,
             'last_completed_round': dict(last_completed) if last_completed else None,
+            'needs_overtime': needs_overtime,
             'rounds': rounds
         }))
     finally:

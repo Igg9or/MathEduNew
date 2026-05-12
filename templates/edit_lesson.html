@@ -1001,8 +1001,41 @@
                         <button id="nextRoundBtn" class="btn btn-primary" style="display:none;">
                             <i class="fas fa-forward"></i> Следующий раунд
                         </button>
+                        <button id="startOvertimeBtn" class="btn btn-warning" style="display:none;">
+                            <i class="fas fa-clock"></i> Запустить доп. время
+                        </button>
+                        <input id="overtimeSeconds" type="number" value="300" min="10" max="1800" class="form-control" style="display:none; width:90px;" title="Секунды">
                     </div>
                 </div>
+
+                <!-- Модальное окно управления участниками дуэли -->
+                <div id="participantsModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+                    <div style="background:var(--card); border-radius:var(--radius); padding:24px; max-width:500px; width:90%; max-height:80vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="font-size:18px; font-weight:700;"><i class="fas fa-users" style="color:var(--primary);"></i> Участники дуэли</h3>
+                            <button onclick="document.getElementById('participantsModal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                        </div>
+                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">Уберите галочку, чтобы исключить ученика из дуэли. Исключённые ученики не будут участвовать в жеребьёвке.</p>
+                        <div id="duelParticipantsList" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; padding-right:4px;">
+                            {% for student in class_students %}
+                            <label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+                                <input type="checkbox" class="duel-participant-checkbox" data-user-id="{{ student.id }}" {% if student.id not in excluded_students %}checked{% endif %} style="width:18px; height:18px; cursor:pointer;">
+                                <span style="font-size:14px;">{{ student.full_name }}</span>
+                                {% if student.id in excluded_students %}
+                                <span class="excluded-badge" style="font-size:11px; color:var(--error); background:var(--error-light); padding:2px 8px; border-radius:12px; margin-left:auto;">Исключён</span>
+                                {% else %}
+                                <span class="included-badge" style="font-size:11px; color:var(--success); background:var(--success-light); padding:2px 8px; border-radius:12px; margin-left:auto;">Участвует</span>
+                                {% endif %}
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <button onclick="document.getElementById('participantsModal').style.display='none'" style="margin-top:16px; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Готово</button>
+                    </div>
+                </div>
+
+                <button id="manageParticipantsBtn" class="btn btn-primary" style="margin-top:16px; width:100%;">
+                    <i class="fas fa-users-cog"></i> Управление участниками дуэли
+                </button>
 
                 <div id="duelRoundsContainer" style="display: flex; flex-direction: column; gap: 16px;">
                     {% for round in duel_rounds %}

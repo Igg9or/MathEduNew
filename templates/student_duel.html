@@ -162,6 +162,11 @@
             background: var(--error-light); color: #991b1b; border: 1px solid #fca5a5;
             padding: 12px; border-radius: 8px;
         }
+        .feedback-unanswered {
+            background: var(--warning-light); color: #92400e; border: 1px solid #fcd34d;
+            padding: 12px; border-radius: 8px;
+            display: flex; align-items: center; gap: 8px; font-weight: 600;
+        }
         .correct-answer { font-weight: 700; color: var(--error); }
         .feedback-ai {
             margin-top: 12px; padding: 16px; background: #f8fafc;
@@ -321,6 +326,10 @@
                         <div class="feedback-incorrect hidden">
                             Ответ неверный. Правильный ответ: <span class="correct-answer">{{ task.correct_answer }}</span>
                         </div>
+                        <div class="feedback-unanswered hidden">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Вы не ответили на это задание. Правильный ответ: <span class="correct-answer">{{ task.correct_answer }}</span></span>
+                        </div>
                         <div class="feedback-ai hidden">
                             <div class="feedback-ai-title">Пошаговое решение:</div>
                             <div class="ai-solution-text"></div>
@@ -388,7 +397,9 @@
             roundNumber: {{ current_round.round_number if current_round else 'null' }},
             userId: {{ user_id }},
             timeSeconds: {{ current_round.time_seconds if current_round else 0 }},
-            matchStatus: '{{ match.status if match else '' }}'
+            matchStatus: '{{ match.status if match else '' }}',
+            overtimeActive: {{ 'true' if match and match.overtime_active else 'false' }},
+            solvedInMain: {{ solved_in_main_ids|tojson|safe }}
         };
     </script>
     <script>
@@ -402,6 +413,7 @@
             var timerInterval = null;
             var timeLeft = timeSeconds;
             var roundEnded = false;
+            var overlayShown = false;
 
             console.log('[DUEL] Inline script start. matchId=' + matchId + ' timeSeconds=' + timeSeconds);
 
@@ -451,6 +463,8 @@
             }
 
             function showOverlay() {
+                if (overlayShown) return;
+                overlayShown = true;
                 var overlay = document.getElementById('roundOverOverlay');
                 var resultEl = document.getElementById('overlayResult');
                 var scoresEl = document.getElementById('overlayScores');
@@ -505,8 +519,12 @@
             // ====== ANSWER CHECKING ======
             async function checkDuelAnswer(taskCard) {
                 if (roundEnded) return;
+                var taskId = parseInt(taskCard.dataset.taskId);
+                if (cfg.overtimeActive && cfg.solvedInMain && cfg.solvedInMain.indexOf(taskId) !== -1) {
+                    return; // уже решено в основное время
+                }
 
-                var taskId = taskCard.dataset.taskId;
+                taskId = taskCard.dataset.taskId;
                 var input = taskCard.querySelector('.answer-input');
                 var btn = taskCard.querySelector('.btn-check');
                 var userAnswer = input.value.trim();
@@ -655,36 +673,63 @@
                 try {
                     var res = await fetch('/api/duel/match/' + matchId + '/my_answers');
                     var data = await res.json();
-                    if (!data.answers) return;
-
                     var answerMap = {};
-                    data.answers.forEach(function(a) { answerMap[a.task_id] = a; });
+                    if (data.answers) {
+                        data.answers.forEach(function(a) { answerMap[a.task_id] = a; });
+                    }
+
+                    var aiPromises = [];
 
                     document.querySelectorAll('.task-card').forEach(function(card) {
                         var taskId = parseInt(card.dataset.taskId);
                         var ans = answerMap[taskId];
-                        if (!ans) return;
 
                         var feedback = card.querySelector('.task-feedback');
                         var savedFb = card.querySelector('.feedback-saved');
                         var correctFb = card.querySelector('.feedback-correct');
                         var incorrectFb = card.querySelector('.feedback-incorrect');
+                        var unansweredFb = card.querySelector('.feedback-unanswered');
                         var aiFb = card.querySelector('.feedback-ai');
                         var status = card.querySelector('.task-status');
 
                         feedback.classList.remove('hidden');
-                        savedFb.classList.add('hidden');
+                        if (savedFb) savedFb.classList.add('hidden');
+                        if (correctFb) correctFb.classList.add('hidden');
+                        if (incorrectFb) incorrectFb.classList.add('hidden');
+                        if (unansweredFb) unansweredFb.classList.add('hidden');
+                        if (aiFb) aiFb.classList.add('hidden');
 
-                        if (ans.is_correct) {
+                        if (!ans) {
+                            // Задание не решено
+                            if (unansweredFb) {
+                                unansweredFb.classList.remove('hidden');
+                                unansweredFb.querySelector('.correct-answer').textContent = card.dataset.correctAnswer || '';
+                            }
+                            if (status) status.style.backgroundColor = 'var(--warning)';
+                            // Загружаем AI-решение асинхронно
+                            aiPromises.push((async function(c) {
+                                try {
+                                    var aiData = await fetchAIExplanation(c, '');
+                                    if (aiData.solution) {
+                                        var cAiFb = c.querySelector('.feedback-ai');
+                                        if (cAiFb) {
+                                            cAiFb.classList.remove('hidden');
+                                            cAiFb.querySelector('.ai-solution-text').innerHTML = aiData.solution;
+                                            if (window.MathJax && window.MathJax.typesetPromise) {
+                                                await window.MathJax.typesetPromise([cAiFb.querySelector('.ai-solution-text')]);
+                                            }
+                                        }
+                                    }
+                                } catch (e) { console.error('AI load for unanswered:', e); }
+                            })(card));
+                        } else if (ans.is_correct) {
                             correctFb.classList.remove('hidden');
-                            incorrectFb.classList.add('hidden');
-                            status.style.backgroundColor = 'var(--success)';
+                            if (status) status.style.backgroundColor = 'var(--success)';
                             card.classList.add('correct');
                         } else {
-                            correctFb.classList.add('hidden');
                             incorrectFb.classList.remove('hidden');
                             incorrectFb.querySelector('.correct-answer').textContent = ans.correct_answer || card.dataset.correctAnswer || '';
-                            status.style.backgroundColor = 'var(--error)';
+                            if (status) status.style.backgroundColor = 'var(--error)';
                             card.classList.add('incorrect');
 
                             if (ans.ai_solution) {
@@ -696,6 +741,8 @@
                             }
                         }
                     });
+
+                    await Promise.all(aiPromises);
                 } catch (e) {
                     console.error('Show results error:', e);
                 }
@@ -753,12 +800,15 @@
                                 });
                             }
                         }
-                        // Начался новый раунд — перезагружаем страницу для получения нового матча и заданий
+                        // Начался новый раунд или overtime — перезагружаем страницу
                         else if (data.active_round && (roundEnded || cfg.matchStatus !== 'active')) {
-                            console.log('[pollRoundStatus] new round detected', data.active_round.id, 'vs', cfg.roundId);
+                            console.log('[pollRoundStatus] new round or overtime detected', data.active_round.id, 'vs', cfg.roundId, 'overtime=', cfg.overtimeActive);
                             if (data.active_round.id !== cfg.roundId) {
                                 window.location.reload();
+                            } else if (data.active_round.status === 'overtime' && !cfg.overtimeActive) {
+                                window.location.reload();
                             }
+                            // Если страница уже загружена в overtime — не перезагружаем
                         }
                     })
                     .catch(function(e) { console.error('[pollRoundStatus] error', e); });
@@ -820,6 +870,26 @@
                 roundEnded = true;
                 showRoundResults().then(function() {
                     showOverlay();
+                });
+            }
+
+            // ====== OVERTIME: блокируем уже решенные в основное время ======
+            if (cfg.overtimeActive) {
+                document.querySelectorAll('.task-card').forEach(function(taskCard) {
+                    var taskId = parseInt(taskCard.dataset.taskId);
+                    if (cfg.solvedInMain && cfg.solvedInMain.indexOf(taskId) !== -1) {
+                        var checkBtn = taskCard.querySelector('.btn-check');
+                        var input = taskCard.querySelector('.answer-input');
+                        if (checkBtn) checkBtn.classList.add('hidden');
+                        if (input) { input.disabled = true; input.placeholder = 'Задание решено верно в основное время'; }
+                        var fbCorrect = taskCard.querySelector('.feedback-correct');
+                        if (fbCorrect) {
+                            var span = fbCorrect.querySelector('span');
+                            if (span) span.textContent = 'Задание решено верно в основное время';
+                            fbCorrect.classList.remove('hidden');
+                        }
+                        taskCard.classList.add('task-solved-main');
+                    }
                 });
             }
 
