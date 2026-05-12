@@ -1286,6 +1286,7 @@ def start_lesson(lesson_id):
 
         # 🎮 Если это дуэльный урок — рендерим специальный шаблон
         if lesson.get('is_duel'):
+            print(f"[START_LESSON] ENTER lesson={lesson_id} user={user_id} is_duel={lesson.get('is_duel')}")
             # Получаем текущий матч ученика
             cursor.execute('''
                 SELECT dm.id AS match_id, dm.player1_id, dm.player2_id,
@@ -1360,6 +1361,7 @@ def start_lesson(lesson_id):
                     ORDER BY drt.position
                 ''', (current_round['id'],))
                 base_tasks = cursor.fetchall()
+                print(f"[START_LESSON] lesson={lesson_id} user={user_id} round={current_round['id']} tasks={len(base_tasks)} match_status={active_match['status'] if active_match else 'none'} overtime={active_match.get('overtime_active') if active_match else 'none'}")
 
                 for task in base_tasks:
                     cursor.execute('''
@@ -1384,6 +1386,7 @@ def start_lesson(lesson_id):
                             r = cursor.fetchone()
                             answer_type = r['answer_type'] if r else 'numeric'
                     else:
+                        print(f"[START_LESSON] task={task['id']} user={user_id} NO variant_row, generating new")
                         if task['template_id']:
                             cursor.execute('SELECT * FROM task_templates WHERE id = %s', (task['template_id'],))
                             template = cursor.fetchone()
