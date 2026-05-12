@@ -1377,6 +1377,7 @@ def start_lesson(lesson_id):
                         question = variant_data.get('generated_question', task['question'])
                         computed_answer = variant_data.get('computed_answer', '')
                         photo_path = task.get('photo_path', '') or variant_data.get('photo_path', '') or ''
+                        print(f"[START_LESSON] task={task['id']} user={user_id} q={question[:70]} ans={computed_answer} raw_type={type(raw)}")
                         answer_type = 'numeric'
                         if task['template_id']:
                             cursor.execute('SELECT answer_type FROM task_templates WHERE id = %s', (task['template_id'],))
@@ -5551,29 +5552,32 @@ def start_overtime(lesson_id):
 
                         photo_path = t.get('photo_path', '') or ''
 
+                        variant_json = json.dumps({
+                            'params': variant.get('params', {}) if variant else {},
+                            'generated_question': question,
+                            'computed_answer': computed_answer,
+                            'photo_path': photo_path,
+                            'initial_choice_idx': variant.get('choice_idx') if variant else None,
+                            'current_choice_idx': variant.get('choice_idx') if variant else None,
+                            'is_retry': False,
+                            'retry_generated_question': None,
+                            'retry_computed_answer': None,
+                            'retry_params': None,
+                            'retry_choice_idx': None
+                        })
                         cursor.execute('''
                             INSERT INTO student_task_variants (lesson_id, user_id, task_id, variant_data, school_id)
                             VALUES (%s, %s, %s, %s, %s)
                             ON CONFLICT (lesson_id, user_id, task_id)
-                            DO UPDATE SET variant_data = EXCLUDED.variant_data, created_at = CURRENT_TIMESTAMP
+                            DO UPDATE SET variant_data = EXCLUDED.variant_data,
+                                          school_id = EXCLUDED.school_id,
+                                          created_at = CURRENT_TIMESTAMP
                         ''', (
                             lesson_id, player_id, t['id'],
-                            json.dumps({
-                                'params': variant.get('params', {}) if variant else {},
-                                'generated_question': question,
-                                'computed_answer': computed_answer,
-                                'photo_path': photo_path,
-                                'initial_choice_idx': variant.get('choice_idx') if variant else None,
-                                'current_choice_idx': variant.get('choice_idx') if variant else None,
-                                'is_retry': False,
-                                'retry_generated_question': None,
-                                'retry_computed_answer': None,
-                                'retry_params': None,
-                                'retry_choice_idx': None
-                            }),
+                            variant_json,
                             g.school_id
                         ))
-                        print(f"[OVERTIME] New variant task={t['id']} player={player_id} answer={computed_answer}")
+                        print(f"[OVERTIME] task={t['id']} player={player_id} q={question[:70]} ans={computed_answer}")
                 except Exception as e:
                     print(f"[OVERTIME] Error generating variant for match={m['id']} player={player_id}: {e}")
                     import traceback
