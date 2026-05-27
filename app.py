@@ -3541,6 +3541,31 @@ def infer_student_mark(user_id: int) -> int:
     finally:
         conn.close()
 
+def get_choice_len(template_params):
+    choice_lengths = [
+        len(config.get('values', []))
+        for config in (template_params or {}).values()
+        if isinstance(config, dict) and config.get('type') == 'choice'
+    ]
+    if len(choice_lengths) >= 2 and len(set(choice_lengths)) == 1:
+        return choice_lengths[0]
+    return None
+
+def get_retry_choice_idx(variant_data, template_params):
+    initial_choice_idx = variant_data.get('initial_choice_idx')
+    if initial_choice_idx is None:
+        initial_choice_idx = variant_data.get('current_choice_idx')
+    if initial_choice_idx is None:
+        initial_choice_idx = variant_data.get('retry_choice_idx')
+    if initial_choice_idx is None:
+        return None, None
+
+    initial_choice_idx = int(initial_choice_idx)
+    choice_len = get_choice_len(template_params)
+    if choice_len and choice_len > 1:
+        return initial_choice_idx, (initial_choice_idx + choice_len // 2) % choice_len
+    return initial_choice_idx, initial_choice_idx
+
 @app.route('/api/generate_retry_task/<int:task_id>')
 def generate_retry_task(task_id):
     if 'user_id' not in session:
@@ -3617,9 +3642,18 @@ def generate_retry_task(task_id):
             'answer_type': task['answer_type'] or 'numeric'
         }
 
-        # 4. Генерируем полностью новый случайный вариант
+        # 4. Generate the paired retry set: 1->3, 2->4, etc.
+        initial_choice_idx, retry_idx = get_retry_choice_idx(saved_variant, params)
+
         student_mark = infer_student_mark(user_id)
-        variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+        if retry_idx is None:
+            variant = TaskGenerator.generate_task_variant(template_dict, band=student_mark)
+        else:
+            variant = TaskGenerator.generate_task_variant(
+                template_dict,
+                band=student_mark,
+                forced_choice_idx=retry_idx
+            )
 
         if not variant:
             return jsonify({'error': 'Не удалось сгенерировать retry-вариант'}), 500
@@ -3629,6 +3663,10 @@ def generate_retry_task(task_id):
         saved_variant['retry_computed_answer'] = variant['correct_answer']
         saved_variant['retry_params'] = variant['params']
         saved_variant['retry_choice_idx'] = variant.get('choice_idx')
+        if initial_choice_idx is not None:
+            saved_variant['initial_choice_idx'] = initial_choice_idx
+        if variant.get('choice_idx') is not None:
+            saved_variant['current_choice_idx'] = variant.get('choice_idx')
 
         cursor.execute('''
             UPDATE student_task_variants
@@ -3807,22 +3845,13 @@ def student_retry_lesson(lesson_id):
             else:
                 old_variant_data = raw_variant_data or {}
 
-            initial_choice_idx = old_variant_data.get('initial_choice_idx')
+            initial_choice_idx, retry_idx = get_retry_choice_idx(old_variant_data, params)
 
             if initial_choice_idx is None:
                 print(f"У задания {t['task_id']} нет initial_choice_idx, пропускаю")
                 continue
 
-            initial_choice_idx = int(initial_choice_idx)
-
             # 2. Считаем парный retry-вариант на основе реальной длины choice-массива
-            choice_keys = [k for k, v in params.items() if isinstance(v, dict) and v.get('type') == 'choice']
-            if choice_keys:
-                choice_len = len(params[choice_keys[0]]['values'])
-                retry_idx = (initial_choice_idx + choice_len // 2) % choice_len
-            else:
-                retry_idx = initial_choice_idx
-
             # 3. Генерируем НЕ случайный вариант, а строго нужный
             variant = TaskGenerator.generate_task_variant(
                 template_dict,
