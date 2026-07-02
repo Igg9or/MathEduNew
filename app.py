@@ -40,6 +40,8 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+app.config['MAX_FORM_MEMORY_SIZE'] = 50 * 1024 * 1024
 from devtools.playground_routes import playground_bp
 app.register_blueprint(playground_bp, url_prefix="/api/dev")
 from platform_admin_routes import platform_admin_bp
@@ -66,6 +68,21 @@ def add_header(response):
     return response
 
 from flask import has_request_context
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    if request.path == "/dev/import-templates":
+        return render_template(
+            "dev_import_templates.html",
+            result={
+                "ok": False,
+                "msg": "JSON слишком большой для одного импорта. Разбейте файл на несколько частей или увеличьте лимит на сервере."
+            },
+            templates=[],
+            show_all=False,
+            just_imported=False
+        ), 413
+    return jsonify({"error": "Request Entity Too Large"}), 413
 
 @app.before_request
 def load_context():
